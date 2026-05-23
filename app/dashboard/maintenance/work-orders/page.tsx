@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
-import { listMasterItems } from "@/lib/api/master-items";
+import { listWorkOrders } from "@/lib/api/maintenance";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   DataTable,
@@ -21,11 +20,11 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Pagination } from "@/components/ui/pagination";
 import { SearchInput } from "@/components/ui/search-input";
 
-export default function MasterItemsPage() {
+export default function WorkOrdersPage() {
   const [search, setSearch] = useState("");
   const fetcher = useCallback(
     (params: { page: number; limit: number; search?: string }) =>
-      listMasterItems(params),
+      listWorkOrders(params),
     [],
   );
   const { items, meta, setPage, loading, error } = usePaginatedList(
@@ -36,15 +35,15 @@ export default function MasterItemsPage() {
   return (
     <div className="animate-in">
       <PageHeader
-        title="Master Items"
-        description="Katalog produk gas (serialized) dan suku cadang."
-        actionHref="/dashboard/master-items/new"
-        actionLabel="Tambah Item"
+        title="Work Order"
+        description="Perintah kerja pemeliharaan dan konsumsi spare part."
+        actionHref="/dashboard/maintenance/work-orders/new"
+        actionLabel="Buat WO"
       />
 
       <SearchInput
         className="mb-6"
-        placeholder="Cari nama, SKU, atau jenis gas..."
+        placeholder="Cari nomor WO atau judul..."
         value={search}
         onChange={(event) => setSearch(event.target.value)}
       />
@@ -55,42 +54,40 @@ export default function MasterItemsPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
-              <DataTableTh>SKU</DataTableTh>
-              <DataTableTh>Nama</DataTableTh>
-              <DataTableTh>Gas</DataTableTh>
-              <DataTableTh>Tipe</DataTableTh>
-              <DataTableTh>Stok</DataTableTh>
+              <DataTableTh>No. WO</DataTableTh>
+              <DataTableTh>Judul</DataTableTh>
+              <DataTableTh>Status</DataTableTh>
+              <DataTableTh>Dibuat</DataTableTh>
               <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={6} />
+                <DataTableLoading colSpan={5} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={6} />
+                <DataTableEmpty colSpan={5} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
-                    <DataTableTd className="font-mono text-slate-800">
-                      {item.sku}
+                    <DataTableTd className="font-mono font-medium">
+                      {item.wo_number}
                     </DataTableTd>
-                    <DataTableTd className="font-medium text-slate-900">
-                      {item.name}
-                    </DataTableTd>
-                    <DataTableTd>{item.gas_type || "—"}</DataTableTd>
+                    <DataTableTd className="font-medium">{item.title}</DataTableTd>
                     <DataTableTd>
-                      <Badge>
-                        {item.is_serialized ? "Tabung" : "Spare part"}
-                      </Badge>
+                      <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium">
+                        {item.status}
+                      </span>
                     </DataTableTd>
                     <DataTableTd>
-                      {item.is_serialized ? "—" : (item.stock_quantity ?? 0)}
+                      {item.created_at
+                        ? new Date(item.created_at).toLocaleDateString("id-ID")
+                        : "—"}
                     </DataTableTd>
                     <DataTableTd>
                       <Link
                         className="font-medium text-indigo-600 hover:text-indigo-700"
-                        href={`/dashboard/master-items/${item.id}/edit`}
+                        href={`/dashboard/maintenance/work-orders/${item.id}`}
                       >
-                        Edit
+                        Detail
                       </Link>
                     </DataTableTd>
                   </DataTableRow>

@@ -169,9 +169,228 @@ export interface RoleResponse {
   name: string;
 }
 
+export interface UserListResponse {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role_id: string;
+  role_name: string;
+  is_active?: boolean;
+  created_at?: string;
+  last_logged_in_at?: string;
+}
+
 export interface CreateUserRequest {
   name: string;
   email: string;
   password: string;
+  phone?: string;
   role_id: string;
+}
+
+export interface UpdateUserRequest {
+  name?: string;
+  email?: string;
+  password?: string;
+  phone?: string;
+  role_id?: string;
+  is_active?: boolean;
+}
+
+export interface CustomerQuotaAlert {
+  customer_id: string;
+  customer_code: string;
+  customer_name: string;
+  outstanding_count: number;
+  quota_limit: number;
+}
+
+export interface LowStockSparepartAlert {
+  item_id: string;
+  item_name: string;
+  sku: string;
+  quantity: number;
+  min_stock: number;
+}
+
+export interface DashboardSummaryResponse {
+  total_outstanding_cylinders: number;
+  cylinders_by_status: Record<string, number>;
+  hydrotest_due_soon_count: number;
+  hydrotest_expired_count: number;
+  customers_over_quota: CustomerQuotaAlert[];
+  low_stock_spareparts: LowStockSparepartAlert[];
+}
+
+export interface DeliveryOrderDetailResponse {
+  id: string;
+  cylinder_id: string;
+  barcode_sn: string;
+  weight_kg?: number;
+}
+
+export interface DeliveryOrderResponse {
+  id: string;
+  do_number: string;
+  customer_id: string;
+  customer_name?: string;
+  fleet_id?: string;
+  plate_number?: string;
+  status: string;
+  cylinder_qty: number;
+  total_weight_kg?: number;
+  notes?: string;
+  created_at?: string;
+  details?: DeliveryOrderDetailResponse[];
+}
+
+export interface IssueDeliveryOrderRequest {
+  customer_id: string;
+  fleet_id: string;
+  barcodes: string[];
+  notes?: string;
+}
+
+export interface ProcessExchangeRequest {
+  customer_id: string;
+  in_barcodes: string[];
+  out_barcodes: string[];
+  force_approve?: boolean;
+}
+
+export interface ExchangeResponse {
+  customer_id: string;
+  in_count: number;
+  out_count: number;
+  in_barcodes: string[];
+  out_barcodes: string[];
+  outstanding_before: number;
+  outstanding_after: number;
+  outstanding_delta: number;
+  cross_customer_alerts?: string[];
+}
+
+export interface FleetResponse {
+  id: string;
+  plate_number: string;
+  driver_name?: string;
+  max_weight_kg: number;
+  is_active?: boolean;
+}
+
+export interface CreateFleetRequest {
+  plate_number: string;
+  driver_name?: string;
+  max_weight_kg: number;
+}
+
+export interface UpdateFleetRequest {
+  driver_name?: string;
+  max_weight_kg?: number;
+  is_active?: boolean;
+}
+
+export interface WorkOrderSparepartResponse {
+  item_id: string;
+  item_name?: string;
+  sku?: string;
+  quantity: number;
+}
+
+export interface WorkOrderResponse {
+  id: string;
+  wo_number: string;
+  title: string;
+  description?: string;
+  status: string;
+  created_at?: string;
+  spareparts?: WorkOrderSparepartResponse[];
+}
+
+export interface WorkOrderSparepartLine {
+  item_id: string;
+  quantity: number;
+}
+
+export interface CreateWorkOrderRequest {
+  title: string;
+  description?: string;
+  spareparts: WorkOrderSparepartLine[];
+}
+
+export interface HydrotestDueCylinder {
+  id: string;
+  barcode_sn: string;
+  status: string;
+  last_hydrotest_date?: string;
+  expiry_date?: string;
+  is_expired: boolean;
+}
+
+export interface HydrotestDueResponse {
+  due_within_days: number;
+  items: HydrotestDueCylinder[];
+}
+
+export interface RecordHydrotestRequest {
+  last_hydrotest_date: string;
+  notes?: string;
+}
+
+export interface VirtualWarehouseCustomer {
+  customer_id: string;
+  customer_code: string;
+  customer_name: string;
+  outstanding_count: number;
+  cylinder_barcodes: string[];
+}
+
+export interface VirtualWarehouseResponse {
+  customers: VirtualWarehouseCustomer[];
+}
+
+export interface StockOpnameRequest {
+  item_id: string;
+  actual_quantity: number;
+  notes?: string;
+}
+
+export interface StockOpnameResponse {
+  item_id: string;
+  item_name?: string;
+  quantity_before: number;
+  quantity_after: number;
+  quantity_delta: number;
+}
+
+export interface CylinderLedgerEntryResponse {
+  id: string;
+  barcode_sn: string;
+  action: string;
+  from_status?: string;
+  to_status?: string;
+  reference_type?: string;
+  reference_id?: string;
+  created_at?: string;
+}
+
+export interface StockLedgerReportResponse {
+  barcode_sn: string;
+  entries: CylinderLedgerEntryResponse[];
+}
+
+export interface TurnaroundSample {
+  barcode_sn: string;
+  started_at?: string;
+  completed_at?: string;
+  days: number;
+}
+
+export interface TurnaroundReportResponse {
+  from_date?: string;
+  to_date?: string;
+  sample_count: number;
+  average_days: number;
+  samples: TurnaroundSample[];
 }

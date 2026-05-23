@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
-import { listMasterItems } from "@/lib/api/master-items";
+import { listDeliveryOrders } from "@/lib/api/outbound";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   DataTable,
@@ -21,11 +20,11 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Pagination } from "@/components/ui/pagination";
 import { SearchInput } from "@/components/ui/search-input";
 
-export default function MasterItemsPage() {
+export default function DeliveryOrdersPage() {
   const [search, setSearch] = useState("");
   const fetcher = useCallback(
     (params: { page: number; limit: number; search?: string }) =>
-      listMasterItems(params),
+      listDeliveryOrders(params),
     [],
   );
   const { items, meta, setPage, loading, error } = usePaginatedList(
@@ -36,15 +35,15 @@ export default function MasterItemsPage() {
   return (
     <div className="animate-in">
       <PageHeader
-        title="Master Items"
-        description="Katalog produk gas (serialized) dan suku cadang."
-        actionHref="/dashboard/master-items/new"
-        actionLabel="Tambah Item"
+        title="Surat Jalan"
+        description="Daftar delivery order dan pengiriman tabung ke pelanggan."
+        actionHref="/dashboard/outbound/delivery-orders/new"
+        actionLabel="Buat DO"
       />
 
       <SearchInput
         className="mb-6"
-        placeholder="Cari nama, SKU, atau jenis gas..."
+        placeholder="Cari nomor DO, pelanggan, atau plat..."
         value={search}
         onChange={(event) => setSearch(event.target.value)}
       />
@@ -55,42 +54,44 @@ export default function MasterItemsPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
-              <DataTableTh>SKU</DataTableTh>
-              <DataTableTh>Nama</DataTableTh>
-              <DataTableTh>Gas</DataTableTh>
-              <DataTableTh>Tipe</DataTableTh>
-              <DataTableTh>Stok</DataTableTh>
+              <DataTableTh>No. DO</DataTableTh>
+              <DataTableTh>Pelanggan</DataTableTh>
+              <DataTableTh>Armada</DataTableTh>
+              <DataTableTh>Qty</DataTableTh>
+              <DataTableTh>Berat (kg)</DataTableTh>
+              <DataTableTh>Status</DataTableTh>
               <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={6} />
+                <DataTableLoading colSpan={7} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={6} />
+                <DataTableEmpty colSpan={7} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
-                    <DataTableTd className="font-mono text-slate-800">
-                      {item.sku}
+                    <DataTableTd className="font-mono font-medium text-slate-800">
+                      {item.do_number}
                     </DataTableTd>
-                    <DataTableTd className="font-medium text-slate-900">
-                      {item.name}
-                    </DataTableTd>
-                    <DataTableTd>{item.gas_type || "—"}</DataTableTd>
+                    <DataTableTd>{item.customer_name || "—"}</DataTableTd>
+                    <DataTableTd>{item.plate_number || "—"}</DataTableTd>
+                    <DataTableTd>{item.cylinder_qty}</DataTableTd>
                     <DataTableTd>
-                      <Badge>
-                        {item.is_serialized ? "Tabung" : "Spare part"}
-                      </Badge>
+                      {item.total_weight_kg != null
+                        ? item.total_weight_kg.toFixed(1)
+                        : "—"}
                     </DataTableTd>
                     <DataTableTd>
-                      {item.is_serialized ? "—" : (item.stock_quantity ?? 0)}
+                      <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium">
+                        {item.status}
+                      </span>
                     </DataTableTd>
                     <DataTableTd>
                       <Link
                         className="font-medium text-indigo-600 hover:text-indigo-700"
-                        href={`/dashboard/master-items/${item.id}/edit`}
+                        href={`/dashboard/outbound/delivery-orders/${item.id}`}
                       >
-                        Edit
+                        Detail
                       </Link>
                     </DataTableTd>
                   </DataTableRow>

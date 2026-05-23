@@ -1,5 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getDashboardSummary } from "@/lib/api/dashboard";
+import type { DashboardSummaryResponse } from "@/lib/types/api";
 import { navIconMap } from "@/components/ui/icons";
+import { Alert } from "@/components/ui/alert";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   comingSoonModules,
@@ -9,7 +15,59 @@ import {
 
 const quickLinks = mainNavigation.filter((item) => item.href !== "/dashboard");
 
+function StatCard({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: string | number;
+  tone?: "default" | "warning" | "danger";
+}) {
+  const toneClass =
+    tone === "danger"
+      ? "border-rose-200 bg-rose-50/80"
+      : tone === "warning"
+        ? "border-amber-200 bg-amber-50/80"
+        : "border-slate-200 bg-white";
+
+  const valueClass =
+    tone === "danger"
+      ? "text-rose-700"
+      : tone === "warning"
+        ? "text-amber-700"
+        : "text-slate-900";
+
+  return (
+    <Card className={toneClass}>
+      <CardBody>
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          {label}
+        </p>
+        <p className={`mt-2 text-3xl font-semibold tabular-nums ${valueClass}`}>
+          {value}
+        </p>
+      </CardBody>
+    </Card>
+  );
+}
+
 export default function DashboardPage() {
+  const [summary, setSummary] = useState<DashboardSummaryResponse | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getDashboardSummary()
+      .then(setSummary)
+      .catch((err) =>
+        setError(err instanceof Error ? err.message : "Gagal memuat ringkasan"),
+      )
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="animate-in space-y-8">
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 text-white shadow-[var(--shadow-card)]">
@@ -23,11 +81,118 @@ export default function DashboardPage() {
             Dashboard Operasional
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300">
-            Pantau dan kelola alur gudang gas industri — master data, produksi,
-            hingga penerimaan tabung kosong.
+            Pantau outstanding tabung, status inventori, alert hydrotest, dan
+            pelanggan melebihi kuota.
           </p>
         </div>
       </section>
+
+      {error ? <Alert variant="error">{error}</Alert> : null}
+
+      <section>
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
+          Ringkasan Hari Ini
+        </h2>
+        {loading ? (
+          <p className="text-sm text-slate-500">Memuat data...</p>
+        ) : summary ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              label="Total Outstanding"
+              value={summary.total_outstanding_cylinders}
+            />
+            <StatCard
+              label="Hydrotest Due Soon"
+              value={summary.hydrotest_due_soon_count}
+              tone="warning"
+            />
+            <StatCard
+              label="Hydrotest Expired"
+              value={summary.hydrotest_expired_count}
+              tone="danger"
+            />
+            <StatCard
+              label="Pelanggan Over Kuota"
+              value={summary.customers_over_quota.length}
+              tone={
+                summary.customers_over_quota.length > 0 ? "danger" : "default"
+              }
+            />
+          </div>
+        ) : null}
+      </section>
+
+      {summary && Object.keys(summary.cylinders_by_status).length > 0 ? (
+        <section>
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            Tabung per Status
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(summary.cylinders_by_status).map(([status, count]) => (
+              <span
+                key={status}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm"
+              >
+                <span className="font-mono text-xs text-slate-500">{status}</span>
+                <span className="ml-2 font-semibold text-slate-900">{count}</span>
+              </span>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {summary &&
+      (summary.customers_over_quota.length > 0 ||
+        summary.low_stock_spareparts.length > 0) ? (
+        <div className="grid gap-6 lg:grid-cols-2">
+          {summary.customers_over_quota.length > 0 ? (
+            <Card>
+              <CardBody>
+                <h2 className="font-semibold text-rose-700">
+                  Pelanggan Melebihi Kuota
+                </h2>
+                <ul className="mt-4 space-y-2">
+                  {summary.customers_over_quota.map((c) => (
+                    <li
+                      key={c.customer_id}
+                      className="flex justify-between rounded-lg bg-rose-50/60 px-3 py-2 text-sm"
+                    >
+                      <span>
+                        {c.customer_code} — {c.customer_name}
+                      </span>
+                      <span className="font-medium text-rose-700">
+                        {c.outstanding_count}/{c.quota_limit}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </CardBody>
+            </Card>
+          ) : null}
+          {summary.low_stock_spareparts.length > 0 ? (
+            <Card>
+              <CardBody>
+                <h2 className="font-semibold text-amber-700">Stok Spare Part Rendah</h2>
+                <ul className="mt-4 space-y-2">
+                  {summary.low_stock_spareparts.map((item) => (
+                    <li
+                      key={item.item_id}
+                      className="flex justify-between rounded-lg bg-amber-50/60 px-3 py-2 text-sm"
+                    >
+                      <span>
+                        {item.sku} — {item.item_name}
+                      </span>
+                      <span className="font-medium text-amber-700">
+                        {item.quantity}/{item.min_stock}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </CardBody>
+            </Card>
+          ) : null}
+        </div>
+      ) : null}
 
       <section>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
@@ -58,24 +223,26 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <Card>
-        <CardBody>
-          <h2 className="font-semibold text-slate-900">Dalam pengembangan</h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Modul berikut menunggu endpoint API dari backend.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {comingSoonModules.map((item) => (
-              <span
-                key={item}
-                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600"
-              >
-                {item}
-              </span>
-            ))}
-          </div>
-        </CardBody>
-      </Card>
+      {comingSoonModules.length > 0 ? (
+        <Card>
+          <CardBody>
+            <h2 className="font-semibold text-slate-900">Dalam pengembangan</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Modul berikut menunggu endpoint API dari backend.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {comingSoonModules.map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
+      ) : null}
     </div>
   );
 }
