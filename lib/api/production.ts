@@ -34,3 +34,10 @@ export function preFillQc(payload: BarcodeListRequest) {
     body: JSON.stringify(payload),
   });
 }
+
+export function postFillQc(payload: BarcodeListRequest) {
+  return apiRequest<BarcodeOperationResponse>("/production/qc/post-fill", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}

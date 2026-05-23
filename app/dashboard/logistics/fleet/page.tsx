@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
-import { listMasterItems } from "@/lib/api/master-items";
+import { listFleet } from "@/lib/api/logistics";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -21,11 +21,11 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Pagination } from "@/components/ui/pagination";
 import { SearchInput } from "@/components/ui/search-input";
 
-export default function MasterItemsPage() {
+export default function FleetPage() {
   const [search, setSearch] = useState("");
   const fetcher = useCallback(
     (params: { page: number; limit: number; search?: string }) =>
-      listMasterItems(params),
+      listFleet(params),
     [],
   );
   const { items, meta, setPage, loading, error } = usePaginatedList(
@@ -36,15 +36,15 @@ export default function MasterItemsPage() {
   return (
     <div className="animate-in">
       <PageHeader
-        title="Master Items"
-        description="Katalog produk gas (serialized) dan suku cadang."
-        actionHref="/dashboard/master-items/new"
-        actionLabel="Tambah Item"
+        title="Armada"
+        description="Data kendaraan pengiriman dan kapasitas muat maksimum."
+        actionHref="/dashboard/logistics/fleet/new"
+        actionLabel="Tambah Armada"
       />
 
       <SearchInput
         className="mb-6"
-        placeholder="Cari nama, SKU, atau jenis gas..."
+        placeholder="Cari plat nomor atau sopir..."
         value={search}
         onChange={(event) => setSearch(event.target.value)}
       />
@@ -55,40 +55,34 @@ export default function MasterItemsPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
-              <DataTableTh>SKU</DataTableTh>
-              <DataTableTh>Nama</DataTableTh>
-              <DataTableTh>Gas</DataTableTh>
-              <DataTableTh>Tipe</DataTableTh>
-              <DataTableTh>Stok</DataTableTh>
+              <DataTableTh>Plat</DataTableTh>
+              <DataTableTh>Sopir</DataTableTh>
+              <DataTableTh>Max Berat (kg)</DataTableTh>
+              <DataTableTh>Status</DataTableTh>
               <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={6} />
+                <DataTableLoading colSpan={5} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={6} />
+                <DataTableEmpty colSpan={5} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
-                    <DataTableTd className="font-mono text-slate-800">
-                      {item.sku}
+                    <DataTableTd className="font-mono font-medium">
+                      {item.plate_number}
                     </DataTableTd>
-                    <DataTableTd className="font-medium text-slate-900">
-                      {item.name}
-                    </DataTableTd>
-                    <DataTableTd>{item.gas_type || "—"}</DataTableTd>
+                    <DataTableTd>{item.driver_name || "—"}</DataTableTd>
+                    <DataTableTd>{item.max_weight_kg}</DataTableTd>
                     <DataTableTd>
                       <Badge>
-                        {item.is_serialized ? "Tabung" : "Spare part"}
+                        {item.is_active === false ? "Nonaktif" : "Aktif"}
                       </Badge>
-                    </DataTableTd>
-                    <DataTableTd>
-                      {item.is_serialized ? "—" : (item.stock_quantity ?? 0)}
                     </DataTableTd>
                     <DataTableTd>
                       <Link
                         className="font-medium text-indigo-600 hover:text-indigo-700"
-                        href={`/dashboard/master-items/${item.id}/edit`}
+                        href={`/dashboard/logistics/fleet/${item.id}/edit`}
                       >
                         Edit
                       </Link>

@@ -2,7 +2,9 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
-import { getCustomer, updateCustomer } from "@/lib/api/customers";
+import { listRoles } from "@/lib/api/roles";
+import { getUser, updateUser } from "@/lib/api/users";
+import type { RoleResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -13,34 +15,39 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label } from "@/components/ui/input";
+import { Input, Label, Select } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 
-export default function EditCustomerPage() {
+export default function EditUserPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const [roles, setRoles] = useState<RoleResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [defaults, setDefaults] = useState({
     name: "",
+    email: "",
     phone: "",
-    address: "",
-    cylinder_quota_limit: "",
+    role_id: "",
     is_active: true,
   });
 
   useEffect(() => {
-    getCustomer(params.id)
-      .then((customer) =>
+    Promise.all([
+      getUser(params.id),
+      listRoles({ page: 1, limit: 100 }),
+    ])
+      .then(([user, roleData]) => {
         setDefaults({
-          name: customer.name,
-          phone: customer.phone || "",
-          address: customer.address || "",
-          cylinder_quota_limit: String(customer.cylinder_quota_limit ?? ""),
-          is_active: customer.is_active ?? true,
-        }),
-      )
+          name: user.name,
+          email: user.email,
+          phone: user.phone || "",
+          role_id: user.role_id,
+          is_active: user.is_active !== false,
+        });
+        setRoles(roleData.items);
+      })
       .catch((err) =>
         setError(err instanceof Error ? err.message : "Gagal memuat data"),
       )
@@ -50,19 +57,21 @@ export default function EditCustomerPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    const password = String(form.get("password") || "");
+
     setLoading(true);
     setError(null);
 
     try {
-      await updateCustomer(params.id, {
+      await updateUser(params.id, {
         name: String(form.get("name")),
+        email: String(form.get("email")),
         phone: String(form.get("phone") || "") || undefined,
-        address: String(form.get("address") || "") || undefined,
-        cylinder_quota_limit:
-          Number(form.get("cylinder_quota_limit")) || undefined,
+        role_id: String(form.get("role_id")),
         is_active: form.get("is_active") === "on",
+        ...(password ? { password } : {}),
       });
-      router.push("/dashboard/customers");
+      router.push("/dashboard/admin/users");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Gagal menyimpan");
@@ -76,12 +85,12 @@ export default function EditCustomerPage() {
   }
 
   return (
-    <div className="animate-in max-w-5xl">
-      <PageHeader title="Edit Pelanggan" />
+    <div className="animate-in max-w-3xl">
+      <PageHeader title="Edit Pengguna" />
       <FormPageGrid>
         <FormMainCard>
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection title="Informasi Utama">
+            <FormSection title="Data Akun">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="name">Nama</Label>
@@ -93,25 +102,49 @@ export default function EditCustomerPage() {
                   />
                 </div>
                 <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    defaultValue={defaults.email}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
                   <Label htmlFor="phone">Telepon</Label>
-                  <Input id="phone" name="phone" defaultValue={defaults.phone} />
+                  <Input
+                    id="phone"
+                    name="phone"
+                    defaultValue={defaults.phone}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="role_id">Peran</Label>
+                  <Select
+                    id="role_id"
+                    name="role_id"
+                    defaultValue={defaults.role_id}
+                    required
+                  >
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
               </div>
               <div>
-                <Label htmlFor="address">Alamat</Label>
-                <Input id="address" name="address" defaultValue={defaults.address} />
-              </div>
-            </FormSection>
-
-            <FormSection title="Pengaturan Akun" tone="accent">
-              <div className="max-w-sm">
-                <Label htmlFor="cylinder_quota_limit">Kuota Tabung</Label>
+                <Label htmlFor="password">Password Baru</Label>
                 <Input
-                  id="cylinder_quota_limit"
-                  name="cylinder_quota_limit"
-                  type="number"
-                  min={0}
-                  defaultValue={defaults.cylinder_quota_limit}
+                  id="password"
+                  name="password"
+                  type="password"
+                  minLength={6}
+                  placeholder="Kosongkan jika tidak diubah"
                 />
               </div>
               <label className="flex items-center gap-2 text-sm text-slate-700">
@@ -142,22 +175,13 @@ export default function EditCustomerPage() {
         </FormMainCard>
 
         <FormAsideStack>
-          <FormAsideCard title="Ringkasan">
-            <p className="text-lg font-semibold text-slate-900">{defaults.name || "-"}</p>
-            <p className="text-sm text-slate-500">
-              Kuota: <span className="font-medium">{defaults.cylinder_quota_limit || "0"}</span>
-            </p>
-            <p className="text-sm text-slate-500">
-              Status: <span className="font-medium">{defaults.is_active ? "Aktif" : "Nonaktif"}</span>
-            </p>
+          <FormAsideCard title="Pengguna">
+            <p className="font-semibold text-slate-900">{defaults.name}</p>
+            <p className="text-sm text-slate-500">{defaults.email}</p>
           </FormAsideCard>
           <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody className="space-y-2 text-sm text-slate-600">
-              <p className="font-semibold text-slate-800">Catatan</p>
-              <ul className="space-y-1">
-                <li>Perubahan kuota mempengaruhi kontrol outstanding.</li>
-                <li>Status nonaktif akan membatasi transaksi baru pelanggan.</li>
-              </ul>
+            <CardBody className="text-sm text-slate-600">
+              Nonaktifkan akun untuk mencegah login tanpa menghapus riwayat.
             </CardBody>
           </Card>
         </FormAsideStack>
