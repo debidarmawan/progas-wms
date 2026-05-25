@@ -394,3 +394,55 @@ export interface TurnaroundReportResponse {
   average_days: number;
   samples: TurnaroundSample[];
 }
+
+export interface VendorResponse {
+  id: string;
+  code: string;
+  name: string;
+  contact_person?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  contract_start_date?: string;
+  contract_end_date?: string;
+  notes?: string;
+  is_active?: boolean;
+  cylinder_count?: number;
+}
+
+export interface VendorCylinderSummary {
+  id: string;
+  barcode_sn: string;
+  item_name?: string;
+  gas_type?: string;
+  status: string;
+}
+
+export interface VendorDetailResponse extends VendorResponse {
+  cylinders?: VendorCylinderSummary[];
+  cylinders_by_status?: Record<string, number>;
+}
+
+export interface CreateVendorRequest {
+  code: string;
+  name: string;
+  contact_person?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  contract_start_date?: string;
+  contract_end_date?: string;
+  notes?: string;
+}
+
+export interface UpdateVendorRequest {
+  name?: string;
+  contact_person?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  contract_start_date?: string;
+  contract_end_date?: string;
+  notes?: string;
+  is_active?: boolean;
+}

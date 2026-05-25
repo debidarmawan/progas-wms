@@ -5,7 +5,12 @@ import { FormEvent, useEffect, useState } from "react";
 import { listCustomers } from "@/lib/api/customers";
 import { createCylinder } from "@/lib/api/cylinders";
 import { listMasterItems } from "@/lib/api/master-items";
-import type { CustomerResponse, MasterItemResponse } from "@/lib/types/api";
+import { listVendors } from "@/lib/api/vendors";
+import type {
+  CustomerResponse,
+  MasterItemResponse,
+  VendorResponse,
+} from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -23,6 +28,7 @@ export default function NewCylinderPage() {
   const router = useRouter();
   const [items, setItems] = useState<MasterItemResponse[]>([]);
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
+  const [vendors, setVendors] = useState<VendorResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [barcodePreview, setBarcodePreview] = useState("");
@@ -35,14 +41,17 @@ export default function NewCylinderPage() {
     Promise.all([
       listMasterItems({ page: 1, limit: 100 }),
       listCustomers({ page: 1, limit: 200 }),
+      listVendors({ page: 1, limit: 200 }),
     ])
-      .then(([itemData, customerData]) => {
+      .then(([itemData, customerData, vendorData]) => {
         setItems(itemData.items.filter((item) => item.is_serialized));
         setCustomers(customerData.items);
+        setVendors(vendorData.items.filter((v) => v.is_active !== false));
       })
       .catch(() => {
         setItems([]);
         setCustomers([]);
+        setVendors([]);
       });
   }, []);
 
@@ -59,7 +68,7 @@ export default function NewCylinderPage() {
       setError(
         ownership === "CUSTOMER"
           ? "Pilih pelanggan pemilik tabung."
-          : "Isi ID vendor pemilik tabung.",
+          : "Pilih vendor pemilik tabung.",
       );
       setLoading(false);
       return;
@@ -158,13 +167,22 @@ export default function NewCylinderPage() {
                         </>
                       ) : (
                         <>
-                          <Label htmlFor="owner_id">ID Vendor</Label>
-                          <Input
+                          <Label htmlFor="owner_id">Vendor Pemilik</Label>
+                          <Select
                             id="owner_id"
                             name="owner_id"
                             required
-                            placeholder="UUID vendor"
-                          />
+                            defaultValue=""
+                          >
+                            <option value="" disabled>
+                              Pilih vendor
+                            </option>
+                            {vendors.map((vendor) => (
+                              <option key={vendor.id} value={vendor.id}>
+                                {vendor.code} — {vendor.name}
+                              </option>
+                            ))}
+                          </Select>
                         </>
                       )}
                     </div>
@@ -215,7 +233,7 @@ export default function NewCylinderPage() {
               <p className="text-sm text-slate-500">
                 {ownershipType === "CUSTOMER"
                   ? "Wajib pilih pelanggan pemilik."
-                  : "Wajib isi ID vendor."}
+                  : "Wajib pilih vendor."}
               </p>
             ) : (
               <p className="text-sm text-slate-500">Milik perusahaan (tanpa owner ID)</p>

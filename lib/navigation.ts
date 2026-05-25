@@ -14,6 +14,7 @@ export const mainNavigation: NavItem[] = [
   { label: "Master Items", href: "/dashboard/master-items", icon: "package" },
   { label: "Tabung", href: "/dashboard/cylinders", icon: "cylinder" },
   { label: "Pelanggan", href: "/dashboard/customers", icon: "users" },
+  { label: "Vendor", href: "/dashboard/vendors", icon: "vendor" },
   {
     label: "Produksi",
     href: "/dashboard/production/qc-pre-fill",
@@ -136,6 +137,7 @@ export const moduleDescriptions: Record<string, string> = {
   "/dashboard/master-items": "Katalog gas & suku cadang",
   "/dashboard/cylinders": "Registrasi & pelacakan tabung",
   "/dashboard/customers": "Kuota outstanding pelanggan",
+  "/dashboard/vendors": "Vendor sewa tabung & kontrak",
   "/dashboard/production/qc-pre-fill": "Inspeksi sebelum pengisian",
   "/dashboard/production/filling-batches": "Batch pengisian manifold",
   "/dashboard/production/qc-post-fill": "Inspeksi setelah pengisian",
