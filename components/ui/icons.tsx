@@ -83,6 +83,14 @@ export function IconInventory({ className }: IconProps) {
   );
 }
 
+export function IconVendor({ className }: IconProps) {
+  return (
+    <svg className={cn("h-5 w-5", className)} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2m-16 0H3m2-8h4m4 0h4M9 7h1m1 0h1m-1 4h1m1 0h1" />
+    </svg>
+  );
+}
+
 export function IconSettings({ className }: IconProps) {
   return (
     <svg className={cn("h-5 w-5", className)} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -121,6 +129,7 @@ export const navIconMap = {
   package: IconPackage,
   cylinder: IconCylinder,
   users: IconUsers,
+  vendor: IconVendor,
   factory: IconFactory,
   inbound: IconInbound,
   outbound: IconOutbound,
