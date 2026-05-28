@@ -119,12 +119,12 @@ export const mainNavigation: NavItem[] = [
     icon: "settings",
     children: [
       {
-        label: "Daftar Pengguna",
+        label: "Pengguna",
         href: "/dashboard/admin/users",
       },
       {
-        label: "Tambah Pengguna",
-        href: "/dashboard/admin/users/new",
+        label: "Peran (Roles)",
+        href: "/dashboard/admin/roles",
       },
     ],
   },
@@ -152,5 +152,6 @@ export const moduleDescriptions: Record<string, string> = {
   "/dashboard/reports/stock-ledger": "Riwayat status per barcode",
   "/dashboard/reports/turnaround": "Rata-rata siklus tabung",
   "/dashboard/admin/users": "Kelola akun operator & peran RBAC",
+  "/dashboard/admin/roles": "Daftar peran akses yang tersedia",
   "/dashboard/admin/users/new": "Buat akun operator baru",
 };

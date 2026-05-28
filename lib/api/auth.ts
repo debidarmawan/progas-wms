@@ -4,6 +4,7 @@ import type {
   LoginResponse,
   MessageResponse,
   RefreshTokenRequest,
+  UserResponse,
 } from "@/lib/types/api";
 
 export function login(payload: LoginRequest) {
@@ -24,4 +25,8 @@ export function refreshToken(payload: RefreshTokenRequest) {
     body: JSON.stringify(payload),
     auth: false,
   });
+}
+
+export function getProfile() {
+  return apiRequest<UserResponse>("/profile");
 }
