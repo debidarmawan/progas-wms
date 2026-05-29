@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/api/client";
 import type {
+  BulkCreateMasterItemRequest,
   CreateMasterItemRequest,
   MasterItemResponse,
   MessageResponse,
@@ -20,6 +21,13 @@ export function getMasterItem(id: string) {
 
 export function createMasterItem(payload: CreateMasterItemRequest) {
   return apiRequest<MessageResponse>("/master-items", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function createMasterItemsBulk(payload: BulkCreateMasterItemRequest) {
+  return apiRequest<MessageResponse>("/master-items/bulk", {
     method: "POST",
     body: JSON.stringify(payload),
   });

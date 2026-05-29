@@ -2,9 +2,16 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { logout } from "@/lib/api/auth";
-import { clearSession, getStoredUser } from "@/lib/auth/session";
+import { USER_COOKIE } from "@/lib/auth/constants";
+import { clearSession } from "@/lib/auth/session";
 import type { UserResponse } from "@/lib/types/api";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
@@ -20,10 +27,29 @@ function getInitials(name: string) {
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [user] = useState<UserResponse | null>(() => getStoredUser());
   const [loggingOut, setLoggingOut] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const userCookie = useSyncExternalStore<string>(
+    () => () => {},
+    () => {
+      if (typeof document === "undefined") return "";
+      const match = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith(`${USER_COOKIE}=`));
+      return match ? decodeURIComponent(match.split("=").slice(1).join("=")) : "";
+    },
+    () => "",
+  );
+  const user = useMemo<UserResponse | null>(() => {
+    if (!userCookie) return null;
+    try {
+      return JSON.parse(userCookie) as UserResponse;
+    } catch {
+      return null;
+    }
+  }, [userCookie]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
