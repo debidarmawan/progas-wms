@@ -16,6 +16,15 @@ import {
 import { Input, Label, Select } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 
+function generateSkuFromName(name: string) {
+  return name
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 30);
+}
+
 export default function NewMasterItemPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -23,6 +32,7 @@ export default function NewMasterItemPage() {
   const [isSerialized, setIsSerialized] = useState(true);
   const [itemNamePreview, setItemNamePreview] = useState("");
   const [skuPreview, setSkuPreview] = useState("");
+  const [isSkuManuallyEdited, setIsSkuManuallyEdited] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -70,7 +80,14 @@ export default function NewMasterItemPage() {
                       name="name"
                       required
                       placeholder="Contoh: Gas Oksigen 6m3"
-                      onChange={(event) => setItemNamePreview(event.target.value)}
+                      value={itemNamePreview}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setItemNamePreview(value);
+                        if (!isSkuManuallyEdited) {
+                          setSkuPreview(generateSkuFromName(value));
+                        }
+                      }}
                     />
                   </div>
                   <div>
@@ -79,9 +96,16 @@ export default function NewMasterItemPage() {
                       id="sku"
                       name="sku"
                       required
-                      placeholder="Contoh: OX6M3"
-                      onChange={(event) => setSkuPreview(event.target.value)}
+                      placeholder="Auto generate dari nama item"
+                      value={skuPreview}
+                      onChange={(event) => {
+                        setSkuPreview(event.target.value.toUpperCase());
+                        setIsSkuManuallyEdited(true);
+                      }}
                     />
+                    <p className="mt-1 text-xs text-slate-500">
+                      SKU otomatis dibuat dari nama item, namun tetap bisa Anda ubah manual.
+                    </p>
                   </div>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">

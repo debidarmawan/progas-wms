@@ -75,6 +75,10 @@ export interface CreateMasterItemRequest {
   min_stock_alert?: number;
 }
 
+export interface BulkCreateMasterItemRequest {
+  items: CreateMasterItemRequest[];
+}
+
 export interface UpdateMasterItemRequest {
   name: string;
   gas_type?: string;

@@ -41,6 +41,14 @@ export default function MasterItemsPage() {
         actionHref="/dashboard/master-items/new"
         actionLabel="Tambah Item"
       />
+      <div className="mb-4">
+        <Link
+          className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+          href="/dashboard/master-items/new-bulk"
+        >
+          + Tambah banyak item sekaligus
+        </Link>
+      </div>
 
       <SearchInput
         className="mb-6"
