@@ -27,6 +27,27 @@ type RequestOptions = RequestInit & {
   params?: Record<string, string | number | undefined>;
 };
 
+function buildUrl(path: string, params?: RequestOptions["params"]) {
+  const base = API_BASE.replace(/\/$/, "");
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  let url = path.startsWith("http") ? path : `${base}${normalizedPath}`;
+
+  if (params) {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== "") {
+        searchParams.set(key, String(value));
+      }
+    }
+    const query = searchParams.toString();
+    if (query) {
+      url += `${url.includes("?") ? "&" : "?"}${query}`;
+    }
+  }
+
+  return url;
+}
+
 function isSuccessStatus(status?: string) {
   const envelopeStatus = (status || "").toUpperCase();
   return envelopeStatus === "OK" || envelopeStatus === "SUCCESS";
@@ -71,20 +92,6 @@ function handleAuthExpired() {
   }
 }
 
-function buildUrl(path: string, params?: RequestOptions["params"]) {
-  const url = new URL(
-    path.startsWith("http") ? path : `${API_BASE}${path}`,
-  );
-  if (params) {
-    for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== "") {
-        url.searchParams.set(key, String(value));
-      }
-    }
-  }
-  return url.toString();
-}
-
 export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {},
@@ -101,13 +108,29 @@ export async function apiRequest<T>(
       }
     }
 
-    return fetch(buildUrl(path, params), {
-      ...init,
-      headers,
-    });
+    try {
+      return await fetch(buildUrl(path, params), {
+        ...init,
+        headers,
+      });
+    } catch {
+      throw new ApiError(
+        "Tidak dapat terhubung ke server API. Periksa koneksi jaringan atau konfigurasi API.",
+        0,
+      );
+    }
   };
 
-  let response = await makeRequest();
+  let response: Response;
+  try {
+    response = await makeRequest();
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(
+      "Tidak dapat terhubung ke server API. Periksa koneksi jaringan atau konfigurasi API.",
+      0,
+    );
+  }
   let body = await parseResponse<T>(response);
 
   // Try refresh once on auth failure and retry original request.
