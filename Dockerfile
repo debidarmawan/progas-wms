@@ -10,7 +10,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_API_BASE_URL=/api/v1
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 ENV NODE_OPTIONS=--max-old-space-size=512
 
@@ -21,6 +21,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+# Runtime: URL backend yang di-proxy oleh Next.js (bukan diekspos ke browser)
+ENV API_PROXY_TARGET=http://localhost:3131
 
 RUN addgroup -g 1000 nodejs && adduser -u 1000 -G nodejs -D nextjs
 
