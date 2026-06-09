@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { listRoles } from "@/lib/api/roles";
 import { getUser, updateUser } from "@/lib/api/users";
+import { setFlashMessage } from "@/lib/flash";
 import type { RoleResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -71,6 +72,7 @@ export default function EditUserPage() {
         is_active: form.get("is_active") === "on",
         ...(password ? { password } : {}),
       });
+      setFlashMessage("Perubahan pengguna berhasil disimpan.");
       router.push("/dashboard/admin/users");
       router.refresh();
     } catch (err) {

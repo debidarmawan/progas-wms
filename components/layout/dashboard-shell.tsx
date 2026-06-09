@@ -15,6 +15,7 @@ import { clearSession } from "@/lib/auth/session";
 import type { UserResponse } from "@/lib/types/api";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
+import { ToastHost } from "@/components/ui/toast";
 
 function getInitials(name: string) {
   return name
@@ -135,6 +136,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="flex-1 overflow-auto p-6 lg:p-8">{children}</main>
       </div>
+      <ToastHost />
     </div>
   );
 }
