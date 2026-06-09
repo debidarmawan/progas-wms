@@ -58,3 +58,34 @@ body {
 .animate-in {
   animation: fade-in-up 0.35s ease-out both;
 }
+
+@keyframes backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.confirm-backdrop {
+  animation: backdrop-fade-in 0.28s ease-out both;
+  background: rgb(15 23 42 / 0.58);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+
+.confirm-dialog-panel {
+  animation: dialog-scale-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

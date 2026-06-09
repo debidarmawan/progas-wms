@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { listRoles } from "@/lib/api/roles";
 import { createUser } from "@/lib/api/users";
+import { setFlashMessage } from "@/lib/flash";
 import type { RoleResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,6 @@ export default function NewUserPage() {
   const [roles, setRoles] = useState<RoleResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     listRoles({ page: 1, limit: 100 })
@@ -36,17 +36,15 @@ export default function NewUserPage() {
     const form = new FormData(event.currentTarget);
     setLoading(true);
     setError(null);
-    setSuccess(null);
-
     try {
-      const result = await createUser({
+      await createUser({
         name: String(form.get("name")),
         email: String(form.get("email")),
         password: String(form.get("password")),
         phone: String(form.get("phone") || "") || undefined,
         role_id: String(form.get("role_id")),
       });
-      setSuccess(result.message || "Pengguna berhasil dibuat.");
+      setFlashMessage("Pengguna berhasil dibuat.");
       router.push("/dashboard/admin/users");
       router.refresh();
     } catch (err) {
@@ -108,7 +106,6 @@ export default function NewUserPage() {
             </FormSection>
 
             {error ? <Alert variant="error">{error}</Alert> : null}
-            {success ? <Alert variant="success">{success}</Alert> : null}
 
             <div className="flex gap-2">
               <Button disabled={loading} type="submit">

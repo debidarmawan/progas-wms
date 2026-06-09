@@ -160,5 +160,10 @@ export async function apiRequest<T>(
     );
   }
 
+  // Some endpoints return success with data: null and message on the envelope.
+  if (body.data == null) {
+    return { message: body.message } as T;
+  }
+
   return body.data;
 }

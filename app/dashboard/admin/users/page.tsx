@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { deleteUser, listUsers } from "@/lib/api/users";
+import { showToast } from "@/lib/flash";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DataTable,
   DataTableBody,
@@ -26,6 +28,10 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const fetcher = useCallback(
     (params: { page: number; limit: number; search?: string }) =>
@@ -37,13 +43,16 @@ export default function UsersPage() {
     search,
   );
 
-  async function handleDelete(id: string, name: string) {
-    if (!confirm(`Hapus pengguna "${name}"?`)) return;
+  async function handleDeleteConfirm() {
+    if (!pendingDelete) return;
+    const { id, name } = pendingDelete;
     setDeletingId(id);
     setActionError(null);
     try {
       await deleteUser(id);
+      setPendingDelete(null);
       reload();
+      showToast(`Pengguna "${name}" berhasil dihapus.`);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Gagal menghapus");
     } finally {
@@ -122,7 +131,9 @@ export default function UsersPage() {
                           size="sm"
                           className="text-rose-600 hover:text-rose-700"
                           disabled={deletingId === item.id}
-                          onClick={() => handleDelete(item.id, item.name)}
+                          onClick={() =>
+                            setPendingDelete({ id: item.id, name: item.name })
+                          }
                         >
                           {deletingId === item.id ? "..." : "Hapus"}
                         </Button>
@@ -136,6 +147,21 @@ export default function UsersPage() {
           {meta ? <Pagination meta={meta} onPageChange={setPage} /> : null}
         </CardBody>
       </Card>
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Hapus pengguna?"
+        message={
+          pendingDelete
+            ? `Yakin ingin menghapus "${pendingDelete.name}"? Tindakan ini tidak dapat dibatalkan.`
+            : ""
+        }
+        loading={!!pendingDelete && deletingId === pendingDelete.id}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => {
+          if (!deletingId) setPendingDelete(null);
+        }}
+      />
     </div>
   );
 }
