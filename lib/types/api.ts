@@ -35,6 +35,7 @@ export interface UserResponse {
   phone?: string;
   role_id: string;
   role_name: string;
+  permissions?: string[];
 }
 
 export interface LoginRequest {
@@ -100,6 +101,14 @@ export interface CylinderResponse {
 }
 
 export interface CreateCylinderRequest {
+  barcode_sn: string;
+  item_id: string;
+  ownership_type: string;
+  owner_id?: string;
+  last_hydrotest_date: string;
+}
+
+export interface UpdateCylinderRequest {
   barcode_sn: string;
   item_id: string;
   ownership_type: string;

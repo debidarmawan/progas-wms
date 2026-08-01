@@ -5,6 +5,7 @@ import type {
   MessageResponse,
   PaginatedList,
   PaginationParams,
+  UpdateCylinderRequest,
 } from "@/lib/types/api";
 
 export function listCylinders(params?: PaginationParams) {
@@ -18,6 +19,13 @@ export function getCylinder(id: string) {
 export function createCylinder(payload: CreateCylinderRequest) {
   return apiRequest<MessageResponse>("/cylinders", {
     method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateCylinder(id: string, payload: UpdateCylinderRequest) {
+  return apiRequest<MessageResponse>(`/cylinders/${id}`, {
+    method: "PUT",
     body: JSON.stringify(payload),
   });
 }
