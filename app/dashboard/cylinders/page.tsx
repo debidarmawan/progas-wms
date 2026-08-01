@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import { listCylinders } from "@/lib/api/cylinders";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
@@ -48,7 +49,11 @@ export default function CylindersPage() {
         onChange={(event) => setSearch(event.target.value)}
       />
 
-      {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
+      {error ? (
+        <Alert variant="error" className="mb-4">
+          {error}
+        </Alert>
+      ) : null}
 
       <Card>
         <CardBody className="p-0">
@@ -59,12 +64,13 @@ export default function CylindersPage() {
               <DataTableTh>Gas</DataTableTh>
               <DataTableTh>Status</DataTableTh>
               <DataTableTh>Ownership</DataTableTh>
+              <DataTableTh className="w-24"> </DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={5} />
+                <DataTableLoading colSpan={6} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={5} />
+                <DataTableEmpty colSpan={6} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
@@ -82,6 +88,14 @@ export default function CylindersPage() {
                       <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
                         {item.ownership_type}
                       </span>
+                    </DataTableTd>
+                    <DataTableTd>
+                      <Link
+                        href={`/dashboard/cylinders/${item.id}/edit`}
+                        className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                      >
+                        Edit
+                      </Link>
                     </DataTableTd>
                   </DataTableRow>
                 ))
