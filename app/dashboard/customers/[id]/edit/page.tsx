@@ -24,6 +24,10 @@ export default function EditCustomerPage() {
   const [error, setError] = useState<string | null>(null);
   const [defaults, setDefaults] = useState({
     name: "",
+    pic: "",
+    npwp: "",
+    fax: "",
+    email: "",
     phone: "",
     address: "",
     cylinder_quota_limit: "",
@@ -35,6 +39,10 @@ export default function EditCustomerPage() {
       .then((customer) =>
         setDefaults({
           name: customer.name,
+          pic: customer.pic || "",
+          npwp: customer.npwp || "",
+          fax: customer.fax || "",
+          email: customer.email || "",
           phone: customer.phone || "",
           address: customer.address || "",
           cylinder_quota_limit: String(customer.cylinder_quota_limit ?? ""),
@@ -56,6 +64,10 @@ export default function EditCustomerPage() {
     try {
       await updateCustomer(params.id, {
         name: String(form.get("name")),
+        pic: String(form.get("pic") || "") || undefined,
+        npwp: String(form.get("npwp") || "") || undefined,
+        fax: String(form.get("fax") || "") || undefined,
+        email: String(form.get("email") || "") || undefined,
         phone: String(form.get("phone") || "") || undefined,
         address: String(form.get("address") || "") || undefined,
         cylinder_quota_limit:
@@ -76,7 +88,7 @@ export default function EditCustomerPage() {
   }
 
   return (
-    <div className="animate-in max-w-5xl">
+    <div className="animate-in">
       <PageHeader title="Edit Pelanggan" />
       <FormPageGrid>
         <FormMainCard>
@@ -93,13 +105,47 @@ export default function EditCustomerPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone">Telepon</Label>
-                  <Input id="phone" name="phone" defaultValue={defaults.phone} />
+                  <Label htmlFor="pic">PIC</Label>
+                  <Input id="pic" name="pic" defaultValue={defaults.pic} />
                 </div>
               </div>
-              <div>
-                <Label htmlFor="address">Alamat</Label>
-                <Input id="address" name="address" defaultValue={defaults.address} />
+            </FormSection>
+
+            <FormSection title="Kontak & Alamat">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="phone">Telepon</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    defaultValue={defaults.phone}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    defaultValue={defaults.email}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="fax">Fax</Label>
+                  <Input id="fax" name="fax" defaultValue={defaults.fax} />
+                </div>
+                <div>
+                  <Label htmlFor="npwp">NPWP</Label>
+                  <Input id="npwp" name="npwp" defaultValue={defaults.npwp} />
+                </div>
+                <div className="sm:col-span-2">
+                  <Label htmlFor="address">Alamat</Label>
+                  <Input
+                    id="address"
+                    name="address"
+                    defaultValue={defaults.address}
+                  />
+                </div>
               </div>
             </FormSection>
 
@@ -143,12 +189,20 @@ export default function EditCustomerPage() {
 
         <FormAsideStack>
           <FormAsideCard title="Ringkasan">
-            <p className="text-lg font-semibold text-slate-900">{defaults.name || "-"}</p>
-            <p className="text-sm text-slate-500">
-              Kuota: <span className="font-medium">{defaults.cylinder_quota_limit || "0"}</span>
+            <p className="text-lg font-semibold text-slate-900">
+              {defaults.name || "-"}
             </p>
             <p className="text-sm text-slate-500">
-              Status: <span className="font-medium">{defaults.is_active ? "Aktif" : "Nonaktif"}</span>
+              Kuota:{" "}
+              <span className="font-medium">
+                {defaults.cylinder_quota_limit || "0"}
+              </span>
+            </p>
+            <p className="text-sm text-slate-500">
+              Status:{" "}
+              <span className="font-medium">
+                {defaults.is_active ? "Aktif" : "Nonaktif"}
+              </span>
             </p>
           </FormAsideCard>
           <Card className="shadow-[var(--shadow-soft)]">
@@ -156,7 +210,9 @@ export default function EditCustomerPage() {
               <p className="font-semibold text-slate-800">Catatan</p>
               <ul className="space-y-1">
                 <li>Perubahan kuota mempengaruhi kontrol outstanding.</li>
-                <li>Status nonaktif akan membatasi transaksi baru pelanggan.</li>
+                <li>
+                  Status nonaktif akan membatasi transaksi baru pelanggan.
+                </li>
               </ul>
             </CardBody>
           </Card>

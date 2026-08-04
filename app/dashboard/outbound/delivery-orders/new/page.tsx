@@ -79,7 +79,7 @@ export default function NewDeliveryOrderPage() {
   }
 
   return (
-    <div className="animate-in max-w-5xl">
+    <div className="animate-in">
       <PageHeader
         title="Buat Surat Jalan"
         description="Validasi berat armada, kuota pelanggan, dan status tabung sebelum pengiriman."

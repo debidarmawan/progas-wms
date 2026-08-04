@@ -96,7 +96,7 @@ export default function EditVendorPage() {
   }
 
   return (
-    <div className="animate-in max-w-5xl">
+    <div className="animate-in">
       <PageHeader title={`Edit ${defaults.name}`} />
       <FormPageGrid>
         <FormMainCard>

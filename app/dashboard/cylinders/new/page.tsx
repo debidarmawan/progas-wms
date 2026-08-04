@@ -93,7 +93,7 @@ export default function NewCylinderPage() {
   }
 
   return (
-    <div className="animate-in max-w-5xl">
+    <div className="animate-in">
       <PageHeader title="Registrasi Tabung" />
       <FormPageGrid>
         <FormMainCard>

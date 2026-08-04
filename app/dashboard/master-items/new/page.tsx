@@ -63,7 +63,7 @@ export default function NewMasterItemPage() {
   }
 
   return (
-    <div className="animate-in max-w-5xl">
+    <div className="animate-in">
       <PageHeader title="Tambah Master Item" />
       <FormPageGrid>
         <FormMainCard>

@@ -70,7 +70,7 @@ export default function NewFillingBatchPage() {
   }
 
   return (
-    <div className="animate-in max-w-5xl">
+    <div className="animate-in">
       <PageHeader
         title="Submit Filling Batch"
         description="Transaksi atomik: validasi status & cross-gas, lalu ubah tabung ke READY."

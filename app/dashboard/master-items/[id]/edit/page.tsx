@@ -85,7 +85,7 @@ export default function EditMasterItemPage() {
   }
 
   return (
-    <div className="animate-in max-w-5xl">
+    <div className="animate-in">
       <PageHeader title="Edit Master Item" />
       <FormPageGrid>
         <FormMainCard>

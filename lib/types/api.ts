@@ -123,6 +123,10 @@ export interface CustomerResponse {
   id: string;
   code: string;
   name: string;
+  pic?: string;
+  npwp?: string;
+  fax?: string;
+  email?: string;
   phone?: string;
   address?: string;
   cylinder_quota_limit?: number;
@@ -131,8 +135,11 @@ export interface CustomerResponse {
 }
 
 export interface CreateCustomerRequest {
-  code: string;
   name: string;
+  pic?: string;
+  npwp?: string;
+  fax?: string;
+  email?: string;
   phone?: string;
   address?: string;
   cylinder_quota_limit?: number;
@@ -140,6 +147,10 @@ export interface CreateCustomerRequest {
 
 export interface UpdateCustomerRequest {
   name: string;
+  pic?: string;
+  npwp?: string;
+  fax?: string;
+  email?: string;
   phone?: string;
   address?: string;
   cylinder_quota_limit?: number;

@@ -51,7 +51,7 @@ export default function NewVendorPage() {
   }
 
   return (
-    <div className="animate-in max-w-5xl">
+    <div className="animate-in">
       <PageHeader title="Tambah Vendor" />
       <FormPageGrid>
         <FormMainCard>

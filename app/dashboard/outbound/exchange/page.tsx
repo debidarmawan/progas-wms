@@ -125,7 +125,7 @@ export default function ExchangePage() {
   }
 
   return (
-    <div className="animate-in max-w-5xl">
+    <div className="animate-in">
       <PageHeader
         title="Pertukaran Tabung"
         description="Gate-in: tabung masuk (kosong) dan tabung keluar (terisi) dalam satu transaksi."
