@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { createFleet } from "@/lib/api/logistics";
+import { createDriver } from "@/lib/api/logistics";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,7 @@ import {
 import { Input, Label } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 
-export default function NewFleetPage() {
+export default function NewDriverPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,11 +25,12 @@ export default function NewFleetPage() {
     setError(null);
 
     try {
-      await createFleet({
-        plate_number: String(form.get("plate_number")),
-        max_weight_kg: Number(form.get("max_weight_kg")),
+      await createDriver({
+        name: String(form.get("name")),
+        phone: String(form.get("phone") || "") || undefined,
+        license_number: String(form.get("license_number") || "") || undefined,
       });
-      router.push("/dashboard/logistics/fleet");
+      router.push("/dashboard/logistics/drivers");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Gagal menyimpan");
@@ -40,26 +41,23 @@ export default function NewFleetPage() {
 
   return (
     <div className="animate-in max-w-2xl">
-      <PageHeader title="Tambah Armada" />
+      <PageHeader title="Tambah Driver" />
       <FormPageGrid className="lg:grid-cols-1">
         <FormMainCard>
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection title="Data Kendaraan">
+            <FormSection title="Data Driver">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="plate_number">Plat Nomor</Label>
-                  <Input id="plate_number" name="plate_number" required />
+                  <Label htmlFor="name">Nama</Label>
+                  <Input id="name" name="name" required />
                 </div>
                 <div>
-                  <Label htmlFor="max_weight_kg">Kapasitas Muat (kg)</Label>
-                  <Input
-                    id="max_weight_kg"
-                    name="max_weight_kg"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    required
-                  />
+                  <Label htmlFor="phone">No. Telepon</Label>
+                  <Input id="phone" name="phone" type="tel" />
+                </div>
+                <div>
+                  <Label htmlFor="license_number">No. SIM</Label>
+                  <Input id="license_number" name="license_number" />
                 </div>
               </div>
             </FormSection>

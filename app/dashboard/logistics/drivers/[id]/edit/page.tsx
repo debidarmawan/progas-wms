@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
-import { getFleet, updateFleet } from "@/lib/api/logistics";
+import { getDriver, updateDriver } from "@/lib/api/logistics";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,25 +13,27 @@ import {
 import { Input, Label } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 
-export default function EditFleetPage() {
+export default function EditDriverPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [defaults, setDefaults] = useState({
-    plate_number: "",
-    max_weight_kg: "",
+    name: "",
+    phone: "",
+    license_number: "",
     is_active: true,
   });
 
   useEffect(() => {
-    getFleet(params.id)
-      .then((fleet) =>
+    getDriver(params.id)
+      .then((driver) =>
         setDefaults({
-          plate_number: fleet.plate_number,
-          max_weight_kg: String(fleet.max_weight_kg),
-          is_active: fleet.is_active !== false,
+          name: driver.name,
+          phone: driver.phone || "",
+          license_number: driver.license_number || "",
+          is_active: driver.is_active !== false,
         }),
       )
       .catch((err) =>
@@ -47,11 +49,13 @@ export default function EditFleetPage() {
     setError(null);
 
     try {
-      await updateFleet(params.id, {
-        max_weight_kg: Number(form.get("max_weight_kg")),
+      await updateDriver(params.id, {
+        name: String(form.get("name")),
+        phone: String(form.get("phone") || "") || undefined,
+        license_number: String(form.get("license_number") || "") || undefined,
         is_active: form.get("is_active") === "on",
       });
-      router.push("/dashboard/logistics/fleet");
+      router.push("/dashboard/logistics/drivers");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Gagal menyimpan");
@@ -66,26 +70,36 @@ export default function EditFleetPage() {
 
   return (
     <div className="animate-in max-w-2xl">
-      <PageHeader title={`Edit ${defaults.plate_number}`} />
+      <PageHeader title={`Edit ${defaults.name}`} />
       <FormPageGrid className="lg:grid-cols-1">
         <FormMainCard>
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection title="Data Kendaraan">
+            <FormSection title="Data Driver">
               <div className="space-y-4">
                 <div>
-                  <Label>Plat Nomor</Label>
-                  <Input value={defaults.plate_number} disabled />
+                  <Label htmlFor="name">Nama</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    defaultValue={defaults.name}
+                    required
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="max_weight_kg">Kapasitas Muat (kg)</Label>
+                  <Label htmlFor="phone">No. Telepon</Label>
                   <Input
-                    id="max_weight_kg"
-                    name="max_weight_kg"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    defaultValue={defaults.max_weight_kg}
-                    required
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    defaultValue={defaults.phone}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="license_number">No. SIM</Label>
+                  <Input
+                    id="license_number"
+                    name="license_number"
+                    defaultValue={defaults.license_number}
                   />
                 </div>
                 <label className="flex items-center gap-2 text-sm">

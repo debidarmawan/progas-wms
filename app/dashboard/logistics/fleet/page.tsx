@@ -44,35 +44,37 @@ export default function FleetPage() {
 
       <SearchInput
         className="mb-6"
-        placeholder="Cari plat nomor atau sopir..."
+        placeholder="Cari plat nomor..."
         value={search}
         onChange={(event) => setSearch(event.target.value)}
       />
 
-      {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
+      {error ? (
+        <Alert variant="error" className="mb-4">
+          {error}
+        </Alert>
+      ) : null}
 
       <Card>
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
               <DataTableTh>Plat</DataTableTh>
-              <DataTableTh>Sopir</DataTableTh>
               <DataTableTh>Max Berat (kg)</DataTableTh>
               <DataTableTh>Status</DataTableTh>
               <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={5} />
+                <DataTableLoading colSpan={4} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={5} />
+                <DataTableEmpty colSpan={4} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
                     <DataTableTd className="font-mono font-medium">
                       {item.plate_number}
                     </DataTableTd>
-                    <DataTableTd>{item.driver_name || "—"}</DataTableTd>
                     <DataTableTd>{item.max_weight_kg}</DataTableTd>
                     <DataTableTd>
                       <Badge>

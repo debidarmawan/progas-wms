@@ -16,20 +16,11 @@ export function listFillingBatches(params?: PaginationParams) {
 }
 
 export function getFillingBatch(id: string) {
-  return apiRequest<FillingBatchResponse>(
-    `/production/filling-batches/${id}`,
-  );
+  return apiRequest<FillingBatchResponse>(`/production/filling-batches/${id}`);
 }
 
 export function submitFillingBatch(payload: SubmitFillingBatchRequest) {
   return apiRequest<FillingBatchResponse>("/production/filling-batches", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
-
-export function preFillQc(payload: BarcodeListRequest) {
-  return apiRequest<BarcodeOperationResponse>("/production/qc/pre-fill", {
     method: "POST",
     body: JSON.stringify(payload),
   });

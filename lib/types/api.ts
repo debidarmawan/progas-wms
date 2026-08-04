@@ -301,20 +301,38 @@ export interface ExchangeResponse {
 export interface FleetResponse {
   id: string;
   plate_number: string;
-  driver_name?: string;
   max_weight_kg: number;
   is_active?: boolean;
 }
 
 export interface CreateFleetRequest {
   plate_number: string;
-  driver_name?: string;
   max_weight_kg: number;
 }
 
 export interface UpdateFleetRequest {
-  driver_name?: string;
   max_weight_kg?: number;
+  is_active?: boolean;
+}
+
+export interface DriverResponse {
+  id: string;
+  name: string;
+  phone?: string;
+  license_number?: string;
+  is_active?: boolean;
+}
+
+export interface CreateDriverRequest {
+  name: string;
+  phone?: string;
+  license_number?: string;
+}
+
+export interface UpdateDriverRequest {
+  name?: string;
+  phone?: string;
+  license_number?: string;
   is_active?: boolean;
 }
 

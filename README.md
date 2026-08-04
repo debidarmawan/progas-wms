@@ -20,8 +20,8 @@ Buka [http://localhost:3000](http://localhost:3000) — akan diarahkan ke login 
 
 ### Environment
 
-| Variable | Default |
-|----------|---------|
+| Variable                   | Default                        |
+| -------------------------- | ------------------------------ |
 | `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:3131/api/v1` |
 
 ## Modul yang sudah terintegrasi
@@ -30,7 +30,7 @@ Buka [http://localhost:3000](http://localhost:3000) — akan diarahkan ke login 
 - **Master Items** — list, tambah
 - **Tabung** — list, registrasi
 - **Pelanggan** — list, tambah, edit (kuota & outstanding)
-- **Produksi** — QC pre-fill, filling batch (list, submit, detail)
+- **Produksi** — filling batch (list, submit, detail), QC post-fill
 - **Inbound** — terima tabung kosong
 
 Modul menunggu API backend: Surat Jalan, pertukaran tabung, work order, dashboard analitik, audit log.
@@ -56,4 +56,4 @@ npm run dev      # Development
 npm run build    # Production build
 npm run start    # Production server
 npm run lint     # ESLint
-``` 
+```
