@@ -21,7 +21,7 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function NewCylinderPage() {
@@ -81,6 +81,7 @@ export default function NewCylinderPage() {
         ownership_type: ownership,
         owner_id: ownership === "COMPANY" ? undefined : ownerId,
         last_hydrotest_date: String(form.get("last_hydrotest_date")),
+        remarks: String(form.get("remarks") || "").trim(),
       });
       router.push("/dashboard/cylinders");
       router.refresh();
@@ -96,128 +97,137 @@ export default function NewCylinderPage() {
       <PageHeader title="Registrasi Tabung" />
       <FormPageGrid>
         <FormMainCard>
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <FormSection
-                title="Identitas Tabung"
-                description="Setiap tabung harus memiliki barcode unik dan produk yang sesuai."
-              >
-                <div>
-                  <Label htmlFor="barcode_sn">Barcode / Serial Number</Label>
-                  <Input
-                    id="barcode_sn"
-                    name="barcode_sn"
-                    required
-                    placeholder="Contoh: CYL-OG-000123"
-                    onChange={(event) => setBarcodePreview(event.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="item_id">Produk Gas</Label>
-                  <Select id="item_id" name="item_id" required defaultValue="">
-                    <option value="" disabled>
-                      Pilih produk
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <FormSection
+              title="Identitas Tabung"
+              description="Setiap tabung harus memiliki barcode unik dan produk yang sesuai."
+            >
+              <div>
+                <Label htmlFor="barcode_sn">Barcode / Serial Number</Label>
+                <Input
+                  id="barcode_sn"
+                  name="barcode_sn"
+                  required
+                  placeholder="Contoh: CYL-OG-000123"
+                  onChange={(event) => setBarcodePreview(event.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="item_id">Produk Gas</Label>
+                <Select id="item_id" name="item_id" required defaultValue="">
+                  <option value="" disabled>
+                    Pilih produk
+                  </option>
+                  {items.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name} ({item.sku})
                     </option>
-                    {items.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name} ({item.sku})
-                      </option>
-                    ))}
+                  ))}
+                </Select>
+              </div>
+            </FormSection>
+
+            <FormSection title="Kepemilikan & Sertifikasi" tone="accent">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="ownership_type">Kepemilikan</Label>
+                  <Select
+                    id="ownership_type"
+                    name="ownership_type"
+                    defaultValue="COMPANY"
+                    onChange={(event) => setOwnershipType(event.target.value)}
+                  >
+                    <option value="COMPANY">COMPANY</option>
+                    <option value="CUSTOMER">CUSTOMER</option>
+                    <option value="VENDOR">VENDOR</option>
                   </Select>
                 </div>
-              </FormSection>
-
-              <FormSection
-                title="Kepemilikan & Sertifikasi"
-                tone="accent"
-              >
-                <div className="grid gap-4 sm:grid-cols-2">
+                {needsOwner ? (
                   <div>
-                    <Label htmlFor="ownership_type">Kepemilikan</Label>
-                    <Select
-                      id="ownership_type"
-                      name="ownership_type"
-                      defaultValue="COMPANY"
-                      onChange={(event) => setOwnershipType(event.target.value)}
-                    >
-                      <option value="COMPANY">COMPANY</option>
-                      <option value="CUSTOMER">CUSTOMER</option>
-                      <option value="VENDOR">VENDOR</option>
-                    </Select>
+                    {ownershipType === "CUSTOMER" ? (
+                      <>
+                        <Label htmlFor="owner_id">Pelanggan Pemilik</Label>
+                        <Select
+                          id="owner_id"
+                          name="owner_id"
+                          required
+                          defaultValue=""
+                        >
+                          <option value="" disabled>
+                            Pilih pelanggan
+                          </option>
+                          {customers.map((customer) => (
+                            <option key={customer.id} value={customer.id}>
+                              {customer.code} — {customer.name}
+                            </option>
+                          ))}
+                        </Select>
+                      </>
+                    ) : (
+                      <>
+                        <Label htmlFor="owner_id">Vendor Pemilik</Label>
+                        <Select
+                          id="owner_id"
+                          name="owner_id"
+                          required
+                          defaultValue=""
+                        >
+                          <option value="" disabled>
+                            Pilih vendor
+                          </option>
+                          {vendors.map((vendor) => (
+                            <option key={vendor.id} value={vendor.id}>
+                              {vendor.code} — {vendor.name}
+                            </option>
+                          ))}
+                        </Select>
+                      </>
+                    )}
                   </div>
-                  {needsOwner ? (
-                    <div>
-                      {ownershipType === "CUSTOMER" ? (
-                        <>
-                          <Label htmlFor="owner_id">Pelanggan Pemilik</Label>
-                          <Select
-                            id="owner_id"
-                            name="owner_id"
-                            required
-                            defaultValue=""
-                          >
-                            <option value="" disabled>
-                              Pilih pelanggan
-                            </option>
-                            {customers.map((customer) => (
-                              <option key={customer.id} value={customer.id}>
-                                {customer.code} — {customer.name}
-                              </option>
-                            ))}
-                          </Select>
-                        </>
-                      ) : (
-                        <>
-                          <Label htmlFor="owner_id">Vendor Pemilik</Label>
-                          <Select
-                            id="owner_id"
-                            name="owner_id"
-                            required
-                            defaultValue=""
-                          >
-                            <option value="" disabled>
-                              Pilih vendor
-                            </option>
-                            {vendors.map((vendor) => (
-                              <option key={vendor.id} value={vendor.id}>
-                                {vendor.code} — {vendor.name}
-                              </option>
-                            ))}
-                          </Select>
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="flex items-end pb-2 text-sm text-slate-500">
-                      Tabung milik perusahaan — tidak perlu pemilik eksternal.
-                    </p>
-                  )}
-                </div>
-                <div className="max-w-sm">
-                  <Label htmlFor="last_hydrotest_date">Tanggal Hydrotest</Label>
-                  <Input
-                    id="last_hydrotest_date"
-                    name="last_hydrotest_date"
-                    type="date"
-                    required
-                  />
-                </div>
-              </FormSection>
-
-              {error ? <Alert variant="error">{error}</Alert> : null}
-
-              <div className="flex gap-2 pt-2">
-                <Button disabled={loading} type="submit">
-                  {loading ? "Menyimpan..." : "Simpan"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => router.back()}
-                >
-                  Batal
-                </Button>
+                ) : (
+                  <p className="flex items-end pb-2 text-sm text-slate-500">
+                    Tabung milik perusahaan — tidak perlu pemilik eksternal.
+                  </p>
+                )}
               </div>
-            </form>
+              <div className="max-w-sm">
+                <Label htmlFor="last_hydrotest_date">Tanggal Hydrotest</Label>
+                <Input
+                  id="last_hydrotest_date"
+                  name="last_hydrotest_date"
+                  type="date"
+                  required
+                />
+              </div>
+            </FormSection>
+
+            <FormSection title="Keterangan">
+              <div>
+                <Label htmlFor="remarks">Remarks</Label>
+                <Textarea
+                  id="remarks"
+                  name="remarks"
+                  rows={3}
+                  placeholder="Opsional — catatan kondisi tabung, sertifikat, dll."
+                />
+              </div>
+            </FormSection>
+
+            {error ? <Alert variant="error">{error}</Alert> : null}
+
+            <div className="flex gap-2 pt-2">
+              <Button disabled={loading} type="submit">
+                {loading ? "Menyimpan..." : "Simpan"}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => router.back()}
+              >
+                Batal
+              </Button>
+            </div>
+          </form>
         </FormMainCard>
 
         <FormAsideStack>
@@ -227,7 +237,9 @@ export default function NewCylinderPage() {
             </p>
             <p className="text-sm text-slate-500">
               Ownership:{" "}
-              <span className="font-medium text-slate-700">{ownershipType}</span>
+              <span className="font-medium text-slate-700">
+                {ownershipType}
+              </span>
             </p>
             {!isCompanyOwned ? (
               <p className="text-sm text-slate-500">
@@ -236,7 +248,9 @@ export default function NewCylinderPage() {
                   : "Wajib pilih vendor."}
               </p>
             ) : (
-              <p className="text-sm text-slate-500">Milik perusahaan (tanpa owner ID)</p>
+              <p className="text-sm text-slate-500">
+                Milik perusahaan (tanpa owner ID)
+              </p>
             )}
           </FormAsideCard>
           <Card className="shadow-[var(--shadow-soft)]">

@@ -1,20 +1,22 @@
 import { Card, CardBody } from "@/components/ui/card";
 import { cn } from "@/lib/utils/cn";
 
+const asideClasses = {
+  default: "lg:grid-cols-[minmax(0,1fr)_300px]",
+  wide: "lg:grid-cols-[minmax(0,1fr)_400px]",
+} as const;
+
 export function FormPageGrid({
   children,
   className,
+  aside = "default",
 }: {
   children: React.ReactNode;
   className?: string;
+  aside?: keyof typeof asideClasses;
 }) {
   return (
-    <div
-      className={cn(
-        "grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]",
-        className,
-      )}
-    >
+    <div className={cn("grid gap-6", asideClasses[aside], className)}>
       {children}
     </div>
   );
@@ -49,7 +51,9 @@ export function FormSection({
         : "border-slate-100 bg-white";
 
   return (
-    <section className={cn("space-y-4 rounded-xl border p-4", toneClass, className)}>
+    <section
+      className={cn("space-y-4 rounded-xl border p-4", toneClass, className)}
+    >
       <div>
         <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
         {description ? (

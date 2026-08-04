@@ -2,12 +2,18 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
-import { getCylinder, updateCylinder } from "@/lib/api/cylinders";
+import {
+  getCylinder,
+  getCylinderHistory,
+  updateCylinder,
+} from "@/lib/api/cylinders";
 import { listCustomers } from "@/lib/api/customers";
 import { listMasterItems } from "@/lib/api/master-items";
 import { listVendors } from "@/lib/api/vendors";
 import type {
   CustomerResponse,
+  CylinderHistoryChange,
+  CylinderHistoryResponse,
   MasterItemResponse,
   VendorResponse,
 } from "@/lib/types/api";
@@ -21,8 +27,27 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+
+const cylinderStatusLabels: Record<string, string> = {
+  EMPTY: "Kosong",
+  READY_TO_FILL: "Siap Isi",
+  FILLED: "Terisi",
+  READY: "Siap Kirim",
+  IN_TRANSIT: "Dalam Perjalanan",
+  OUTSTANDING: "Outstanding",
+  MAINTENANCE: "Perawatan",
+  LOST: "Hilang",
+  WRITE_OFF: "Dihapus",
+};
+
+function formatHistoryValue(change: CylinderHistoryChange, isOld: boolean) {
+  const value = isOld ? change.old : change.new;
+  if (!value) return "—";
+  if (change.field === "status") return cylinderStatusLabels[value] || value;
+  return value;
+}
 
 export default function EditCylinderPage() {
   const params = useParams<{ id: string }>();
@@ -30,6 +55,8 @@ export default function EditCylinderPage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<CylinderHistoryResponse | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [items, setItems] = useState<MasterItemResponse[]>([]);
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [vendors, setVendors] = useState<VendorResponse[]>([]);
@@ -40,6 +67,7 @@ export default function EditCylinderPage() {
     owner_id: "",
     last_hydrotest_date: "",
     status: "",
+    remarks: "",
   });
   const [ownershipType, setOwnershipType] = useState("COMPANY");
 
@@ -48,14 +76,18 @@ export default function EditCylinderPage() {
   const editable =
     defaults.status === "EMPTY" || defaults.status === "READY_TO_FILL";
 
+  const historyEntries = history?.entries ?? [];
+  const latestEntries = historyEntries.slice(-10).reverse();
+
   useEffect(() => {
     Promise.all([
       getCylinder(params.id),
+      getCylinderHistory(params.id),
       listMasterItems({ page: 1, limit: 100 }),
       listCustomers({ page: 1, limit: 200 }),
       listVendors({ page: 1, limit: 200 }),
     ])
-      .then(([cylinder, itemData, customerData, vendorData]) => {
+      .then(([cylinder, historyData, itemData, customerData, vendorData]) => {
         setDefaults({
           barcode_sn: cylinder.barcode_sn,
           item_id: cylinder.item_id,
@@ -65,8 +97,10 @@ export default function EditCylinderPage() {
             ? cylinder.last_hydrotest_date.slice(0, 10)
             : "",
           status: cylinder.status,
+          remarks: cylinder.remarks || "",
         });
         setOwnershipType(cylinder.ownership_type);
+        setHistory(historyData);
         setItems(itemData.items.filter((item) => item.is_serialized));
         setCustomers(customerData.items);
         setVendors(vendorData.items.filter((v) => v.is_active !== false));
@@ -74,7 +108,10 @@ export default function EditCylinderPage() {
       .catch((err) =>
         setError(err instanceof Error ? err.message : "Gagal memuat data"),
       )
-      .finally(() => setFetching(false));
+      .finally(() => {
+        setFetching(false);
+        setHistoryLoading(false);
+      });
   }, [params.id]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -103,6 +140,7 @@ export default function EditCylinderPage() {
         ownership_type: ownership,
         owner_id: ownership === "COMPANY" ? undefined : ownerId,
         last_hydrotest_date: String(form.get("last_hydrotest_date")),
+        remarks: String(form.get("remarks") || "").trim(),
       });
       router.push("/dashboard/cylinders");
       router.refresh();
@@ -120,7 +158,7 @@ export default function EditCylinderPage() {
   return (
     <div className="animate-in max-w-5xl">
       <PageHeader title="Edit Tabung" />
-      <FormPageGrid>
+      <FormPageGrid aside="wide">
         <FormMainCard>
           <form className="space-y-6" onSubmit={handleSubmit}>
             <FormSection
@@ -237,6 +275,20 @@ export default function EditCylinderPage() {
               </div>
             </FormSection>
 
+            <FormSection title="Keterangan">
+              <div>
+                <Label htmlFor="remarks">Remarks</Label>
+                <Textarea
+                  id="remarks"
+                  name="remarks"
+                  rows={3}
+                  defaultValue={defaults.remarks}
+                  disabled={!editable}
+                  placeholder="Opsional — catatan kondisi tabung, sertifikat, dll."
+                />
+              </div>
+            </FormSection>
+
             {error ? <Alert variant="error">{error}</Alert> : null}
 
             <div className="flex gap-2 pt-2">
@@ -299,6 +351,71 @@ export default function EditCylinderPage() {
                   yang sesuai.
                 </li>
               </ul>
+            </CardBody>
+          </Card>
+          <Card className="shadow-[var(--shadow-soft)]">
+            <CardBody>
+              <p className="font-semibold text-slate-800">Riwayat Perubahan</p>
+              <p className="mt-1 text-sm text-slate-500">
+                {history
+                  ? historyEntries.length > 10
+                    ? `Menampilkan ${latestEntries.length} terakhir dari ${historyEntries.length}`
+                    : `${historyEntries.length} entri`
+                  : "Memuat..."}
+              </p>
+              <div className="mt-4 max-h-[520px] space-y-4 overflow-y-auto pr-1">
+                {historyLoading ? (
+                  <p className="text-sm text-slate-500">Memuat riwayat...</p>
+                ) : !history || historyEntries.length === 0 ? (
+                  <p className="text-sm text-slate-500">
+                    Belum ada perubahan tercatat.
+                  </p>
+                ) : (
+                  latestEntries.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="space-y-1.5 border-l-2 border-slate-200 pl-3"
+                    >
+                      <p className="text-xs font-semibold text-slate-800">
+                        {entry.action_label}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {new Date(entry.created_at).toLocaleString("id-ID")}
+                        {entry.user_name ? ` · ${entry.user_name}` : ""}
+                      </p>
+                      {(entry.changes?.length ?? 0) === 0 ? (
+                        <p className="text-xs text-slate-400">
+                          Tidak ada perubahan field.
+                        </p>
+                      ) : (
+                        <ul className="space-y-1">
+                          {(entry.changes ?? []).map((change, index) => (
+                            <li
+                              key={index}
+                              className="flex items-baseline gap-1 text-xs"
+                            >
+                              <span className="min-w-[68px] text-slate-500">
+                                {change.label}
+                              </span>
+                              {change.old ? (
+                                <>
+                                  <span className="text-slate-400">
+                                    {formatHistoryValue(change, true)}
+                                  </span>
+                                  <span className="text-slate-300">→</span>
+                                </>
+                              ) : null}
+                              <span className="font-medium text-slate-700">
+                                {formatHistoryValue(change, false)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
             </CardBody>
           </Card>
         </FormAsideStack>

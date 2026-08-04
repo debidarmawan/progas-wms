@@ -98,6 +98,7 @@ export interface CylinderResponse {
   owner_id?: string;
   status: string;
   last_hydrotest_date?: string;
+  remarks?: string;
 }
 
 export interface CreateCylinderRequest {
@@ -106,6 +107,7 @@ export interface CreateCylinderRequest {
   ownership_type: string;
   owner_id?: string;
   last_hydrotest_date: string;
+  remarks?: string;
 }
 
 export interface UpdateCylinderRequest {
@@ -114,6 +116,7 @@ export interface UpdateCylinderRequest {
   ownership_type: string;
   owner_id?: string;
   last_hydrotest_date: string;
+  remarks?: string;
 }
 
 export interface CustomerResponse {
@@ -406,6 +409,29 @@ export interface TurnaroundReportResponse {
   sample_count: number;
   average_days: number;
   samples: TurnaroundSample[];
+}
+
+export interface CylinderHistoryChange {
+  field: string;
+  label: string;
+  old: string;
+  new: string;
+}
+
+export interface CylinderHistoryEntry {
+  id: string;
+  action: string;
+  action_label: string;
+  user_id?: string;
+  user_name?: string;
+  created_at: string;
+  changes?: CylinderHistoryChange[];
+}
+
+export interface CylinderHistoryResponse {
+  cylinder_id: string;
+  barcode_sn: string;
+  entries: CylinderHistoryEntry[];
 }
 
 export interface VendorResponse {

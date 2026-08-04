@@ -1,6 +1,7 @@
 import { apiRequest } from "@/lib/api/client";
 import type {
   CreateCylinderRequest,
+  CylinderHistoryResponse,
   CylinderResponse,
   MessageResponse,
   PaginatedList,
@@ -14,6 +15,10 @@ export function listCylinders(params?: PaginationParams) {
 
 export function getCylinder(id: string) {
   return apiRequest<CylinderResponse>(`/cylinders/${id}`);
+}
+
+export function getCylinderHistory(id: string) {
+  return apiRequest<CylinderHistoryResponse>(`/cylinders/${id}/history`);
 }
 
 export function createCylinder(payload: CreateCylinderRequest) {
