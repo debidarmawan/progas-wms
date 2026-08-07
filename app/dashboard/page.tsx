@@ -53,9 +53,7 @@ function StatCard({
 }
 
 export default function DashboardPage() {
-  const [summary, setSummary] = useState<DashboardSummaryResponse | null>(
-    null,
-  );
+  const [summary, setSummary] = useState<DashboardSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,6 +110,11 @@ export default function DashboardPage() {
               tone="danger"
             />
             <StatCard
+              label="Tabung Overdue di Customer"
+              value={summary.overdue_cylinders_count}
+              tone={summary.overdue_cylinders_count > 0 ? "danger" : "default"}
+            />
+            <StatCard
               label="Pelanggan Over Kuota"
               value={summary.customers_over_quota.length}
               tone={
@@ -128,23 +131,58 @@ export default function DashboardPage() {
             Tabung per Status
           </h2>
           <div className="flex flex-wrap gap-2">
-            {Object.entries(summary.cylinders_by_status).map(([status, count]) => (
-              <span
-                key={status}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm"
-              >
-                <span className="font-mono text-xs text-slate-500">{status}</span>
-                <span className="ml-2 font-semibold text-slate-900">{count}</span>
-              </span>
-            ))}
+            {Object.entries(summary.cylinders_by_status).map(
+              ([status, count]) => (
+                <span
+                  key={status}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm"
+                >
+                  <span className="font-mono text-xs text-slate-500">
+                    {status}
+                  </span>
+                  <span className="ml-2 font-semibold text-slate-900">
+                    {count}
+                  </span>
+                </span>
+              ),
+            )}
           </div>
         </section>
       ) : null}
 
       {summary &&
-      (summary.customers_over_quota.length > 0 ||
+      (summary.overdue_cylinders_count > 0 ||
+        summary.customers_over_quota.length > 0 ||
         summary.low_stock_spareparts.length > 0) ? (
         <div className="grid gap-6 lg:grid-cols-2">
+          {summary.overdue_cylinders_count > 0 ? (
+            <Card>
+              <CardBody>
+                <h2 className="font-semibold text-rose-700">
+                  Tabung Overdue di Customer
+                </h2>
+                <ul className="mt-4 space-y-2">
+                  {summary.overdue_cylinders.map((c) => (
+                    <li
+                      key={c.barcode_sn}
+                      className="flex justify-between rounded-lg bg-rose-50/60 px-3 py-2 text-sm"
+                    >
+                      <span>
+                        <span className="font-mono">{c.barcode_sn}</span>
+                        <span className="text-slate-500">
+                          {" "}
+                          — {c.customer_code} {c.customer_name}
+                        </span>
+                      </span>
+                      <span className="font-medium text-rose-700">
+                        {c.days_at_customer}/{c.max_days} hari
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </CardBody>
+            </Card>
+          ) : null}
           {summary.customers_over_quota.length > 0 ? (
             <Card>
               <CardBody>
@@ -172,7 +210,9 @@ export default function DashboardPage() {
           {summary.low_stock_spareparts.length > 0 ? (
             <Card>
               <CardBody>
-                <h2 className="font-semibold text-amber-700">Stok Spare Part Rendah</h2>
+                <h2 className="font-semibold text-amber-700">
+                  Stok Spare Part Rendah
+                </h2>
                 <ul className="mt-4 space-y-2">
                   {summary.low_stock_spareparts.map((item) => (
                     <li
@@ -210,7 +250,9 @@ export default function DashboardPage() {
                     <div className="mb-4 inline-flex rounded-xl bg-indigo-50 p-3 text-indigo-600">
                       {Icon ? <Icon /> : null}
                     </div>
-                    <h3 className="font-semibold text-slate-900">{item.label}</h3>
+                    <h3 className="font-semibold text-slate-900">
+                      {item.label}
+                    </h3>
                     <p className="mt-1 flex-1 text-sm text-slate-500">{desc}</p>
                     <span className="mt-4 text-sm font-medium text-indigo-600">
                       Buka modul →

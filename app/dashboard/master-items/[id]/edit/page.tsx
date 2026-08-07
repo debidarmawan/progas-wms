@@ -30,6 +30,7 @@ export default function EditMasterItemPage() {
     empty_weight_kg: "",
     gas_weight_kg: "",
     min_stock_alert: "",
+    max_days_at_customer: "",
   });
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function EditMasterItemPage() {
           empty_weight_kg: String(item.empty_weight_kg ?? ""),
           gas_weight_kg: String(item.gas_weight_kg ?? ""),
           min_stock_alert: String(item.min_stock_alert ?? ""),
+          max_days_at_customer: String(item.max_days_at_customer ?? ""),
         });
       })
       .catch((err) =>
@@ -70,6 +72,9 @@ export default function EditMasterItemPage() {
         min_stock_alert: isSerialized
           ? undefined
           : Number(form.get("min_stock_alert")) || undefined,
+        max_days_at_customer: isSerialized
+          ? Number(form.get("max_days_at_customer")) || undefined
+          : undefined,
       });
       router.push("/dashboard/master-items");
       router.refresh();
@@ -145,6 +150,23 @@ export default function EditMasterItemPage() {
                     />
                   </div>
                 </div>
+                <div className="max-w-sm">
+                  <Label htmlFor="max_days_at_customer">
+                    Maksimal Hari di Customer
+                  </Label>
+                  <Input
+                    id="max_days_at_customer"
+                    name="max_days_at_customer"
+                    type="number"
+                    min="0"
+                    defaultValue={defaults.max_days_at_customer}
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    Batas maksimal (hari) tabung boleh berada di lokasi customer
+                    sebelum dianggap terlambat (overdue). Isi 0 jika tidak ada
+                    batasan.
+                  </p>
+                </div>
               </FormSection>
             ) : (
               <FormSection title="Pengaturan Stok">
@@ -167,7 +189,11 @@ export default function EditMasterItemPage() {
               <Button disabled={loading} type="submit">
                 {loading ? "Menyimpan..." : "Simpan"}
               </Button>
-              <Button type="button" variant="secondary" onClick={() => router.back()}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => router.back()}
+              >
                 Batal
               </Button>
             </div>

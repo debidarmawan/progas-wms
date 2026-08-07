@@ -52,6 +52,9 @@ export default function NewMasterItemPage() {
         min_stock_alert: serialized
           ? undefined
           : Number(form.get("min_stock_alert")) || undefined,
+        max_days_at_customer: serialized
+          ? Number(form.get("max_days_at_customer")) || undefined
+          : undefined,
       });
       router.push("/dashboard/master-items");
       router.refresh();
@@ -67,165 +70,192 @@ export default function NewMasterItemPage() {
       <PageHeader title="Tambah Master Item" />
       <FormPageGrid>
         <FormMainCard>
-            <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <FormSection
+              title="Informasi Dasar"
+              description="Data utama item yang akan tampil di master data."
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="name">Nama</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    required
+                    placeholder="Contoh: Gas Oksigen 6m3"
+                    value={itemNamePreview}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setItemNamePreview(value);
+                      if (!isSkuManuallyEdited) {
+                        setSkuPreview(generateSkuFromName(value));
+                      }
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="sku">SKU</Label>
+                  <Input
+                    id="sku"
+                    name="sku"
+                    required
+                    placeholder="Auto generate dari nama item"
+                    value={skuPreview}
+                    onChange={(event) => {
+                      setSkuPreview(event.target.value.toUpperCase());
+                      setIsSkuManuallyEdited(true);
+                    }}
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    SKU otomatis dibuat dari nama item, namun tetap bisa Anda
+                    ubah manual.
+                  </p>
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="gas_type">Jenis Gas</Label>
+                  <Input
+                    id="gas_type"
+                    name="gas_type"
+                    placeholder="OXYGEN, NITROGEN, ..."
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="is_serialized">Tipe Item</Label>
+                  <Select
+                    id="is_serialized"
+                    name="is_serialized"
+                    defaultValue="true"
+                    onChange={(event) =>
+                      setIsSerialized(event.target.value === "true")
+                    }
+                  >
+                    <option value="true">Tabung (serialized)</option>
+                    <option value="false">Suku cadang</option>
+                  </Select>
+                </div>
+              </div>
+            </FormSection>
+
+            {isSerialized ? (
               <FormSection
-                title="Informasi Dasar"
-                description="Data utama item yang akan tampil di master data."
+                title="Informasi Berat Tabung"
+                description="Digunakan untuk estimasi berat muatan logistik."
+                tone="accent"
+                className="space-y-3"
               >
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <Label htmlFor="name">Nama</Label>
+                    <Label htmlFor="empty_weight_kg">
+                      Berat Tabung Kosong (kg)
+                    </Label>
                     <Input
-                      id="name"
-                      name="name"
-                      required
-                      placeholder="Contoh: Gas Oksigen 6m3"
-                      value={itemNamePreview}
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        setItemNamePreview(value);
-                        if (!isSkuManuallyEdited) {
-                          setSkuPreview(generateSkuFromName(value));
-                        }
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="sku">SKU</Label>
-                    <Input
-                      id="sku"
-                      name="sku"
-                      required
-                      placeholder="Auto generate dari nama item"
-                      value={skuPreview}
-                      onChange={(event) => {
-                        setSkuPreview(event.target.value.toUpperCase());
-                        setIsSkuManuallyEdited(true);
-                      }}
+                      id="empty_weight_kg"
+                      name="empty_weight_kg"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="Contoh: 50"
                     />
                     <p className="mt-1 text-xs text-slate-500">
-                      SKU otomatis dibuat dari nama item, namun tetap bisa Anda ubah manual.
+                      Berat fisik tabung tanpa isi gas.
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="gas_weight_kg">Berat Gas Penuh (kg)</Label>
+                    <Input
+                      id="gas_weight_kg"
+                      name="gas_weight_kg"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="Contoh: 7"
+                    />
+                    <p className="mt-1 text-xs text-slate-500">
+                      Berat gas saat tabung terisi penuh.
                     </p>
                   </div>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <Label htmlFor="gas_type">Jenis Gas</Label>
-                    <Input
-                      id="gas_type"
-                      name="gas_type"
-                      placeholder="OXYGEN, NITROGEN, ..."
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="is_serialized">Tipe Item</Label>
-                    <Select
-                      id="is_serialized"
-                      name="is_serialized"
-                      defaultValue="true"
-                      onChange={(event) =>
-                        setIsSerialized(event.target.value === "true")
-                      }
-                    >
-                      <option value="true">Tabung (serialized)</option>
-                      <option value="false">Suku cadang</option>
-                    </Select>
-                  </div>
+                <p className="rounded-lg bg-white/70 px-3 py-2 text-xs text-slate-600">
+                  Total berat tabung terisi = berat tabung kosong + berat gas
+                  penuh.
+                </p>
+              </FormSection>
+            ) : (
+              <FormSection
+                title="Informasi Berat Tabung"
+                tone="muted"
+                className="text-sm text-slate-600"
+              >
+                Item suku cadang tidak memerlukan kolom berat tabung.
+              </FormSection>
+            )}
+
+            {isSerialized ? (
+              <FormSection
+                title="Pengaturan Stok Tabung"
+                tone="muted"
+                className="space-y-3"
+              >
+                <div className="max-w-sm">
+                  <Label htmlFor="max_days_at_customer">
+                    Maksimal Hari di Customer
+                  </Label>
+                  <Input
+                    id="max_days_at_customer"
+                    name="max_days_at_customer"
+                    type="number"
+                    min="0"
+                    placeholder="Contoh: 30"
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    Batas maksimal (hari) tabung boleh berada di lokasi customer
+                    sebelum dianggap terlambat (overdue). Isi 0 jika tidak ada
+                    batasan.
+                  </p>
+                </div>
+                <p className="rounded-lg bg-white/70 px-3 py-2 text-xs text-slate-600">
+                  Untuk item tabung (serialized),{" "}
+                  <strong>Min Stock Alert</strong> tidak digunakan karena
+                  kontrol stok dilakukan dari jumlah unit barcode per status
+                  (READY, EMPTY, OUTSTANDING, dll).
+                </p>
+              </FormSection>
+            ) : (
+              <FormSection title="Pengaturan Stok" className="space-y-3">
+                <div className="max-w-sm">
+                  <Label htmlFor="min_stock_alert">Min Stock Alert</Label>
+                  <Input
+                    id="min_stock_alert"
+                    name="min_stock_alert"
+                    type="number"
+                    min="0"
+                    placeholder="Contoh: 10"
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    Alert akan muncul jika stok spare part turun di bawah nilai
+                    ini.
+                  </p>
                 </div>
               </FormSection>
+            )}
 
-              {isSerialized ? (
-                <FormSection
-                  title="Informasi Berat Tabung"
-                  description="Digunakan untuk estimasi berat muatan logistik."
-                  tone="accent"
-                  className="space-y-3"
-                >
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div>
-                      <Label htmlFor="empty_weight_kg">Berat Tabung Kosong (kg)</Label>
-                      <Input
-                        id="empty_weight_kg"
-                        name="empty_weight_kg"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="Contoh: 50"
-                      />
-                      <p className="mt-1 text-xs text-slate-500">
-                        Berat fisik tabung tanpa isi gas.
-                      </p>
-                    </div>
-                    <div>
-                      <Label htmlFor="gas_weight_kg">Berat Gas Penuh (kg)</Label>
-                      <Input
-                        id="gas_weight_kg"
-                        name="gas_weight_kg"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="Contoh: 7"
-                      />
-                      <p className="mt-1 text-xs text-slate-500">
-                        Berat gas saat tabung terisi penuh.
-                      </p>
-                    </div>
-                  </div>
-                  <p className="rounded-lg bg-white/70 px-3 py-2 text-xs text-slate-600">
-                    Total berat tabung terisi = berat tabung kosong + berat gas penuh.
-                  </p>
-                </FormSection>
-              ) : (
-                <FormSection
-                  title="Informasi Berat Tabung"
-                  tone="muted"
-                  className="text-sm text-slate-600"
-                >
-                  Item suku cadang tidak memerlukan kolom berat tabung.
-                </FormSection>
-              )}
+            {error ? <Alert variant="error">{error}</Alert> : null}
 
-              {isSerialized ? (
-                <FormSection
-                  title="Pengaturan Stok Tabung"
-                  tone="muted"
-                  className="space-y-2 text-sm text-slate-600"
-                >
-                  <p>
-                    Untuk item tabung (serialized), <strong>Min Stock Alert</strong>{" "}
-                    tidak digunakan karena kontrol stok dilakukan dari jumlah unit
-                    barcode per status (READY, EMPTY, OUTSTANDING, dll).
-                  </p>
-                </FormSection>
-              ) : (
-                <FormSection title="Pengaturan Stok" className="space-y-3">
-                  <div className="max-w-sm">
-                    <Label htmlFor="min_stock_alert">Min Stock Alert</Label>
-                    <Input
-                      id="min_stock_alert"
-                      name="min_stock_alert"
-                      type="number"
-                      min="0"
-                      placeholder="Contoh: 10"
-                    />
-                    <p className="mt-1 text-xs text-slate-500">
-                      Alert akan muncul jika stok spare part turun di bawah nilai ini.
-                    </p>
-                  </div>
-                </FormSection>
-              )}
-
-              {error ? <Alert variant="error">{error}</Alert> : null}
-
-              <div className="flex gap-2 pt-2">
-                <Button disabled={loading} type="submit">
-                  {loading ? "Menyimpan..." : "Simpan"}
-                </Button>
-                <Button type="button" variant="secondary" onClick={() => router.back()}>
-                  Batal
-                </Button>
-              </div>
-            </form>
+            <div className="flex gap-2 pt-2">
+              <Button disabled={loading} type="submit">
+                {loading ? "Menyimpan..." : "Simpan"}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => router.back()}
+              >
+                Batal
+              </Button>
+            </div>
+          </form>
         </FormMainCard>
 
         <FormAsideStack>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getVirtualWarehouse } from "@/lib/api/inventory";
 import type { VirtualWarehouseCustomer } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardBody } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -36,7 +37,9 @@ export default function VirtualWarehousePage() {
       ) : customers.length === 0 ? (
         <Card>
           <CardBody>
-            <p className="text-sm text-slate-500">Tidak ada outstanding saat ini.</p>
+            <p className="text-sm text-slate-500">
+              Tidak ada outstanding saat ini.
+            </p>
           </CardBody>
         </Card>
       ) : (
@@ -49,7 +52,9 @@ export default function VirtualWarehousePage() {
                   className="flex w-full items-center justify-between text-left"
                   onClick={() =>
                     setExpanded((prev) =>
-                      prev === customer.customer_id ? null : customer.customer_id,
+                      prev === customer.customer_id
+                        ? null
+                        : customer.customer_id,
                     )
                   }
                 >
@@ -59,17 +64,41 @@ export default function VirtualWarehousePage() {
                     </p>
                     <p className="text-sm text-slate-500">
                       {customer.outstanding_count} tabung outstanding
+                      {customer.overdue_count > 0 ? (
+                        <span className="ml-1 font-medium text-rose-700">
+                          · {customer.overdue_count} overdue
+                        </span>
+                      ) : null}
                     </p>
                   </div>
                   <span className="text-indigo-600 text-sm font-medium">
-                    {expanded === customer.customer_id ? "Tutup" : "Lihat barcode"}
+                    {expanded === customer.customer_id
+                      ? "Tutup"
+                      : "Lihat barcode"}
                   </span>
                 </button>
                 {expanded === customer.customer_id ? (
                   <ul className="mt-4 max-h-48 space-y-1 overflow-y-auto border-t border-slate-100 pt-4 font-mono text-sm">
-                    {customer.cylinder_barcodes.map((barcode) => (
-                      <li key={barcode} className="rounded-md bg-slate-50 px-2 py-1">
-                        {barcode}
+                    {customer.cylinders.map((cyl) => (
+                      <li
+                        key={cyl.barcode_sn}
+                        className={`flex items-center justify-between rounded-md px-2 py-1 ${
+                          cyl.is_overdue ? "bg-rose-50" : "bg-slate-50"
+                        }`}
+                      >
+                        <span>{cyl.barcode_sn}</span>
+                        <span className="flex items-center gap-2 font-sans">
+                          <span className="text-xs text-slate-500">
+                            {cyl.max_days > 0
+                              ? `${cyl.days_at_customer}/${cyl.max_days} hari`
+                              : `${cyl.days_at_customer} hari`}
+                          </span>
+                          {cyl.is_overdue ? (
+                            <Badge className="bg-rose-100 text-rose-700 ring-rose-200">
+                              Overdue
+                            </Badge>
+                          ) : null}
+                        </span>
                       </li>
                     ))}
                   </ul>

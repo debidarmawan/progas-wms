@@ -63,6 +63,7 @@ export interface MasterItemResponse {
   empty_weight_kg?: number;
   gas_weight_kg?: number;
   min_stock_alert?: number;
+  max_days_at_customer?: number;
   stock_quantity?: number;
 }
 
@@ -74,6 +75,7 @@ export interface CreateMasterItemRequest {
   empty_weight_kg?: number;
   gas_weight_kg?: number;
   min_stock_alert?: number;
+  max_days_at_customer?: number;
 }
 
 export interface BulkCreateMasterItemRequest {
@@ -86,6 +88,7 @@ export interface UpdateMasterItemRequest {
   empty_weight_kg?: number;
   gas_weight_kg?: number;
   min_stock_alert?: number;
+  max_days_at_customer?: number;
 }
 
 export interface CylinderResponse {
@@ -247,6 +250,8 @@ export interface DashboardSummaryResponse {
   hydrotest_due_soon_count: number;
   hydrotest_expired_count: number;
   customers_over_quota: CustomerQuotaAlert[];
+  overdue_cylinders_count: number;
+  overdue_cylinders: OverdueCylinderAlert[];
   low_stock_spareparts: LowStockSparepartAlert[];
 }
 
@@ -383,16 +388,33 @@ export interface RecordHydrotestRequest {
   notes?: string;
 }
 
+export interface VirtualWarehouseCylinder {
+  barcode_sn: string;
+  days_at_customer: number;
+  max_days: number;
+  is_overdue: boolean;
+}
+
 export interface VirtualWarehouseCustomer {
   customer_id: string;
   customer_code: string;
   customer_name: string;
   outstanding_count: number;
-  cylinder_barcodes: string[];
+  overdue_count: number;
+  cylinders: VirtualWarehouseCylinder[];
 }
 
 export interface VirtualWarehouseResponse {
   customers: VirtualWarehouseCustomer[];
+}
+
+export interface OverdueCylinderAlert {
+  customer_id: string;
+  customer_code: string;
+  customer_name: string;
+  barcode_sn: string;
+  days_at_customer: number;
+  max_days: number;
 }
 
 export interface StockOpnameRequest {

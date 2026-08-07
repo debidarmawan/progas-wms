@@ -19,6 +19,7 @@ type DraftItem = {
   empty_weight_kg: string;
   gas_weight_kg: string;
   min_stock_alert: string;
+  max_days_at_customer: string;
   skuEdited: boolean;
 };
 
@@ -41,6 +42,7 @@ function createEmptyItem(seed: number): DraftItem {
     empty_weight_kg: "",
     gas_weight_kg: "",
     min_stock_alert: "",
+    max_days_at_customer: "",
     skuEdited: false,
   };
 }
@@ -57,7 +59,10 @@ export default function NewBulkMasterItemsPage() {
       prev.map((row) => {
         if (row.id !== id) return row;
         const next = { ...row, ...patch };
-        if (Object.prototype.hasOwnProperty.call(patch, "name") && !next.skuEdited) {
+        if (
+          Object.prototype.hasOwnProperty.call(patch, "name") &&
+          !next.skuEdited
+        ) {
           next.sku = generateSku(next.name);
         }
         return next;
@@ -74,7 +79,9 @@ export default function NewBulkMasterItemsPage() {
   }
 
   function removeRow(id: string) {
-    setRows((prev) => (prev.length === 1 ? prev : prev.filter((row) => row.id !== id)));
+    setRows((prev) =>
+      prev.length === 1 ? prev : prev.filter((row) => row.id !== id),
+    );
   }
 
   async function handleSubmit() {
@@ -89,8 +96,15 @@ export default function NewBulkMasterItemsPage() {
         empty_weight_kg: isSerialized
           ? Number(row.empty_weight_kg || 0) || undefined
           : undefined,
-        gas_weight_kg: isSerialized ? Number(row.gas_weight_kg || 0) || undefined : undefined,
-        min_stock_alert: isSerialized ? undefined : Number(row.min_stock_alert || 0) || undefined,
+        gas_weight_kg: isSerialized
+          ? Number(row.gas_weight_kg || 0) || undefined
+          : undefined,
+        min_stock_alert: isSerialized
+          ? undefined
+          : Number(row.min_stock_alert || 0) || undefined,
+        max_days_at_customer: isSerialized
+          ? Number(row.max_days_at_customer || 0) || undefined
+          : undefined,
       };
     });
 
@@ -105,7 +119,9 @@ export default function NewBulkMasterItemsPage() {
       router.push("/dashboard/master-items");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Gagal menyimpan data bulk");
+      setError(
+        err instanceof Error ? err.message : "Gagal menyimpan data bulk",
+      );
     } finally {
       setLoading(false);
     }
@@ -126,7 +142,9 @@ export default function NewBulkMasterItemsPage() {
           <Card key={row.id}>
             <CardBody className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-slate-900">Item #{index + 1}</p>
+                <p className="text-sm font-semibold text-slate-900">
+                  Item #{index + 1}
+                </p>
                 <Button
                   type="button"
                   variant="ghost"
@@ -142,7 +160,9 @@ export default function NewBulkMasterItemsPage() {
                   <Label>Nama</Label>
                   <Input
                     value={row.name}
-                    onChange={(event) => updateRow(row.id, { name: event.target.value })}
+                    onChange={(event) =>
+                      updateRow(row.id, { name: event.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -164,8 +184,14 @@ export default function NewBulkMasterItemsPage() {
                   <Label>Jenis Gas</Label>
                   <Input
                     value={row.gas_type}
-                    onChange={(event) => updateRow(row.id, { gas_type: event.target.value })}
-                    placeholder={isSerialized ? "OXYGEN, NITROGEN, ..." : "Kosongkan untuk sparepart"}
+                    onChange={(event) =>
+                      updateRow(row.id, { gas_type: event.target.value })
+                    }
+                    placeholder={
+                      isSerialized
+                        ? "OXYGEN, NITROGEN, ..."
+                        : "Kosongkan untuk sparepart"
+                    }
                   />
                 </div>
                 <div>
@@ -185,32 +211,51 @@ export default function NewBulkMasterItemsPage() {
               </div>
 
               {isSerialized ? (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <Label>Berat Tabung Kosong (kg)</Label>
+                <>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <Label>Berat Tabung Kosong (kg)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={row.empty_weight_kg}
+                        onChange={(event) =>
+                          updateRow(row.id, {
+                            empty_weight_kg: event.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Berat Gas Penuh (kg)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={row.gas_weight_kg}
+                        onChange={(event) =>
+                          updateRow(row.id, {
+                            gas_weight_kg: event.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="max-w-sm">
+                    <Label>Maksimal Hari di Customer</Label>
                     <Input
                       type="number"
                       min="0"
-                      step="0.01"
-                      value={row.empty_weight_kg}
+                      value={row.max_days_at_customer}
                       onChange={(event) =>
-                        updateRow(row.id, { empty_weight_kg: event.target.value })
+                        updateRow(row.id, {
+                          max_days_at_customer: event.target.value,
+                        })
                       }
                     />
                   </div>
-                  <div>
-                    <Label>Berat Gas Penuh (kg)</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={row.gas_weight_kg}
-                      onChange={(event) =>
-                        updateRow(row.id, { gas_weight_kg: event.target.value })
-                      }
-                    />
-                  </div>
-                </div>
+                </>
               ) : (
                 <div className="max-w-sm">
                   <Label>Min Stock Alert</Label>

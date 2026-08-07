@@ -57,7 +57,11 @@ export default function MasterItemsPage() {
         onChange={(event) => setSearch(event.target.value)}
       />
 
-      {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
+      {error ? (
+        <Alert variant="error" className="mb-4">
+          {error}
+        </Alert>
+      ) : null}
 
       <Card>
         <CardBody className="p-0">
@@ -67,14 +71,15 @@ export default function MasterItemsPage() {
               <DataTableTh>Nama</DataTableTh>
               <DataTableTh>Gas</DataTableTh>
               <DataTableTh>Tipe</DataTableTh>
+              <DataTableTh>Maks di Customer</DataTableTh>
               <DataTableTh>Stok</DataTableTh>
               <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={6} />
+                <DataTableLoading colSpan={7} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={6} />
+                <DataTableEmpty colSpan={7} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
@@ -89,6 +94,13 @@ export default function MasterItemsPage() {
                       <Badge>
                         {item.is_serialized ? "Tabung" : "Spare part"}
                       </Badge>
+                    </DataTableTd>
+                    <DataTableTd>
+                      {item.is_serialized
+                        ? (item.max_days_at_customer ?? 0) > 0
+                          ? `${item.max_days_at_customer} hari`
+                          : "Tanpa batas"
+                        : "—"}
                     </DataTableTd>
                     <DataTableTd>
                       {item.is_serialized ? "—" : (item.stock_quantity ?? 0)}
