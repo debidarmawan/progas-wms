@@ -16,7 +16,7 @@ npm install
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000) — akan diarahkan ke login atau dashboard.
+Buka [http://localhost:3001](http://localhost:3001) — akan diarahkan ke login atau dashboard.
 
 ### Environment
 

@@ -19,7 +19,7 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3001
 ENV HOSTNAME=0.0.0.0
 # Runtime: URL backend yang di-proxy oleh Next.js (bukan diekspos ke browser)
 ENV API_PROXY_TARGET=http://localhost:3131
@@ -31,6 +31,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
-EXPOSE 3000
+EXPOSE 3001
 
 CMD ["node", "server.js"]
