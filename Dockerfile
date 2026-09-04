@@ -24,13 +24,13 @@ ENV HOSTNAME=0.0.0.0
 # Runtime: URL backend yang di-proxy oleh Next.js (bukan diekspos ke browser)
 ENV API_PROXY_TARGET=http://localhost:3131
 
-RUN addgroup -g 1000 nodejs && adduser -u 1000 -G nodejs -D nextjs
-
+# node:20-alpine already ships a "node" user/group with uid/gid 1000,
+# so reuse it instead of creating a new one (avoids GID conflicts).
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 
-USER nextjs
+USER node
 EXPOSE 3001
 
 CMD ["node", "server.js"]
