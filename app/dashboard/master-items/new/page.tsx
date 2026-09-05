@@ -45,6 +45,7 @@ export default function NewMasterItemPage() {
       await createMasterItem({
         name: String(form.get("name")),
         sku: String(form.get("sku")),
+        item_type: String(form.get("item_type")) as "gas" | "liquid" | "mix",
         gas_type: String(form.get("gas_type") || "") || undefined,
         is_serialized: serialized,
         empty_weight_kg: Number(form.get("empty_weight_kg")) || undefined,
@@ -113,6 +114,14 @@ export default function NewMasterItemPage() {
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="item_type">Jenis</Label>
+                  <Select id="item_type" name="item_type" defaultValue="gas">
+                    <option value="gas">Gas</option>
+                    <option value="liquid">Liquid</option>
+                    <option value="mix">Mix</option>
+                  </Select>
+                </div>
                 <div>
                   <Label htmlFor="gas_type">Jenis Gas</Label>
                   <Input

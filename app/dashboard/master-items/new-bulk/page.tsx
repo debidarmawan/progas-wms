@@ -14,6 +14,7 @@ type DraftItem = {
   id: string;
   name: string;
   sku: string;
+  item_type: "gas" | "liquid" | "mix";
   gas_type: string;
   is_serialized: "true" | "false";
   empty_weight_kg: string;
@@ -37,6 +38,7 @@ function createEmptyItem(seed: number): DraftItem {
     id: `row-${seed}`,
     name: "",
     sku: "",
+    item_type: "gas",
     gas_type: "",
     is_serialized: "true",
     empty_weight_kg: "",
@@ -91,6 +93,7 @@ export default function NewBulkMasterItemsPage() {
       return {
         name: row.name.trim(),
         sku: row.sku.trim().toUpperCase(),
+        item_type: row.item_type,
         gas_type: row.gas_type.trim() || undefined,
         is_serialized: isSerialized,
         empty_weight_kg: isSerialized
@@ -180,6 +183,21 @@ export default function NewBulkMasterItemsPage() {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label>Jenis</Label>
+                  <Select
+                    value={row.item_type}
+                    onChange={(event) =>
+                      updateRow(row.id, {
+                        item_type: event.target.value as "gas" | "liquid" | "mix",
+                      })
+                    }
+                  >
+                    <option value="gas">Gas</option>
+                    <option value="liquid">Liquid</option>
+                    <option value="mix">Mix</option>
+                  </Select>
+                </div>
                 <div>
                   <Label>Jenis Gas</Label>
                   <Input

@@ -58,6 +58,7 @@ export interface MasterItemResponse {
   id: string;
   name: string;
   sku: string;
+  item_type: "gas" | "liquid" | "mix";
   gas_type?: string;
   is_serialized: boolean;
   empty_weight_kg?: number;
@@ -70,6 +71,7 @@ export interface MasterItemResponse {
 export interface CreateMasterItemRequest {
   name: string;
   sku: string;
+  item_type: "gas" | "liquid" | "mix";
   gas_type?: string;
   is_serialized?: boolean;
   empty_weight_kg?: number;
@@ -84,6 +86,7 @@ export interface BulkCreateMasterItemRequest {
 
 export interface UpdateMasterItemRequest {
   name: string;
+  item_type: "gas" | "liquid" | "mix";
   gas_type?: string;
   empty_weight_kg?: number;
   gas_weight_kg?: number;

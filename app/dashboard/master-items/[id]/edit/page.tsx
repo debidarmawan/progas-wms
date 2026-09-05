@@ -13,7 +13,7 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label } from "@/components/ui/input";
+import { Input, Label, Select } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function EditMasterItemPage() {
@@ -26,6 +26,7 @@ export default function EditMasterItemPage() {
   const [defaults, setDefaults] = useState({
     name: "",
     sku: "",
+    item_type: "gas" as "gas" | "liquid" | "mix",
     gas_type: "",
     empty_weight_kg: "",
     gas_weight_kg: "",
@@ -40,6 +41,7 @@ export default function EditMasterItemPage() {
         setDefaults({
           name: item.name,
           sku: item.sku,
+          item_type: item.item_type,
           gas_type: item.gas_type || "",
           empty_weight_kg: String(item.empty_weight_kg ?? ""),
           gas_weight_kg: String(item.gas_weight_kg ?? ""),
@@ -62,6 +64,7 @@ export default function EditMasterItemPage() {
     try {
       await updateMasterItem(params.id, {
         name: String(form.get("name")),
+        item_type: String(form.get("item_type")) as "gas" | "liquid" | "mix",
         gas_type: String(form.get("gas_type") || "") || undefined,
         empty_weight_kg: isSerialized
           ? Number(form.get("empty_weight_kg")) || undefined
@@ -110,6 +113,14 @@ export default function EditMasterItemPage() {
                   <Label>SKU</Label>
                   <Input value={defaults.sku} disabled />
                 </div>
+              </div>
+              <div>
+                <Label htmlFor="item_type">Jenis</Label>
+                <Select id="item_type" name="item_type" defaultValue={defaults.item_type}>
+                  <option value="gas">Gas</option>
+                  <option value="liquid">Liquid</option>
+                  <option value="mix">Mix</option>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="gas_type">Jenis Gas</Label>

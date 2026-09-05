@@ -69,6 +69,7 @@ export default function MasterItemsPage() {
             <DataTableHead>
               <DataTableTh>SKU</DataTableTh>
               <DataTableTh>Nama</DataTableTh>
+              <DataTableTh>Jenis</DataTableTh>
               <DataTableTh>Gas</DataTableTh>
               <DataTableTh>Tipe</DataTableTh>
               <DataTableTh>Maks di Customer</DataTableTh>
@@ -77,9 +78,9 @@ export default function MasterItemsPage() {
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={7} />
+                <DataTableLoading colSpan={8} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={7} />
+                <DataTableEmpty colSpan={8} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
@@ -89,6 +90,7 @@ export default function MasterItemsPage() {
                     <DataTableTd className="font-medium text-slate-900">
                       {item.name}
                     </DataTableTd>
+                    <DataTableTd className="capitalize">{item.item_type}</DataTableTd>
                     <DataTableTd>{item.gas_type || "—"}</DataTableTd>
                     <DataTableTd>
                       <Badge>
