@@ -71,6 +71,7 @@ export default function MasterItemsPage() {
               <DataTableTh>Nama</DataTableTh>
               <DataTableTh>Jenis</DataTableTh>
               <DataTableTh>Gas</DataTableTh>
+              <DataTableTh>HNA Price</DataTableTh>
               <DataTableTh>Tipe</DataTableTh>
               <DataTableTh>Maks di Customer</DataTableTh>
               <DataTableTh>Stok</DataTableTh>
@@ -78,9 +79,9 @@ export default function MasterItemsPage() {
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={8} />
+                <DataTableLoading colSpan={9} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={8} />
+                <DataTableEmpty colSpan={9} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
@@ -92,6 +93,13 @@ export default function MasterItemsPage() {
                     </DataTableTd>
                     <DataTableTd className="capitalize">{item.item_type}</DataTableTd>
                     <DataTableTd>{item.gas_type || "—"}</DataTableTd>
+                    <DataTableTd>
+                      {item.hna_price.toLocaleString("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        maximumFractionDigits: 2,
+                      })}
+                    </DataTableTd>
                     <DataTableTd>
                       <Badge>
                         {item.is_serialized ? "Tabung" : "Spare part"}

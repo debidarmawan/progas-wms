@@ -47,6 +47,7 @@ export default function NewMasterItemPage() {
         sku: String(form.get("sku")),
         item_type: String(form.get("item_type")) as "gas" | "liquid" | "mix",
         gas_type: String(form.get("gas_type") || "") || undefined,
+        hna_price: Number(form.get("hna_price")) || 0,
         is_serialized: serialized,
         empty_weight_kg: Number(form.get("empty_weight_kg")) || undefined,
         gas_weight_kg: Number(form.get("gas_weight_kg")) || undefined,
@@ -128,6 +129,18 @@ export default function NewMasterItemPage() {
                     id="gas_type"
                     name="gas_type"
                     placeholder="OXYGEN, NITROGEN, ..."
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="hna_price">HNA Price (Rp)</Label>
+                  <Input
+                    id="hna_price"
+                    name="hna_price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    required
+                    placeholder="Contoh: 150000"
                   />
                 </div>
                 <div>

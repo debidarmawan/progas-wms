@@ -28,6 +28,7 @@ export default function EditMasterItemPage() {
     sku: "",
     item_type: "gas" as "gas" | "liquid" | "mix",
     gas_type: "",
+    hna_price: "",
     empty_weight_kg: "",
     gas_weight_kg: "",
     min_stock_alert: "",
@@ -43,6 +44,7 @@ export default function EditMasterItemPage() {
           sku: item.sku,
           item_type: item.item_type,
           gas_type: item.gas_type || "",
+          hna_price: String(item.hna_price ?? ""),
           empty_weight_kg: String(item.empty_weight_kg ?? ""),
           gas_weight_kg: String(item.gas_weight_kg ?? ""),
           min_stock_alert: String(item.min_stock_alert ?? ""),
@@ -66,6 +68,7 @@ export default function EditMasterItemPage() {
         name: String(form.get("name")),
         item_type: String(form.get("item_type")) as "gas" | "liquid" | "mix",
         gas_type: String(form.get("gas_type") || "") || undefined,
+        hna_price: Number(form.get("hna_price")) || 0,
         empty_weight_kg: isSerialized
           ? Number(form.get("empty_weight_kg")) || undefined
           : undefined,
@@ -128,6 +131,18 @@ export default function EditMasterItemPage() {
                   id="gas_type"
                   name="gas_type"
                   defaultValue={defaults.gas_type}
+                />
+              </div>
+              <div>
+                <Label htmlFor="hna_price">HNA Price (Rp)</Label>
+                <Input
+                  id="hna_price"
+                  name="hna_price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  required
+                  defaultValue={defaults.hna_price}
                 />
               </div>
               <p className="text-sm text-slate-500">

@@ -60,6 +60,7 @@ export interface MasterItemResponse {
   sku: string;
   item_type: "gas" | "liquid" | "mix";
   gas_type?: string;
+  hna_price: number;
   is_serialized: boolean;
   empty_weight_kg?: number;
   gas_weight_kg?: number;
@@ -73,6 +74,7 @@ export interface CreateMasterItemRequest {
   sku: string;
   item_type: "gas" | "liquid" | "mix";
   gas_type?: string;
+  hna_price: number;
   is_serialized?: boolean;
   empty_weight_kg?: number;
   gas_weight_kg?: number;
@@ -88,6 +90,7 @@ export interface UpdateMasterItemRequest {
   name: string;
   item_type: "gas" | "liquid" | "mix";
   gas_type?: string;
+  hna_price: number;
   empty_weight_kg?: number;
   gas_weight_kg?: number;
   min_stock_alert?: number;
@@ -138,6 +141,26 @@ export interface CustomerResponse {
   cylinder_quota_limit?: number;
   outstanding_count?: number;
   is_active?: boolean;
+}
+
+export interface CustomerItemPriceResponse {
+  id: string;
+  customer_id: string;
+  master_item_id: string;
+  item_name: string;
+  item_sku: string;
+  price: number;
+  effective_from: string;
+  effective_to?: string;
+  is_active: boolean;
+  is_fallback: boolean;
+}
+
+export interface CreateCustomerItemPriceRequest {
+  master_item_id: string;
+  price: number;
+  effective_from: string;
+  effective_to?: string;
 }
 
 export interface CreateCustomerRequest {

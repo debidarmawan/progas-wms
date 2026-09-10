@@ -16,6 +16,7 @@ type DraftItem = {
   sku: string;
   item_type: "gas" | "liquid" | "mix";
   gas_type: string;
+  hna_price: string;
   is_serialized: "true" | "false";
   empty_weight_kg: string;
   gas_weight_kg: string;
@@ -40,6 +41,7 @@ function createEmptyItem(seed: number): DraftItem {
     sku: "",
     item_type: "gas",
     gas_type: "",
+    hna_price: "",
     is_serialized: "true",
     empty_weight_kg: "",
     gas_weight_kg: "",
@@ -95,6 +97,7 @@ export default function NewBulkMasterItemsPage() {
         sku: row.sku.trim().toUpperCase(),
         item_type: row.item_type,
         gas_type: row.gas_type.trim() || undefined,
+        hna_price: Number(row.hna_price || 0) || 0,
         is_serialized: isSerialized,
         empty_weight_kg: isSerialized
           ? Number(row.empty_weight_kg || 0) || undefined
@@ -209,6 +212,18 @@ export default function NewBulkMasterItemsPage() {
                       isSerialized
                         ? "OXYGEN, NITROGEN, ..."
                         : "Kosongkan untuk sparepart"
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>HNA Price (Rp)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={row.hna_price}
+                    onChange={(event) =>
+                      updateRow(row.id, { hna_price: event.target.value })
                     }
                   />
                 </div>

@@ -91,12 +91,20 @@ export default function CustomersPage() {
                       </DataTableTd>
                       <DataTableTd>{item.cylinder_quota_limit ?? 0}</DataTableTd>
                       <DataTableTd>
-                        <Link
-                          className="font-medium text-indigo-600 transition hover:text-indigo-700"
-                          href={`/dashboard/customers/${item.id}/edit`}
-                        >
-                          Edit
-                        </Link>
+                        <div className="flex gap-3">
+                          <Link
+                            className="font-medium text-indigo-600 transition hover:text-indigo-700"
+                            href={`/dashboard/customers/${item.id}/pricing`}
+                          >
+                            Harga
+                          </Link>
+                          <Link
+                            className="font-medium text-indigo-600 transition hover:text-indigo-700"
+                            href={`/dashboard/customers/${item.id}/edit`}
+                          >
+                            Edit
+                          </Link>
+                        </div>
                       </DataTableTd>
                     </DataTableRow>
                   );
