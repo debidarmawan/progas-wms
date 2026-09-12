@@ -11,10 +11,12 @@ type PaginatedListParams = {
   [key: string]: string | number | undefined;
 };
 
+const EMPTY_EXTRA_PARAMS: Record<string, string | number | undefined> = {};
+
 export function usePaginatedList<T>(
   fetcher: (params: PaginatedListParams) => Promise<PaginatedList<T>>,
   search: string,
-  extraParams: Record<string, string | number | undefined> = {},
+  extraParams: Record<string, string | number | undefined> = EMPTY_EXTRA_PARAMS,
 ) {
   const [items, setItems] = useState<T[]>([]);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
