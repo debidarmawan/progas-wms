@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { listCustomers } from "@/lib/api/customers";
 import { issueDeliveryOrder } from "@/lib/api/outbound";
+import { listSalesOrders } from "@/lib/api/sales";
 import { listFleet } from "@/lib/api/logistics";
-import type { CustomerResponse, FleetResponse } from "@/lib/types/api";
+import type { CustomerResponse, FleetResponse, SalesOrderResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -23,6 +24,7 @@ export default function NewDeliveryOrderPage() {
   const router = useRouter();
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [fleet, setFleet] = useState<FleetResponse[]>([]);
+  const [salesOrders, setSalesOrders] = useState<SalesOrderResponse[]>([]);
   const [barcodes, setBarcodes] = useState<string[]>([]);
   const [scanInput, setScanInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,10 +34,12 @@ export default function NewDeliveryOrderPage() {
     Promise.all([
       listCustomers({ page: 1, limit: 200 }),
       listFleet({ page: 1, limit: 100 }),
+      listSalesOrders({ page: 1, limit: 200 }),
     ])
-      .then(([customerData, fleetData]) => {
+      .then(([customerData, fleetData, salesOrderData]) => {
         setCustomers(customerData.items);
         setFleet(fleetData.items.filter((v) => v.is_active !== false));
+        setSalesOrders(salesOrderData.items.filter((order) => order.status === "CONFIRMED" || order.status === "PARTIAL"));
       })
       .catch(() => {
         setCustomers([]);
@@ -66,6 +70,7 @@ export default function NewDeliveryOrderPage() {
       const order = await issueDeliveryOrder({
         customer_id: String(form.get("customer_id")),
         fleet_id: String(form.get("fleet_id")),
+        sales_order_id: String(form.get("sales_order_id") || "") || undefined,
         barcodes,
         notes: String(form.get("notes") || "") || undefined,
       });
@@ -98,6 +103,17 @@ export default function NewDeliveryOrderPage() {
                     {customers.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.code} — {c.name}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="sm:col-span-2">
+                  <Label htmlFor="sales_order_id">Sales Order (opsional untuk DO lama)</Label>
+                  <Select id="sales_order_id" name="sales_order_id" defaultValue="">
+                    <option value="">Tanpa referensi SO</option>
+                    {salesOrders.map((order) => (
+                      <option key={order.id} value={order.id}>
+                        {order.so_number} — {order.customer_name}
                       </option>
                     ))}
                   </Select>

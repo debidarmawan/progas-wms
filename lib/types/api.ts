@@ -186,6 +186,62 @@ export interface UpdateCustomerRequest {
   is_active?: boolean;
 }
 
+export interface CustomerPOLineResponse {
+  id: string;
+  master_item_id: string;
+  sku?: string;
+  item_name?: string;
+  quantity: number;
+}
+
+export interface CustomerPOResponse {
+  id: string;
+  po_number: string;
+  customer_id: string;
+  customer_name?: string;
+  po_date: string;
+  valid_until?: string;
+  document_url?: string;
+  status: string;
+  created_at?: string;
+  lines?: CustomerPOLineResponse[];
+}
+
+export interface CreateCustomerPORequest {
+  po_number: string;
+  customer_id: string;
+  po_date: string;
+  valid_until?: string;
+  document_url?: string;
+  lines: { master_item_id: string; quantity: number }[];
+}
+
+export interface SalesOrderLineResponse {
+  id: string;
+  master_item_id: string;
+  sku?: string;
+  item_name?: string;
+  qty_ordered: number;
+  qty_delivered: number;
+}
+
+export interface SalesOrderResponse {
+  id: string;
+  so_number: string;
+  customer_po_id?: string;
+  customer_id: string;
+  customer_name?: string;
+  status: string;
+  created_at?: string;
+  lines?: SalesOrderLineResponse[];
+}
+
+export interface CreateSalesOrderRequest {
+  customer_po_id?: string;
+  customer_id?: string;
+  lines: { master_item_id: string; qty_ordered: number }[];
+}
+
 export interface FillingBatchDetailResponse {
   id: string;
   cylinder_id: string;
@@ -291,6 +347,7 @@ export interface DeliveryOrderDetailResponse {
 export interface DeliveryOrderResponse {
   id: string;
   do_number: string;
+  sales_order_id?: string;
   customer_id: string;
   customer_name?: string;
   fleet_id?: string;
@@ -306,6 +363,7 @@ export interface DeliveryOrderResponse {
 export interface IssueDeliveryOrderRequest {
   customer_id: string;
   fleet_id: string;
+  sales_order_id?: string;
   barcodes: string[];
   notes?: string;
 }

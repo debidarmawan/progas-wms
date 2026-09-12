@@ -16,6 +16,15 @@ export const mainNavigation: NavItem[] = [
   { label: "Pelanggan", href: "/dashboard/customers", icon: "users" },
   { label: "Vendor", href: "/dashboard/vendors", icon: "vendor" },
   {
+    label: "Penjualan",
+    href: "/dashboard/sales/customer-pos",
+    icon: "chart",
+    children: [
+      { label: "PO Pelanggan", href: "/dashboard/sales/customer-pos" },
+      { label: "Sales Order", href: "/dashboard/sales/sales-orders" },
+    ],
+  },
+  {
     label: "Produksi",
     href: "/dashboard/production/filling-batches",
     icon: "factory",
@@ -135,6 +144,8 @@ export const moduleDescriptions: Record<string, string> = {
   "/dashboard/cylinders": "Registrasi & pelacakan tabung",
   "/dashboard/customers": "Kuota outstanding pelanggan",
   "/dashboard/vendors": "Vendor sewa tabung & kontrak",
+  "/dashboard/sales/customer-pos": "Pesanan pelanggan dan kebutuhan item",
+  "/dashboard/sales/sales-orders": "Verifikasi pesanan sebelum pengiriman",
   "/dashboard/production/filling-batches": "Batch pengisian manifold",
   "/dashboard/production/qc-post-fill": "Inspeksi setelah pengisian",
   "/dashboard/inbound/empty-receive": "Penerimaan tabung kosong",
