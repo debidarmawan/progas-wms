@@ -1,16 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { dedupeRequest } from "@/lib/api/dedupe-request";
 import type { PaginatedList, PaginationMeta } from "@/lib/types/api";
 
+type PaginatedListParams = {
+  page: number;
+  limit: number;
+  search?: string;
+  [key: string]: string | number | undefined;
+};
+
 export function usePaginatedList<T>(
-  fetcher: (params: {
-    page: number;
-    limit: number;
-    search?: string;
-  }) => Promise<PaginatedList<T>>,
+  fetcher: (params: PaginatedListParams) => Promise<PaginatedList<T>>,
   search: string,
+  extraParams: Record<string, string | number | undefined> = {},
 ) {
   const [items, setItems] = useState<T[]>([]);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
@@ -21,28 +25,34 @@ export function usePaginatedList<T>(
   const loadGenerationRef = useRef(0);
   const forceNextRef = useRef(false);
 
-  const [prevSearch, setPrevSearch] = useState(search);
-  if (search !== prevSearch) {
-    setPrevSearch(search);
+  const extraParamsKey = JSON.stringify(extraParams);
+  const queryKey = JSON.stringify({
+    search: search || undefined,
+    extraParams: extraParamsKey,
+  });
+  const [prevQueryKey, setPrevQueryKey] = useState(queryKey);
+  if (queryKey !== prevQueryKey) {
+    setPrevQueryKey(queryKey);
     setPage(1);
   }
 
-  const fetchKey = `paginated:${JSON.stringify({
-    page,
-    limit: 10,
-    search: search || undefined,
-  })}:${reloadNonce}`;
+  const requestParams = useMemo(
+    () => ({
+      page,
+      limit: 10,
+      search: search || undefined,
+      ...extraParams,
+    }),
+    [extraParams, page, search],
+  );
+  const fetchKey = `paginated:${JSON.stringify(requestParams)}:${reloadNonce}`;
   const loading = resolvedKey !== fetchKey;
 
   useEffect(() => {
     const generation = ++loadGenerationRef.current;
     const force = forceNextRef.current;
     forceNextRef.current = false;
-    const params = {
-      page,
-      limit: 10,
-      search: search || undefined,
-    };
+    const params = requestParams;
     const dedupeKey = `paginated:${JSON.stringify(params)}`;
     let cancelled = false;
 
@@ -68,7 +78,7 @@ export function usePaginatedList<T>(
     return () => {
       cancelled = true;
     };
-  }, [fetcher, fetchKey, page, search]);
+  }, [fetcher, fetchKey, page, requestParams]);
 
   const reload = useCallback(() => {
     forceNextRef.current = true;
