@@ -17,6 +17,12 @@ export function getCylinder(id: string) {
   return apiRequest<CylinderResponse>(`/cylinders/${id}`);
 }
 
+export function getCylinderByBarcode(sn: string) {
+  return apiRequest<CylinderResponse>(
+    `/cylinders/by-barcode/${encodeURIComponent(sn)}`,
+  );
+}
+
 export function getCylinderHistory(id: string) {
   return apiRequest<CylinderHistoryResponse>(`/cylinders/${id}/history`);
 }

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { submitFillingBatch } from "@/lib/api/production";
 import { listMasterItems } from "@/lib/api/master-items";
+import { getCylinderByBarcode } from "@/lib/api/cylinders";
 import type { MasterItemResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -21,8 +22,10 @@ import { PageHeader } from "@/components/ui/page-header";
 export default function NewFillingBatchPage() {
   const router = useRouter();
   const [items, setItems] = useState<MasterItemResponse[]>([]);
+  const [itemId, setItemId] = useState("");
   const [barcodes, setBarcodes] = useState<string[]>([]);
   const [scanInput, setScanInput] = useState("");
+  const [scanning, setScanning] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,17 +37,41 @@ export default function NewFillingBatchPage() {
       .catch(() => setItems([]));
   }, []);
 
-  function addBarcode(raw: string) {
+  async function addBarcode(raw: string) {
     const value = raw.trim();
     if (!value) return;
-    setBarcodes((prev) => (prev.includes(value) ? prev : [...prev, value]));
-    setScanInput("");
+
+    if (!itemId) {
+      setError("Pilih produk gas terlebih dahulu sebelum scan tabung.");
+      return;
+    }
+    if (barcodes.includes(value)) {
+      setScanInput("");
+      return;
+    }
+
+    setScanning(true);
+    setError(null);
+    try {
+      const cylinder = await getCylinderByBarcode(value);
+      if (cylinder.item_id !== itemId) {
+        setError(
+          `Tabung ${value} termapping ke produk lain (${cylinder.item_name || cylinder.gas_type || "produk berbeda"}), bukan produk gas yang dipilih.`,
+        );
+        return;
+      }
+      setBarcodes((prev) => (prev.includes(value) ? prev : [...prev, value]));
+      setScanInput("");
+    } catch {
+      setError(`Tabung ${value} tidak ditemukan.`);
+    } finally {
+      setScanning(false);
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const itemId = String(form.get("item_id"));
 
     if (barcodes.length === 0) {
       setError("Scan minimal satu tabung.");
@@ -84,7 +111,18 @@ export default function NewFillingBatchPage() {
               >
                 <div>
                   <Label htmlFor="item_id">Produk Gas</Label>
-                  <Select id="item_id" name="item_id" required defaultValue="">
+                  <Select
+                    id="item_id"
+                    name="item_id"
+                    required
+                    value={itemId}
+                    onChange={(event) => {
+                      setItemId(event.target.value);
+                      setBarcodes([]);
+                      setScanInput("");
+                      setError(null);
+                    }}
+                  >
                     <option value="" disabled>
                       Pilih produk
                     </option>
@@ -99,12 +137,17 @@ export default function NewFillingBatchPage() {
 
               <FormSection
                 title="Scan Barcode Tabung"
-                description="Tekan Enter setiap selesai scan."
+                description={
+                  itemId
+                    ? "Tekan Enter setiap selesai scan. Hanya tabung produk terpilih yang diterima."
+                    : "Pilih produk gas terlebih dahulu untuk mengaktifkan scan."
+                }
                 tone="accent"
               >
                 <div className="flex gap-2">
                   <Input
                     value={scanInput}
+                    disabled={!itemId || scanning}
                     onChange={(event) => setScanInput(event.target.value)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter") {
@@ -112,16 +155,18 @@ export default function NewFillingBatchPage() {
                         addBarcode(scanInput);
                       }
                     }}
-                    placeholder="Barcode + Enter"
+                    placeholder={itemId ? "Barcode + Enter" : "Pilih produk gas dahulu"}
                   />
                   <Button
                     type="button"
                     variant="secondary"
+                    disabled={!itemId || scanning}
                     onClick={() => addBarcode(scanInput)}
                   >
-                    Tambah
+                    {scanning ? "Memeriksa..." : "Tambah"}
                   </Button>
                 </div>
+                {error ? <Alert variant="error">{error}</Alert> : null}
                 <p className="text-sm text-slate-600">
                   {barcodes.length} tabung siap diproses
                 </p>
@@ -156,8 +201,6 @@ export default function NewFillingBatchPage() {
                   />
                 </div>
               </FormSection>
-
-              {error ? <Alert variant="error">{error}</Alert> : null}
 
               <div className="flex gap-2 pt-2">
                 <Button disabled={loading} type="submit">
