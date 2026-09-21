@@ -66,6 +66,12 @@ export const mainNavigation: NavItem[] = [
     ],
   },
   {
+    label: "Finance",
+    href: "/dashboard/finance/invoices",
+    icon: "chart",
+    children: [{ label: "Invoice", href: "/dashboard/finance/invoices" }],
+  },
+  {
     label: "Logistik",
     href: "/dashboard/logistics/fleet",
     icon: "truck",
@@ -151,6 +157,7 @@ export const moduleDescriptions: Record<string, string> = {
   "/dashboard/inbound/empty-receive": "Penerimaan tabung kosong",
   "/dashboard/outbound/delivery-orders": "Surat jalan & pengiriman",
   "/dashboard/outbound/exchange": "Pertukaran tabung pelanggan",
+  "/dashboard/finance/invoices": "Invoice per Delivery Order & piutang pelanggan",
   "/dashboard/logistics/fleet": "Data kendaraan & kapasitas muat",
   "/dashboard/logistics/drivers": "Data master driver (sopir)",
   "/dashboard/maintenance/work-orders": "Perbaikan & konsumsi spare part",

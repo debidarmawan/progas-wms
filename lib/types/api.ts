@@ -242,6 +242,38 @@ export interface CreateSalesOrderRequest {
   lines: { master_item_id: string; qty_ordered: number }[];
 }
 
+export interface PaymentResponse {
+  id: string;
+  amount: number;
+  paid_at: string;
+  method: string;
+  reference_no?: string;
+  created_at?: string;
+}
+
+export interface InvoiceResponse {
+  id: string;
+  invoice_number: string;
+  delivery_order_id: string;
+  do_number?: string;
+  customer_id: string;
+  customer_name?: string;
+  invoice_date: string;
+  due_date: string;
+  status: string;
+  total_amount: number;
+  paid_amount: number;
+  notes?: string;
+  created_at?: string;
+  payments?: PaymentResponse[];
+}
+
+export interface RecordPaymentRequest {
+  amount: number;
+  method: string;
+  reference_no?: string;
+}
+
 export interface FillingBatchDetailResponse {
   id: string;
   cylinder_id: string;
