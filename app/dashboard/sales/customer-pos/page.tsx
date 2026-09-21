@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import { confirmCustomerPO, listCustomerPOs } from "@/lib/api/sales";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
@@ -27,7 +28,7 @@ export default function CustomerPOsPage() {
     <SearchInput className="mb-6" placeholder="Cari nomor PO atau pelanggan..." value={search} onChange={(event) => setSearch(event.target.value)} />
     {error || actionError ? <Alert variant="error" className="mb-4">{error || actionError}</Alert> : null}
     <Card><CardBody className="p-0"><DataTable><DataTableHead><DataTableTh>No. PO</DataTableTh><DataTableTh>Pelanggan</DataTableTh><DataTableTh>Tanggal</DataTableTh><DataTableTh>Status</DataTableTh><DataTableTh>Aksi</DataTableTh></DataTableHead><DataTableBody>
-      {loading ? <DataTableLoading colSpan={5} /> : items.length === 0 ? <DataTableEmpty colSpan={5} /> : items.map((item) => <DataTableRow key={item.id}><DataTableTd className="font-mono font-medium">{item.po_number}</DataTableTd><DataTableTd>{item.customer_name || "—"}</DataTableTd><DataTableTd>{item.po_date}</DataTableTd><DataTableTd>{item.status}</DataTableTd><DataTableTd>{item.status === "DRAFT" ? <button className="font-medium text-indigo-600" onClick={() => handleConfirm(item.id)} type="button">Konfirmasi</button> : <span className="text-slate-500">Terkunci</span>}</DataTableTd></DataTableRow>)}
+      {loading ? <DataTableLoading colSpan={5} /> : items.length === 0 ? <DataTableEmpty colSpan={5} /> : items.map((item) => <DataTableRow key={item.id}><DataTableTd className="font-mono font-medium">{item.po_number}</DataTableTd><DataTableTd>{item.customer_name || "—"}</DataTableTd><DataTableTd>{item.po_date}</DataTableTd><DataTableTd>{item.status}</DataTableTd><DataTableTd><div className="flex items-center gap-3 whitespace-nowrap"><Link className="font-medium text-indigo-600 hover:text-indigo-700" href={`/dashboard/sales/customer-pos/${item.id}`}>Detail</Link>{item.status === "DRAFT" ? <button className="font-medium text-indigo-600" onClick={() => handleConfirm(item.id)} type="button">Konfirmasi</button> : <span className="text-slate-500">Terkunci</span>}</div></DataTableTd></DataTableRow>)}
     </DataTableBody></DataTable>{meta ? <Pagination meta={meta} onPageChange={setPage} /> : null}</CardBody></Card>
   </div>;
 }
