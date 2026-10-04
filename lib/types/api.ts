@@ -35,6 +35,7 @@ export interface UserResponse {
   phone?: string;
   role_id: string;
   role_name: string;
+  driver_id?: string;
   permissions?: string[];
 }
 
@@ -320,6 +321,8 @@ export interface UserListResponse {
   phone?: string;
   role_id: string;
   role_name: string;
+  driver_id?: string;
+  driver_name?: string;
   is_active?: boolean;
   created_at?: string;
   last_logged_in_at?: string;
@@ -331,6 +334,7 @@ export interface CreateUserRequest {
   password: string;
   phone?: string;
   role_id: string;
+  driver_id?: string;
 }
 
 export interface UpdateUserRequest {
@@ -339,6 +343,7 @@ export interface UpdateUserRequest {
   password?: string;
   phone?: string;
   role_id?: string;
+  driver_id?: string;
   is_active?: boolean;
 }
 

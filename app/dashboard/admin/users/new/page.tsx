@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { listRoles } from "@/lib/api/roles";
 import { createUser } from "@/lib/api/users";
+import { listDrivers } from "@/lib/api/logistics";
 import { setFlashMessage } from "@/lib/flash";
-import type { RoleResponse } from "@/lib/types/api";
+import type { DriverResponse, RoleResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -22,14 +23,53 @@ import { PageHeader } from "@/components/ui/page-header";
 export default function NewUserPage() {
   const router = useRouter();
   const [roles, setRoles] = useState<RoleResponse[]>([]);
+  const [drivers, setDrivers] = useState<DriverResponse[]>([]);
+  const [roleId, setRoleId] = useState("");
+  const [loadingDrivers, setLoadingDrivers] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const driverRequestId = useRef(0);
+  const isDriverRole = roles.some(
+    (role) => role.id === roleId && role.name === "Driver",
+  );
 
   useEffect(() => {
     listRoles({ page: 1, limit: 100 })
       .then((data) => setRoles(data.items))
-      .catch(() => setRoles([]));
+      .catch((err) =>
+        setError(err instanceof Error ? err.message : "Gagal memuat peran"),
+      );
   }, []);
+
+  async function handleRoleChange(nextRoleId: string) {
+    setRoleId(nextRoleId);
+    setDrivers([]);
+    const requestId = ++driverRequestId.current;
+    const nextIsDriverRole = roles.some(
+      (role) => role.id === nextRoleId && role.name === "Driver",
+    );
+    if (!nextIsDriverRole) {
+      setLoadingDrivers(false);
+      return;
+    }
+
+    setLoadingDrivers(true);
+    setError(null);
+    try {
+      const data = await listDrivers({ page: 1, limit: 100 });
+      if (requestId === driverRequestId.current) {
+        setDrivers(data.items.filter((driver) => driver.is_active));
+      }
+    } catch (err) {
+      if (requestId === driverRequestId.current) {
+        setError(
+          err instanceof Error ? err.message : "Gagal memuat data driver",
+        );
+      }
+    } finally {
+      if (requestId === driverRequestId.current) setLoadingDrivers(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,6 +83,9 @@ export default function NewUserPage() {
         password: String(form.get("password")),
         phone: String(form.get("phone") || "") || undefined,
         role_id: String(form.get("role_id")),
+        driver_id: isDriverRole
+          ? String(form.get("driver_id") || "")
+          : undefined,
       });
       setFlashMessage("Pengguna berhasil dibuat.");
       router.push("/dashboard/admin/users");
@@ -91,7 +134,13 @@ export default function NewUserPage() {
                 </div>
                 <div>
                   <Label htmlFor="role_id">Peran</Label>
-                  <Select id="role_id" name="role_id" required defaultValue="">
+                  <Select
+                    id="role_id"
+                    name="role_id"
+                    required
+                    value={roleId}
+                    onChange={(event) => handleRoleChange(event.target.value)}
+                  >
                     <option value="" disabled>
                       Pilih peran
                     </option>
@@ -103,6 +152,32 @@ export default function NewUserPage() {
                   </Select>
                 </div>
               </div>
+              {isDriverRole ? (
+                <div>
+                  <Label htmlFor="driver_id">Data Driver</Label>
+                  <Select
+                    id="driver_id"
+                    name="driver_id"
+                    required
+                    defaultValue=""
+                    disabled={loadingDrivers || drivers.length === 0}
+                  >
+                    <option value="" disabled>
+                      {loadingDrivers
+                        ? "Memuat driver..."
+                        : drivers.length === 0
+                          ? "Tidak ada driver aktif"
+                          : "Pilih driver"}
+                    </option>
+                    {drivers.map((driver) => (
+                      <option key={driver.id} value={driver.id}>
+                        {driver.name}
+                        {driver.phone ? ` — ${driver.phone}` : ""}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+              ) : null}
             </FormSection>
 
             {error ? <Alert variant="error">{error}</Alert> : null}

@@ -88,15 +88,16 @@ export default function UsersPage() {
               <DataTableTh>Nama</DataTableTh>
               <DataTableTh>Email</DataTableTh>
               <DataTableTh>Peran</DataTableTh>
+              <DataTableTh>Driver</DataTableTh>
               <DataTableTh>Status</DataTableTh>
               <DataTableTh>Login Terakhir</DataTableTh>
               <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={6} />
+                <DataTableLoading colSpan={7} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={6} />
+                <DataTableEmpty colSpan={7} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
@@ -105,6 +106,7 @@ export default function UsersPage() {
                     </DataTableTd>
                     <DataTableTd>{item.email}</DataTableTd>
                     <DataTableTd>{item.role_name}</DataTableTd>
+                    <DataTableTd>{item.driver_name || "—"}</DataTableTd>
                     <DataTableTd>
                       <Badge>
                         {item.is_active === false ? "Nonaktif" : "Aktif"}
