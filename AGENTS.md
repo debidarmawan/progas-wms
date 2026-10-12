@@ -8,6 +8,16 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 Frontend dashboard for Progas WMS (cylinder gas warehouse management). Next.js 16.2.6 (App Router), React 19.2, Tailwind v4.
 
+## Project rules (read before coding)
+
+The authoritative rules live in `.clinerules/` (Cline reads this directory natively). They are mirrored under `.agent/` for other AI agents/tools:
+
+- `.clinerules/coding.md` — Coding standards (structure, list-page pattern, API/errors, UI/styling, naming, types, auth).
+- `.clinerules/testing.md` — Test requirements (current gates, manual checklist, recommended setup).
+- `.clinerules/architecture.md` — Structural decisions (App Router, data flow, auth/proxy, navigation, extension checklist).
+
+When you change a rule, edit the file in `.clinerules/` (the `.agent/` copies are symlinks to it).
+
 **Read `../progas-docs/` before making non-trivial changes.** It has the full architecture, module inventory, and business flow so you don't need to explore the whole workspace to get oriented:
 
 - `../progas-docs/01-architecture.md` — frontend page structure, `usePaginatedList` pattern, `apiRequest` client behavior (auto token refresh)
