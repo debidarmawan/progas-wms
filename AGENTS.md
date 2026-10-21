@@ -15,6 +15,8 @@ The authoritative rules live in `.clinerules/` (Cline reads this directory nativ
 - `.clinerules/coding.md` — Coding standards (structure, list-page pattern, API/errors, UI/styling, naming, types, auth).
 - `.clinerules/testing.md` — Test requirements (current gates, manual checklist, recommended setup).
 - `.clinerules/architecture.md` — Structural decisions (App Router, data flow, auth/proxy, navigation, extension checklist).
+- `.clinerules/ponytail.md` — Scope discipline: smallest complete change, no unrequested code.
+- `.clinerules/caveman.md` — Reply style: ultra-compressed caveman phrasing in prose; code blocks stay unchanged.
 
 When you change a rule, edit the file in `.clinerules/` (the `.agent/` copies are symlinks to it).
 
