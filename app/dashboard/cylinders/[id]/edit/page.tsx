@@ -68,6 +68,7 @@ export default function EditCylinderPage() {
     last_hydrotest_date: "",
     status: "",
     remarks: "",
+    label_printed_at: "",
   });
   const [ownershipType, setOwnershipType] = useState("COMPANY");
 
@@ -75,6 +76,7 @@ export default function EditCylinderPage() {
   const needsOwner = ownershipType === "CUSTOMER" || ownershipType === "VENDOR";
   const editable =
     defaults.status === "EMPTY" || defaults.status === "READY_TO_FILL";
+  const barcodeLocked = !editable || !!defaults.label_printed_at;
 
   const historyEntries = history?.entries ?? [];
   const latestEntries = historyEntries.slice(-10).reverse();
@@ -98,6 +100,7 @@ export default function EditCylinderPage() {
             : "",
           status: cylinder.status,
           remarks: cylinder.remarks || "",
+          label_printed_at: cylinder.label_printed_at || "",
         });
         setOwnershipType(cylinder.ownership_type);
         setHistory(historyData);
@@ -172,8 +175,14 @@ export default function EditCylinderPage() {
                   name="barcode_sn"
                   required
                   defaultValue={defaults.barcode_sn}
-                  disabled={!editable}
+                  disabled={barcodeLocked}
                 />
+                {defaults.label_printed_at ? (
+                  <p className="mt-1 text-xs text-slate-500">
+                    Label sudah dicetak — SN terkunci. Ubah lewat admin jika
+                    label harus diganti.
+                  </p>
+                ) : null}
               </div>
               <div>
                 <Label htmlFor="item_id">Produk Gas</Label>
@@ -323,6 +332,16 @@ export default function EditCylinderPage() {
               Ownership:{" "}
               <span className="font-medium text-slate-700">
                 {ownershipType}
+              </span>
+            </p>
+            <p className="text-sm text-slate-500">
+              Label:{" "}
+              <span className="font-medium text-slate-700">
+                {defaults.label_printed_at
+                  ? `Tercetak ${new Date(
+                      defaults.label_printed_at,
+                    ).toLocaleDateString("id-ID")}`
+                  : "Belum dicetak"}
               </span>
             </p>
             {!isCompanyOwned ? (

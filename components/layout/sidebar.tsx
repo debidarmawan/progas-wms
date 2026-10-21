@@ -138,7 +138,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-[17.5rem] shrink-0 flex-col border-r border-slate-200/80 bg-white/90 backdrop-blur-xl">
+    <aside className="flex w-[17.5rem] shrink-0 flex-col border-r border-slate-200/80 bg-white/90 backdrop-blur-xl print:hidden">
       <div className="px-5 py-6">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-rose-700 text-sm font-bold text-white shadow-lg shadow-indigo-700/20">

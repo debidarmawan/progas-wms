@@ -6,6 +6,7 @@ import { listCylinders } from "@/lib/api/cylinders";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   DataTable,
@@ -42,12 +43,17 @@ export default function CylindersPage() {
         actionLabel="Registrasi Tabung"
       />
 
-      <SearchInput
-        className="mb-6"
-        placeholder="Cari barcode, status, ownership..."
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
-      />
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <SearchInput
+          className="flex-1"
+          placeholder="Cari barcode, status, ownership..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <Link href="/dashboard/cylinders/labels">
+          <Button variant="secondary">Cetak Label</Button>
+        </Link>
+      </div>
 
       {error ? (
         <Alert variant="error" className="mb-4">

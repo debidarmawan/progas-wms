@@ -83,7 +83,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className="app-mesh flex min-h-screen">
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="glass-panel sticky top-0 z-10 flex items-center justify-between border-b border-slate-200/60 px-6 py-4">
+        <header className="glass-panel sticky top-0 z-10 flex items-center justify-between border-b border-slate-200/60 px-6 py-4 print:hidden">
           <p className="text-sm text-slate-500"></p>
           <div className="flex items-center gap-3">
             {user ? (
@@ -134,7 +134,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             )}
           </div>
         </header>
-        <main className="flex-1 overflow-auto p-6 lg:p-8">{children}</main>
+        <main className="flex-1 overflow-auto p-6 lg:p-8 print:overflow-visible print:p-0">{children}</main>
       </div>
       <ToastHost />
     </div>

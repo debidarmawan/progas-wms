@@ -2,7 +2,10 @@ import { apiRequest } from "@/lib/api/client";
 import type {
   CreateCylinderRequest,
   CylinderHistoryResponse,
+  CylinderLabel,
   CylinderResponse,
+  CylinderScanMenu,
+  CylinderScanResponse,
   MessageResponse,
   PaginatedList,
   PaginationParams,
@@ -28,9 +31,33 @@ export function getCylinderHistory(id: string) {
 }
 
 export function createCylinder(payload: CreateCylinderRequest) {
-  return apiRequest<MessageResponse>("/cylinders", {
+  return apiRequest<CylinderResponse>("/cylinders", {
     method: "POST",
     body: JSON.stringify(payload),
+  });
+}
+
+export function resolveCylinderScan(sn: string, menu: CylinderScanMenu) {
+  return apiRequest<CylinderScanResponse>(
+    `/cylinders/scan/${encodeURIComponent(sn)}`,
+    { params: { menu } },
+  );
+}
+
+export function listCylinderLabels(params: {
+  ids?: string;
+  labeled?: "true" | "false";
+  limit?: number;
+}) {
+  return apiRequest<CylinderLabel[]>("/cylinders/labels", {
+    params: { ...params, format: "json" },
+  });
+}
+
+export function markCylinderLabelsPrinted(ids: string[]) {
+  return apiRequest<MessageResponse>("/cylinders/labels/printed", {
+    method: "POST",
+    body: JSON.stringify({ ids }),
   });
 }
 

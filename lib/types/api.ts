@@ -109,15 +109,46 @@ export interface CylinderResponse {
   status: string;
   last_hydrotest_date?: string;
   remarks?: string;
+  label_printed_at?: string;
 }
 
 export interface CreateCylinderRequest {
-  barcode_sn: string;
+  barcode_sn?: string;
   item_id: string;
   ownership_type: string;
   owner_id?: string;
   last_hydrotest_date: string;
   remarks?: string;
+}
+
+export type CylinderScanMenu =
+  | "pre-fill"
+  | "filling"
+  | "post-fill"
+  | "do"
+  | "exchange-out"
+  | "exchange-in"
+  | "hydrotest";
+
+export interface CylinderScanResponse {
+  id: string;
+  barcode_sn: string;
+  item_id: string;
+  item_name: string;
+  gas_type: string;
+  ownership_type: string;
+  status: string;
+  menu: string;
+  allowed: boolean;
+  reason?: string;
+  allowed_menus: string[];
+}
+
+export interface CylinderLabel {
+  id: string;
+  barcode_sn: string;
+  item_name: string;
+  gas_type: string;
 }
 
 export interface UpdateCylinderRequest {

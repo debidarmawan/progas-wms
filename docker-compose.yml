@@ -3,6 +3,10 @@
 
 services:
   frontend:
+    # Image is built by GitHub Actions (.github/workflows/deploy-dev.yml) and only
+    # pulled on the VPS — `next build` never runs on the small dev server again.
+    # `build:` stays so `docker compose up --build` still works locally.
+    image: ghcr.io/debidarmawan/progas-wms:development
     build:
       context: .
       dockerfile: Dockerfile

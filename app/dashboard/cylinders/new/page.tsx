@@ -6,6 +6,7 @@ import { listCustomers } from "@/lib/api/customers";
 import { createCylinder } from "@/lib/api/cylinders";
 import { listMasterItems } from "@/lib/api/master-items";
 import { listVendors } from "@/lib/api/vendors";
+import { setFlashMessage } from "@/lib/flash";
 import type {
   CustomerResponse,
   MasterItemResponse,
@@ -75,15 +76,19 @@ export default function NewCylinderPage() {
     }
 
     try {
-      await createCylinder({
-        barcode_sn: String(form.get("barcode_sn")),
+      const barcode = String(form.get("barcode_sn") || "").trim();
+      const created = await createCylinder({
+        barcode_sn: barcode || undefined,
         item_id: String(form.get("item_id")),
         ownership_type: ownership,
         owner_id: ownership === "COMPANY" ? undefined : ownerId,
         last_hydrotest_date: String(form.get("last_hydrotest_date")),
         remarks: String(form.get("remarks") || "").trim(),
       });
-      router.push("/dashboard/cylinders");
+      setFlashMessage(
+        `Tabung ${created.barcode_sn} terdaftar. Lanjut cetak labelnya.`,
+      );
+      router.push("/dashboard/cylinders/labels");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Gagal menyimpan");
@@ -107,10 +112,13 @@ export default function NewCylinderPage() {
                 <Input
                   id="barcode_sn"
                   name="barcode_sn"
-                  required
-                  placeholder="Contoh: CYL-OG-000123"
+                  placeholder="Kosongkan untuk dibuat otomatis (PG-XXXX-XXXXXX)"
                   onChange={(event) => setBarcodePreview(event.target.value)}
                 />
+                <p className="mt-1 text-xs text-slate-500">
+                  Isi hanya jika tabung sudah punya SN lama. 6–32 karakter A-Z,
+                  0-9, atau tanda hubung.
+                </p>
               </div>
               <div>
                 <Label htmlFor="item_id">Produk Gas</Label>
@@ -233,7 +241,7 @@ export default function NewCylinderPage() {
         <FormAsideStack>
           <FormAsideCard title="Preview">
             <p className="font-mono text-sm text-slate-900">
-              {barcodePreview || "Barcode belum diisi"}
+              {barcodePreview || "SN dibuat otomatis saat disimpan"}
             </p>
             <p className="text-sm text-slate-500">
               Ownership:{" "}
