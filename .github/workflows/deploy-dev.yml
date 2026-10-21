@@ -72,5 +72,15 @@ jobs:
             # Buang image lama supaya disk tidak penuh
             docker image prune -f
 
-            # Smoke test: frontend harus merespons di port 3001
-            curl -sf -o /dev/null http://127.0.0.1:3001
+            # Smoke test: container baru butuh beberapa detik untuk bind port 3001
+            for i in $(seq 1 30); do
+              if curl -sf -o /dev/null http://127.0.0.1:3001; then
+                echo "frontend up after ${i} attempt(s)"
+                exit 0
+              fi
+              sleep 2
+            done
+
+            echo "frontend tidak merespons di port 3001"
+            docker logs --tail 50 progas-wms || true
+            exit 1
