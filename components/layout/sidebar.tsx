@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { navIconMap } from "@/components/ui/icons";
 import { comingSoonModules, mainNavigation, type NavItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils/cn";
@@ -36,35 +36,19 @@ function Chevron({ open, className }: { open: boolean; className?: string }) {
 
 function NavDropdown({ item, pathname }: { item: NavItem; pathname: string }) {
   const childActive = groupHasActiveChild(pathname, item);
-  const storageKey = `sidebar-open:${item.label}`;
-  const [open, setOpen] = useState(childActive);
-  const [hydrated, setHydrated] = useState(false);
+  // Sections are folded by default (state is not persisted), so every fresh page load
+  // starts compact and only the section holding the current route is revealed.
+  const [toggle, setToggle] = useState<{ pathname: string; open: boolean } | null>(
+    null,
+  );
+  const open = toggle?.pathname === pathname ? toggle.open : childActive;
   const Icon = item.icon ? navIconMap[item.icon] : null;
-
-  useEffect(() => {
-    setHydrated(true);
-    const stored = localStorage.getItem(storageKey);
-    if (stored !== null) {
-      setOpen(stored === "1");
-    } else if (childActive) {
-      setOpen(true);
-    }
-  }, [storageKey, childActive]);
-
-  useEffect(() => {
-    if (childActive) setOpen(true);
-  }, [childActive, pathname]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    localStorage.setItem(storageKey, open ? "1" : "0");
-  }, [open, storageKey, hydrated]);
 
   return (
     <div>
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => setToggle({ pathname, open: !open })}
         aria-expanded={open}
         className={cn(
           "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
@@ -91,6 +75,7 @@ function NavDropdown({ item, pathname }: { item: NavItem; pathname: string }) {
       </button>
 
       <div
+        inert={!open}
         className={cn(
           "grid transition-[grid-template-rows] duration-200 ease-out",
           open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
