@@ -12,7 +12,8 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select, Textarea } from "@/components/ui/input";
+import { Input, Label, Textarea } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 type SparepartRow = WorkOrderSparepartLine & { key: string };
@@ -108,7 +109,7 @@ export default function NewWorkOrderPage() {
               <div className="space-y-3">
                 {lines.map((line) => (
                   <div key={line.key} className="flex gap-2">
-                    <Select
+                    <SearchableSelect
                       value={line.item_id}
                       onChange={(event) =>
                         updateLine(line.key, "item_id", event.target.value)
@@ -121,7 +122,7 @@ export default function NewWorkOrderPage() {
                           {item.sku} — {item.name}
                         </option>
                       ))}
-                    </Select>
+                    </SearchableSelect>
                     <Input
                       type="number"
                       min={1}

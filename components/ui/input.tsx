@@ -26,18 +26,6 @@ export function Label({
   );
 }
 
-export function Select({
-  className,
-  children,
-  ...props
-}: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select className={cn(fieldClass, className)} {...props}>
-      {children}
-    </select>
-  );
-}
-
 export function Textarea({
   className,
   ...props

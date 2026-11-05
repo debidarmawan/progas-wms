@@ -14,7 +14,8 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 function BarcodeList({
@@ -137,7 +138,7 @@ export default function ExchangePage() {
             <FormSection title="Pelanggan" tone="accent">
               <div className="max-w-md">
                 <Label htmlFor="customer_id">Pelanggan</Label>
-                <Select id="customer_id" name="customer_id" required defaultValue="">
+                <SearchableSelect id="customer_id" name="customer_id" required defaultValue="">
                   <option value="" disabled>
                     Pilih pelanggan
                   </option>
@@ -146,7 +147,7 @@ export default function ExchangePage() {
                       {c.code} — {c.name}
                     </option>
                   ))}
-                </Select>
+                </SearchableSelect>
               </div>
               <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
                 <input type="checkbox" name="force_approve" />

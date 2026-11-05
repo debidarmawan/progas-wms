@@ -13,7 +13,8 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function EditMasterItemPage() {
@@ -119,11 +120,11 @@ export default function EditMasterItemPage() {
               </div>
               <div>
                 <Label htmlFor="item_type">Jenis</Label>
-                <Select id="item_type" name="item_type" defaultValue={defaults.item_type}>
+                <SearchableSelect id="item_type" name="item_type" defaultValue={defaults.item_type}>
                   <option value="gas">Gas</option>
                   <option value="liquid">Liquid</option>
                   <option value="mix">Mix</option>
-                </Select>
+                </SearchableSelect>
               </div>
               <div>
                 <Label htmlFor="gas_type">Jenis Gas</Label>

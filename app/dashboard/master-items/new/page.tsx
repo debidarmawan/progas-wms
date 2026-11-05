@@ -13,7 +13,8 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 function generateSkuFromName(name: string) {
@@ -117,11 +118,11 @@ export default function NewMasterItemPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="item_type">Jenis</Label>
-                  <Select id="item_type" name="item_type" defaultValue="gas">
+                  <SearchableSelect id="item_type" name="item_type" defaultValue="gas">
                     <option value="gas">Gas</option>
                     <option value="liquid">Liquid</option>
                     <option value="mix">Mix</option>
-                  </Select>
+                  </SearchableSelect>
                 </div>
                 <div>
                   <Label htmlFor="gas_type">Jenis Gas</Label>
@@ -145,7 +146,7 @@ export default function NewMasterItemPage() {
                 </div>
                 <div>
                   <Label htmlFor="is_serialized">Tipe Item</Label>
-                  <Select
+                  <SearchableSelect
                     id="is_serialized"
                     name="is_serialized"
                     defaultValue="true"
@@ -155,7 +156,7 @@ export default function NewMasterItemPage() {
                   >
                     <option value="true">Tabung (serialized)</option>
                     <option value="false">Suku cadang</option>
-                  </Select>
+                  </SearchableSelect>
                 </div>
               </div>
             </FormSection>

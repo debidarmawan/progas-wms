@@ -8,7 +8,17 @@ import { createSalesOrder, getCustomerPO, listCustomerPOs } from "@/lib/api/sale
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
-import { Input, Label, Select } from "@/components/ui/input";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableRow,
+  DataTableTd,
+  DataTableTh,
+} from "@/components/ui/data-table";
+import { Input, Label } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 import type {
   CustomerPOResponse,
@@ -220,7 +230,7 @@ export default function NewSalesOrderPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="customer_id">Pelanggan</Label>
-                <Select
+                <SearchableSelect
                   id="customer_id"
                   name="customer_id"
                   required
@@ -236,7 +246,7 @@ export default function NewSalesOrderPage() {
                       {customer.code} — {customer.name}
                     </option>
                   ))}
-                </Select>
+                </SearchableSelect>
                 {selectedPO ? (
                   <p className="mt-1 text-xs text-slate-500">
                     Pelanggan terisi dari PO terpilih.
@@ -315,27 +325,31 @@ export default function NewSalesOrderPage() {
             </div>
 
             {!selectedPO ? (
-              <div className="flex gap-2">
-                <Select
-                  aria-label="Master item"
-                  value={itemId}
-                  onChange={(event) => setItemId(event.target.value)}
-                >
-                  <option value="">Pilih item</option>
-                  {items.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.sku} — {item.name}
-                    </option>
-                  ))}
-                </Select>
+              <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_6rem_auto] sm:items-end">
+                <div className="min-w-0">
+                  <SearchableSelect
+                    aria-label="Master item"
+                    value={itemId}
+                    onChange={(event) => setItemId(event.target.value)}
+                  >
+                    <option value="">Pilih item</option>
+                    {items.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.sku} — {item.name}
+                      </option>
+                    ))}
+                  </SearchableSelect>
+                </div>
                 <Input
                   aria-label="Jumlah"
+                  className="w-full"
                   min="1"
                   type="number"
                   value={quantity}
                   onChange={(event) => setQuantity(event.target.value)}
                 />
                 <Button
+                  className="whitespace-nowrap"
                   type="button"
                   variant="secondary"
                   onClick={addLine}
@@ -349,33 +363,43 @@ export default function NewSalesOrderPage() {
               </p>
             )}
 
-            <ul className="divide-y rounded-lg border border-slate-200">
-              {lines.map((line) => {
-                const item = items.find(
-                  (candidate) => candidate.id === line.master_item_id,
-                );
-                const itemName =
-                  item?.name || line.item_name || "Item tidak ditemukan";
-                const sku = item?.sku || line.sku;
-                return (
-                  <li
-                    className="flex justify-between px-3 py-2 text-sm"
-                    key={line.master_item_id}
-                  >
-                    <span>
-                      {sku ? `${sku} — ` : ""}
-                      {itemName}
-                    </span>
-                    <span className="font-semibold">{line.qty_ordered}</span>
-                  </li>
-                );
-              })}
-              {!lines.length ? (
-                <li className="px-3 py-2 text-sm text-slate-500">
-                  Belum ada item.
-                </li>
-              ) : null}
-            </ul>
+            <div className="overflow-hidden rounded-lg border border-slate-200">
+              <DataTable>
+                <DataTableHead>
+                  <DataTableTh>#</DataTableTh>
+                  <DataTableTh>Item</DataTableTh>
+                  <DataTableTh className="text-right">Qty</DataTableTh>
+                </DataTableHead>
+                <DataTableBody>
+                  {lines.length === 0 ? (
+                    <DataTableEmpty colSpan={3} message="Belum ada item." />
+                  ) : (
+                    lines.map((line, index) => {
+                      const item = items.find(
+                        (candidate) => candidate.id === line.master_item_id,
+                      );
+                      const itemName =
+                        item?.name || line.item_name || "Item tidak ditemukan";
+                      const sku = item?.sku || line.sku;
+                      return (
+                        <DataTableRow key={line.master_item_id}>
+                          <DataTableTd className="text-slate-500">
+                            {index + 1}
+                          </DataTableTd>
+                          <DataTableTd className="font-medium text-slate-900">
+                            {sku ? `${sku} — ` : ""}
+                            {itemName}
+                          </DataTableTd>
+                          <DataTableTd className="text-right font-semibold tabular-nums">
+                            {line.qty_ordered}
+                          </DataTableTd>
+                        </DataTableRow>
+                      );
+                    })
+                  )}
+                </DataTableBody>
+              </DataTable>
+            </div>
 
             {error ? <Alert variant="error">{error}</Alert> : null}
 

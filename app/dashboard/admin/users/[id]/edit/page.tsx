@@ -17,7 +17,8 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function EditUserPage() {
@@ -195,7 +196,7 @@ export default function EditUserPage() {
                 </div>
                 <div>
                   <Label htmlFor="role_id">Peran</Label>
-                  <Select
+                  <SearchableSelect
                     id="role_id"
                     name="role_id"
                     value={roleId}
@@ -207,13 +208,13 @@ export default function EditUserPage() {
                         {role.name}
                       </option>
                     ))}
-                  </Select>
+                  </SearchableSelect>
                 </div>
               </div>
               {isDriverRole ? (
                 <div>
                   <Label htmlFor="driver_id">Data Driver</Label>
-                  <Select
+                  <SearchableSelect
                     id="driver_id"
                     name="driver_id"
                     value={defaults.driver_id}
@@ -240,7 +241,7 @@ export default function EditUserPage() {
                         {!driver.is_active ? " (Nonaktif)" : ""}
                       </option>
                     ))}
-                  </Select>
+                  </SearchableSelect>
                 </div>
               ) : null}
               <div>

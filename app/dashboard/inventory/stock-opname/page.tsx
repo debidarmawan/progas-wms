@@ -11,7 +11,8 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select, Textarea } from "@/components/ui/input";
+import { Input, Label, Textarea } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function StockOpnamePage() {
@@ -63,7 +64,7 @@ export default function StockOpnamePage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="item_id">Spare Part</Label>
-                  <Select id="item_id" name="item_id" required defaultValue="">
+                  <SearchableSelect id="item_id" name="item_id" required defaultValue="">
                     <option value="" disabled>
                       Pilih item
                     </option>
@@ -72,7 +73,7 @@ export default function StockOpnamePage() {
                         {item.sku} — {item.name} (sistem: {item.stock_quantity ?? 0})
                       </option>
                     ))}
-                  </Select>
+                  </SearchableSelect>
                 </div>
                 <div>
                   <Label htmlFor="actual_quantity">Qty Fisik Aktual</Label>

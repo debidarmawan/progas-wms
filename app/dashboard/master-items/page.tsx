@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/data-table";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pagination } from "@/components/ui/pagination";
-import { Input, Select } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { SearchInput } from "@/components/ui/search-input";
 
 type SortField = "sku" | "name" | "hna_price";
@@ -95,7 +96,7 @@ export default function MasterItemsPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <Select
+        <SearchableSelect
           aria-label="Filter berdasarkan jenis"
           value={itemType}
           onChange={(event) => setItemType(event.target.value)}
@@ -104,14 +105,14 @@ export default function MasterItemsPage() {
           <option value="gas">Gas</option>
           <option value="liquid">Liquid</option>
           <option value="mix">Mix</option>
-        </Select>
+        </SearchableSelect>
         <Input
           aria-label="Filter berdasarkan gas"
           placeholder="Filter gas..."
           value={gasType}
           onChange={(event) => setGasType(event.target.value)}
         />
-        <Select
+        <SearchableSelect
           aria-label="Filter berdasarkan tipe item"
           value={isSerialized}
           onChange={(event) => setIsSerialized(event.target.value)}
@@ -119,7 +120,7 @@ export default function MasterItemsPage() {
           <option value="">Semua tipe</option>
           <option value="true">Tabung</option>
           <option value="false">Spare part</option>
-        </Select>
+        </SearchableSelect>
         <Button
           className="md:col-span-2 xl:col-span-1"
           type="button"

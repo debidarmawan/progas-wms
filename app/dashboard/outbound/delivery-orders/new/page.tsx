@@ -11,7 +11,8 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { FormAsideCard, FormAsideStack, FormMainCard, FormPageGrid, FormSection } from "@/components/ui/form-layout";
-import { Input, Label, Select, Textarea } from "@/components/ui/input";
+import { Input, Label, Textarea } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function NewDeliveryOrderPage() {
@@ -128,16 +129,16 @@ export default function NewDeliveryOrderPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="customer_id">Pelanggan</Label>
-                  <Select id="customer_id" name="customer_id" required defaultValue="">
+                  <SearchableSelect id="customer_id" name="customer_id" required defaultValue="">
                     <option value="" disabled>Pilih pelanggan</option>
                     {customers.map((c) => (
                       <option key={c.id} value={c.id}>{c.code} — {c.name}</option>
                     ))}
-                  </Select>
+                  </SearchableSelect>
                 </div>
                 <div className="sm:col-span-2">
                   <Label htmlFor="sales_order_id">Sales Order (opsional)</Label>
-                  <Select
+                  <SearchableSelect
                     id="sales_order_id"
                     name="sales_order_id"
                     value={selectedSalesOrderId}
@@ -147,16 +148,16 @@ export default function NewDeliveryOrderPage() {
                     {salesOrders.map((order) => (
                       <option key={order.id} value={order.id}>{order.so_number} — {order.customer_name}</option>
                     ))}
-                  </Select>
+                  </SearchableSelect>
                 </div>
                 <div>
                   <Label htmlFor="fleet_id">Armada</Label>
-                  <Select id="fleet_id" name="fleet_id" required defaultValue="">
+                  <SearchableSelect id="fleet_id" name="fleet_id" required defaultValue="">
                     <option value="" disabled>Pilih kendaraan</option>
                     {fleet.map((v) => (
                       <option key={v.id} value={v.id}>{v.plate_number} (max {v.max_weight_kg} kg)</option>
                     ))}
-                  </Select>
+                  </SearchableSelect>
                 </div>
               </div>
             </FormSection>

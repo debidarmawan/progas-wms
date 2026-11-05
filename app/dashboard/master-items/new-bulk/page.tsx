@@ -7,7 +7,8 @@ import type { CreateMasterItemRequest } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 type DraftItem = {
@@ -188,7 +189,7 @@ export default function NewBulkMasterItemsPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label>Jenis</Label>
-                  <Select
+                  <SearchableSelect
                     value={row.item_type}
                     onChange={(event) =>
                       updateRow(row.id, {
@@ -199,7 +200,7 @@ export default function NewBulkMasterItemsPage() {
                     <option value="gas">Gas</option>
                     <option value="liquid">Liquid</option>
                     <option value="mix">Mix</option>
-                  </Select>
+                  </SearchableSelect>
                 </div>
                 <div>
                   <Label>Jenis Gas</Label>
@@ -229,7 +230,7 @@ export default function NewBulkMasterItemsPage() {
                 </div>
                 <div>
                   <Label>Tipe Item</Label>
-                  <Select
+                  <SearchableSelect
                     value={row.is_serialized}
                     onChange={(event) =>
                       updateRow(row.id, {
@@ -239,7 +240,7 @@ export default function NewBulkMasterItemsPage() {
                   >
                     <option value="true">Tabung (serialized)</option>
                     <option value="false">Suku cadang</option>
-                  </Select>
+                  </SearchableSelect>
                 </div>
               </div>
 

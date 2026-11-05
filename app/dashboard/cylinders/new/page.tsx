@@ -22,7 +22,8 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select, Textarea } from "@/components/ui/input";
+import { Input, Label, Textarea } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function NewCylinderPage() {
@@ -122,7 +123,7 @@ export default function NewCylinderPage() {
               </div>
               <div>
                 <Label htmlFor="item_id">Produk Gas</Label>
-                <Select id="item_id" name="item_id" required defaultValue="">
+                <SearchableSelect id="item_id" name="item_id" required defaultValue="">
                   <option value="" disabled>
                     Pilih produk
                   </option>
@@ -131,7 +132,7 @@ export default function NewCylinderPage() {
                       {item.name} ({item.sku})
                     </option>
                   ))}
-                </Select>
+                </SearchableSelect>
               </div>
             </FormSection>
 
@@ -139,7 +140,7 @@ export default function NewCylinderPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="ownership_type">Kepemilikan</Label>
-                  <Select
+                  <SearchableSelect
                     id="ownership_type"
                     name="ownership_type"
                     defaultValue="COMPANY"
@@ -148,14 +149,14 @@ export default function NewCylinderPage() {
                     <option value="COMPANY">COMPANY</option>
                     <option value="CUSTOMER">CUSTOMER</option>
                     <option value="VENDOR">VENDOR</option>
-                  </Select>
+                  </SearchableSelect>
                 </div>
                 {needsOwner ? (
                   <div>
                     {ownershipType === "CUSTOMER" ? (
                       <>
                         <Label htmlFor="owner_id">Pelanggan Pemilik</Label>
-                        <Select
+                        <SearchableSelect
                           id="owner_id"
                           name="owner_id"
                           required
@@ -169,12 +170,12 @@ export default function NewCylinderPage() {
                               {customer.code} — {customer.name}
                             </option>
                           ))}
-                        </Select>
+                        </SearchableSelect>
                       </>
                     ) : (
                       <>
                         <Label htmlFor="owner_id">Vendor Pemilik</Label>
-                        <Select
+                        <SearchableSelect
                           id="owner_id"
                           name="owner_id"
                           required
@@ -188,7 +189,7 @@ export default function NewCylinderPage() {
                               {vendor.code} — {vendor.name}
                             </option>
                           ))}
-                        </Select>
+                        </SearchableSelect>
                       </>
                     )}
                   </div>

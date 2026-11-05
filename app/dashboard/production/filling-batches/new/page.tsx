@@ -16,7 +16,8 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select, Textarea } from "@/components/ui/input";
+import { Input, Label, Textarea } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function NewFillingBatchPage() {
@@ -111,7 +112,7 @@ export default function NewFillingBatchPage() {
               >
                 <div>
                   <Label htmlFor="item_id">Produk Gas</Label>
-                  <Select
+                  <SearchableSelect
                     id="item_id"
                     name="item_id"
                     required
@@ -131,7 +132,7 @@ export default function NewFillingBatchPage() {
                         {item.name} — {item.gas_type || "N/A"}
                       </option>
                     ))}
-                  </Select>
+                  </SearchableSelect>
                 </div>
               </FormSection>
 

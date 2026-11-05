@@ -17,7 +17,8 @@ import {
   FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function NewUserPage() {
@@ -134,7 +135,7 @@ export default function NewUserPage() {
                 </div>
                 <div>
                   <Label htmlFor="role_id">Peran</Label>
-                  <Select
+                  <SearchableSelect
                     id="role_id"
                     name="role_id"
                     required
@@ -149,13 +150,13 @@ export default function NewUserPage() {
                         {role.name}
                       </option>
                     ))}
-                  </Select>
+                  </SearchableSelect>
                 </div>
               </div>
               {isDriverRole ? (
                 <div>
                   <Label htmlFor="driver_id">Data Driver</Label>
-                  <Select
+                  <SearchableSelect
                     id="driver_id"
                     name="driver_id"
                     required
@@ -175,7 +176,7 @@ export default function NewUserPage() {
                         {driver.phone ? ` — ${driver.phone}` : ""}
                       </option>
                     ))}
-                  </Select>
+                  </SearchableSelect>
                 </div>
               ) : null}
             </FormSection>
