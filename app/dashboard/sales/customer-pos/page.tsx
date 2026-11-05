@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { confirmCustomerPO, listCustomerPOs } from "@/lib/api/sales";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { DataTable, DataTableBody, DataTableEmpty, DataTableHead, DataTableLoading, DataTableRow, DataTableTd, DataTableTh } from "@/components/ui/data-table";
 import { PageHeader } from "@/components/ui/page-header";
@@ -27,8 +27,8 @@ export default function CustomerPOsPage() {
     <PageHeader title="PO Pelanggan" description="Pesanan resmi pelanggan pada level master item." actionHref="/dashboard/sales/customer-pos/new" actionLabel="Buat PO" />
     <SearchInput className="mb-6" placeholder="Cari nomor PO atau pelanggan..." value={search} onChange={(event) => setSearch(event.target.value)} />
     {error || actionError ? <Alert variant="error" className="mb-4">{error || actionError}</Alert> : null}
-    <Card><CardBody className="p-0"><DataTable><DataTableHead><DataTableTh>No. PO</DataTableTh><DataTableTh>Pelanggan</DataTableTh><DataTableTh>Tanggal</DataTableTh><DataTableTh>Status</DataTableTh><DataTableTh>Aksi</DataTableTh></DataTableHead><DataTableBody>
-      {loading ? <DataTableLoading colSpan={5} /> : items.length === 0 ? <DataTableEmpty colSpan={5} /> : items.map((item) => <DataTableRow key={item.id}><DataTableTd className="font-mono font-medium">{item.po_number}</DataTableTd><DataTableTd>{item.customer_name || "—"}</DataTableTd><DataTableTd>{item.po_date}</DataTableTd><DataTableTd>{item.status}</DataTableTd><DataTableTd><div className="flex items-center gap-3 whitespace-nowrap"><Link className="font-medium text-indigo-600 hover:text-indigo-700" href={`/dashboard/sales/customer-pos/${item.id}`}>Detail</Link>{item.status === "DRAFT" ? <button className="font-medium text-indigo-600" onClick={() => handleConfirm(item.id)} type="button">Konfirmasi</button> : <span className="text-slate-500">Terkunci</span>}</div></DataTableTd></DataTableRow>)}
+    <Card><CardBody className="p-0"><DataTable><DataTableHead><DataTableTh>Aksi</DataTableTh><DataTableTh>No. PO</DataTableTh><DataTableTh>Pelanggan</DataTableTh><DataTableTh>Tanggal</DataTableTh><DataTableTh>Status</DataTableTh></DataTableHead><DataTableBody>
+      {loading ? <DataTableLoading colSpan={5} /> : items.length === 0 ? <DataTableEmpty colSpan={5} /> : items.map((item) => <DataTableRow key={item.id}><DataTableTd><div className="flex items-center gap-2 whitespace-nowrap"><ButtonLink href={`/dashboard/sales/customer-pos/${item.id}`} size="sm" variant="secondary">Detail</ButtonLink>{item.status === "DRAFT" ? <Button onClick={() => handleConfirm(item.id)} size="sm" type="button">Konfirmasi</Button> : <span className="text-xs text-slate-500">Terkunci</span>}</div></DataTableTd><DataTableTd className="font-mono font-medium">{item.po_number}</DataTableTd><DataTableTd>{item.customer_name || "—"}</DataTableTd><DataTableTd>{item.po_date}</DataTableTd><DataTableTd>{item.status}</DataTableTd></DataTableRow>)}
     </DataTableBody></DataTable>{meta ? <Pagination meta={meta} onPageChange={setPage} /> : null}</CardBody></Card>
   </div>;
 }

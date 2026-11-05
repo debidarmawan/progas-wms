@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getSalesOrder } from "@/lib/api/sales";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { cancelSalesOrder, confirmSalesOrder, getSalesOrder } from "@/lib/api/sales";
+import { showToast } from "@/lib/flash";
 import type { SalesOrderResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DataTable,
   DataTableBody,
@@ -25,12 +28,15 @@ function formatDate(value?: string) {
 
 export default function SalesOrderDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const [so, setSO] = useState<SalesOrderResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState<"confirm" | "cancel" | null>(null);
+  const [rejectOpen, setRejectOpen] = useState(false);
 
-  useEffect(() => {
-    getSalesOrder(params.id)
+  const load = useCallback(() => {
+    return getSalesOrder(params.id)
       .then(setSO)
       .catch((err) =>
         setError(err instanceof Error ? err.message : "Gagal memuat sales order"),
@@ -38,11 +44,37 @@ export default function SalesOrderDetailPage() {
       .finally(() => setLoading(false));
   }, [params.id]);
 
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function transition(action: "confirm" | "cancel") {
+    if (!so) return;
+    setPending(action);
+    setError(null);
+    try {
+      if (action === "confirm") await confirmSalesOrder(so.id);
+      else await cancelSalesOrder(so.id);
+      setRejectOpen(false);
+      showToast(
+        action === "confirm"
+          ? `SO ${so.so_number} berhasil dikonfirmasi.`
+          : `SO ${so.so_number} berhasil ditolak.`,
+      );
+      await load();
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal mengubah status SO");
+    } finally {
+      setPending(null);
+    }
+  }
+
   if (loading) {
     return <p className="text-slate-600">Memuat...</p>;
   }
 
-  if (error || !so) {
+  if (error && !so) {
     return (
       <div className="animate-in">
         <Alert variant="error">{error || "Data tidak ditemukan"}</Alert>
@@ -57,9 +89,15 @@ export default function SalesOrderDetailPage() {
     );
   }
 
+  if (!so) return null;
+
   const lines = so.lines ?? [];
   const totalOrdered = lines.reduce((sum, line) => sum + line.qty_ordered, 0);
   const totalDelivered = lines.reduce((sum, line) => sum + line.qty_delivered, 0);
+  const canConfirm = so.status === "DRAFT";
+  const canReject = so.status === "DRAFT" || so.status === "CONFIRMED";
+  const canCreateDO = so.status === "CONFIRMED" || so.status === "PARTIAL";
+  const rejectLabel = canConfirm ? "Tolak SO" : "Batalkan SO";
 
   return (
     <div className="animate-in space-y-6">
@@ -74,6 +112,37 @@ export default function SalesOrderDetailPage() {
         title={`SO ${so.so_number}`}
         description={`${so.customer_name || "—"} · detail sales order`}
       />
+
+      {error ? <Alert variant="error">{error}</Alert> : null}
+
+      {canCreateDO || canConfirm || canReject ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {canCreateDO ? (
+            <Link
+              href={`/dashboard/outbound/delivery-orders/new?sales_order_id=${so.id}&customer_id=${so.customer_id}`}
+            >
+              <Button>Proses ke Surat Jalan</Button>
+            </Link>
+          ) : null}
+          {canConfirm ? (
+            <Button
+              disabled={pending !== null}
+              onClick={() => transition("confirm")}
+            >
+              {pending === "confirm" ? "Memproses..." : "Konfirmasi SO"}
+            </Button>
+          ) : null}
+          {canReject ? (
+            <Button
+              variant="danger"
+              disabled={pending !== null}
+              onClick={() => setRejectOpen(true)}
+            >
+              {rejectLabel}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -142,6 +211,20 @@ export default function SalesOrderDetailPage() {
           </DataTable>
         </CardBody>
       </Card>
+
+      <ConfirmDialog
+        open={rejectOpen}
+        title={`${rejectLabel}?`}
+        message={
+          canConfirm
+            ? `SO ${so.so_number} akan ditolak dan tidak bisa diproses menjadi surat jalan. Lanjutkan?`
+            : `SO ${so.so_number} sudah dikonfirmasi. Membatalkan akan menghentikan proses pengiriman. Lanjutkan?`
+        }
+        confirmLabel={rejectLabel}
+        loading={pending === "cancel"}
+        onConfirm={() => transition("cancel")}
+        onCancel={() => setRejectOpen(false)}
+      />
     </div>
   );
 }

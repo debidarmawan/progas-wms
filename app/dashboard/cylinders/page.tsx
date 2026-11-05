@@ -1,12 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { listCylinders } from "@/lib/api/cylinders";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   DataTable,
@@ -50,9 +49,9 @@ export default function CylindersPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <Link href="/dashboard/cylinders/labels">
-          <Button variant="secondary">Cetak Label</Button>
-        </Link>
+        <ButtonLink href="/dashboard/cylinders/labels" variant="secondary">
+          Cetak Label
+        </ButtonLink>
       </div>
 
       {error ? (
@@ -65,12 +64,12 @@ export default function CylindersPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
+              <DataTableTh className="w-24"> </DataTableTh>
               <DataTableTh>Barcode</DataTableTh>
               <DataTableTh>Produk</DataTableTh>
               <DataTableTh>Gas</DataTableTh>
               <DataTableTh>Status</DataTableTh>
               <DataTableTh>Ownership</DataTableTh>
-              <DataTableTh className="w-24"> </DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
@@ -80,6 +79,15 @@ export default function CylindersPage() {
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
+                    <DataTableTd>
+                      <ButtonLink
+                        href={`/dashboard/cylinders/${item.id}/edit`}
+                        size="sm"
+                        variant="secondary"
+                      >
+                        Edit
+                      </ButtonLink>
+                    </DataTableTd>
                     <DataTableTd className="font-mono text-slate-800">
                       {item.barcode_sn}
                     </DataTableTd>
@@ -94,14 +102,6 @@ export default function CylindersPage() {
                       <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
                         {item.ownership_type}
                       </span>
-                    </DataTableTd>
-                    <DataTableTd>
-                      <Link
-                        href={`/dashboard/cylinders/${item.id}/edit`}
-                        className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
-                      >
-                        Edit
-                      </Link>
                     </DataTableTd>
                   </DataTableRow>
                 ))

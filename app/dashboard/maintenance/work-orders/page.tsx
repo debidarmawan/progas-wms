@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { listWorkOrders } from "@/lib/api/maintenance";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   DataTable,
@@ -54,11 +54,11 @@ export default function WorkOrdersPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
+              <DataTableTh>Aksi</DataTableTh>
               <DataTableTh>No. WO</DataTableTh>
               <DataTableTh>Judul</DataTableTh>
               <DataTableTh>Status</DataTableTh>
               <DataTableTh>Dibuat</DataTableTh>
-              <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
@@ -68,6 +68,15 @@ export default function WorkOrdersPage() {
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
+                    <DataTableTd>
+                      <ButtonLink
+                        href={`/dashboard/maintenance/work-orders/${item.id}`}
+                        size="sm"
+                        variant="secondary"
+                      >
+                        Detail
+                      </ButtonLink>
+                    </DataTableTd>
                     <DataTableTd className="font-mono font-medium">
                       {item.wo_number}
                     </DataTableTd>
@@ -81,14 +90,6 @@ export default function WorkOrdersPage() {
                       {item.created_at
                         ? new Date(item.created_at).toLocaleDateString("id-ID")
                         : "—"}
-                    </DataTableTd>
-                    <DataTableTd>
-                      <Link
-                        className="font-medium text-indigo-600 hover:text-indigo-700"
-                        href={`/dashboard/maintenance/work-orders/${item.id}`}
-                      >
-                        Detail
-                      </Link>
                     </DataTableTd>
                   </DataTableRow>
                 ))

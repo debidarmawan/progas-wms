@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { deleteVendor, listVendors } from "@/lib/api/vendors";
 import { showToast } from "@/lib/flash";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
@@ -85,12 +84,12 @@ export default function VendorsPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
+              <DataTableTh>Aksi</DataTableTh>
               <DataTableTh>Kode</DataTableTh>
               <DataTableTh>Nama</DataTableTh>
               <DataTableTh>Kontak</DataTableTh>
               <DataTableTh>Tabung</DataTableTh>
               <DataTableTh>Status</DataTableTh>
-              <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
@@ -100,6 +99,35 @@ export default function VendorsPage() {
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
+                    <DataTableTd>
+                      <div className="flex flex-wrap items-center gap-2 whitespace-nowrap">
+                        <ButtonLink
+                          href={`/dashboard/vendors/${item.id}`}
+                          size="sm"
+                          variant="secondary"
+                        >
+                          Detail
+                        </ButtonLink>
+                        <ButtonLink
+                          href={`/dashboard/vendors/${item.id}/edit`}
+                          size="sm"
+                          variant="secondary"
+                        >
+                          Edit
+                        </ButtonLink>
+                        <Button
+                          type="button"
+                          variant="danger"
+                          size="sm"
+                          disabled={deletingId === item.id}
+                          onClick={() =>
+                            setPendingDelete({ id: item.id, name: item.name })
+                          }
+                        >
+                          {deletingId === item.id ? "..." : "Hapus"}
+                        </Button>
+                      </div>
+                    </DataTableTd>
                     <DataTableTd className="font-mono font-medium text-slate-800">
                       {item.code}
                     </DataTableTd>
@@ -112,34 +140,6 @@ export default function VendorsPage() {
                       <Badge>
                         {item.is_active === false ? "Nonaktif" : "Aktif"}
                       </Badge>
-                    </DataTableTd>
-                    <DataTableTd>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <Link
-                          className="font-medium text-indigo-600 hover:text-indigo-700"
-                          href={`/dashboard/vendors/${item.id}`}
-                        >
-                          Detail
-                        </Link>
-                        <Link
-                          className="font-medium text-indigo-600 hover:text-indigo-700"
-                          href={`/dashboard/vendors/${item.id}/edit`}
-                        >
-                          Edit
-                        </Link>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="text-rose-600 hover:text-rose-700"
-                          disabled={deletingId === item.id}
-                          onClick={() =>
-                            setPendingDelete({ id: item.id, name: item.name })
-                          }
-                        >
-                          {deletingId === item.id ? "..." : "Hapus"}
-                        </Button>
-                      </div>
                     </DataTableTd>
                   </DataTableRow>
                 ))

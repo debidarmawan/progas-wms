@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { deleteUser, listUsers } from "@/lib/api/users";
 import { showToast } from "@/lib/flash";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
@@ -85,13 +84,13 @@ export default function UsersPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
+              <DataTableTh>Aksi</DataTableTh>
               <DataTableTh>Nama</DataTableTh>
               <DataTableTh>Email</DataTableTh>
               <DataTableTh>Peran</DataTableTh>
               <DataTableTh>Driver</DataTableTh>
               <DataTableTh>Status</DataTableTh>
               <DataTableTh>Login Terakhir</DataTableTh>
-              <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
@@ -101,6 +100,28 @@ export default function UsersPage() {
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
+                    <DataTableTd>
+                      <div className="flex flex-wrap items-center gap-2 whitespace-nowrap">
+                        <ButtonLink
+                          href={`/dashboard/admin/users/${item.id}/edit`}
+                          size="sm"
+                          variant="secondary"
+                        >
+                          Edit
+                        </ButtonLink>
+                        <Button
+                          type="button"
+                          variant="danger"
+                          size="sm"
+                          disabled={deletingId === item.id}
+                          onClick={() =>
+                            setPendingDelete({ id: item.id, name: item.name })
+                          }
+                        >
+                          {deletingId === item.id ? "..." : "Hapus"}
+                        </Button>
+                      </div>
+                    </DataTableTd>
                     <DataTableTd className="font-medium text-slate-900">
                       {item.name}
                     </DataTableTd>
@@ -118,28 +139,6 @@ export default function UsersPage() {
                             "id-ID",
                           )
                         : "—"}
-                    </DataTableTd>
-                    <DataTableTd>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <Link
-                          className="font-medium text-indigo-600 hover:text-indigo-700"
-                          href={`/dashboard/admin/users/${item.id}/edit`}
-                        >
-                          Edit
-                        </Link>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="text-rose-600 hover:text-rose-700"
-                          disabled={deletingId === item.id}
-                          onClick={() =>
-                            setPendingDelete({ id: item.id, name: item.name })
-                          }
-                        >
-                          {deletingId === item.id ? "..." : "Hapus"}
-                        </Button>
-                      </div>
                     </DataTableTd>
                   </DataTableRow>
                 ))

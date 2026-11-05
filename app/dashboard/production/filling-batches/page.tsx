@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { listFillingBatches } from "@/lib/api/production";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   DataTable,
@@ -54,12 +54,12 @@ export default function FillingBatchesPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
+              <DataTableTh>Aksi</DataTableTh>
               <DataTableTh>Batch</DataTableTh>
               <DataTableTh>Produk</DataTableTh>
               <DataTableTh>Gas</DataTableTh>
               <DataTableTh>Qty</DataTableTh>
               <DataTableTh>Status</DataTableTh>
-              <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
@@ -69,6 +69,15 @@ export default function FillingBatchesPage() {
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
+                    <DataTableTd>
+                      <ButtonLink
+                        href={`/dashboard/production/filling-batches/${item.id}`}
+                        size="sm"
+                        variant="secondary"
+                      >
+                        Detail
+                      </ButtonLink>
+                    </DataTableTd>
                     <DataTableTd className="font-mono font-medium text-slate-800">
                       {item.batch_number}
                     </DataTableTd>
@@ -79,14 +88,6 @@ export default function FillingBatchesPage() {
                       <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium">
                         {item.status}
                       </span>
-                    </DataTableTd>
-                    <DataTableTd>
-                      <Link
-                        className="font-medium text-indigo-600 hover:text-indigo-700"
-                        href={`/dashboard/production/filling-batches/${item.id}`}
-                      >
-                        Detail
-                      </Link>
                     </DataTableTd>
                   </DataTableRow>
                 ))

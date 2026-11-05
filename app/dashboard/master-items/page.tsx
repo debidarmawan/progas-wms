@@ -7,7 +7,7 @@ import { usePaginatedList } from "@/hooks/use-paginated-list";
 import type { PaginationParams } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   DataTable,
@@ -142,6 +142,7 @@ export default function MasterItemsPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
+              <DataTableTh>Aksi</DataTableTh>
               <DataTableTh>
                 <button
                   type="button"
@@ -181,7 +182,6 @@ export default function MasterItemsPage() {
               <DataTableTh>Tipe</DataTableTh>
               <DataTableTh>Maks di Customer</DataTableTh>
               <DataTableTh>Stok</DataTableTh>
-              <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
@@ -191,6 +191,15 @@ export default function MasterItemsPage() {
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
+                    <DataTableTd>
+                      <ButtonLink
+                        href={`/dashboard/master-items/${item.id}/edit`}
+                        size="sm"
+                        variant="secondary"
+                      >
+                        Edit
+                      </ButtonLink>
+                    </DataTableTd>
                     <DataTableTd className="font-mono text-slate-800">
                       {item.sku}
                     </DataTableTd>
@@ -220,14 +229,6 @@ export default function MasterItemsPage() {
                     </DataTableTd>
                     <DataTableTd>
                       {item.is_serialized ? "—" : (item.stock_quantity ?? 0)}
-                    </DataTableTd>
-                    <DataTableTd>
-                      <Link
-                        className="font-medium text-indigo-600 hover:text-indigo-700"
-                        href={`/dashboard/master-items/${item.id}/edit`}
-                      >
-                        Edit
-                      </Link>
                     </DataTableTd>
                   </DataTableRow>
                 ))

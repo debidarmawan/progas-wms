@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { listCustomers } from "@/lib/api/customers";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   DataTable,
@@ -54,11 +54,11 @@ export default function CustomersPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
+              <DataTableTh>Aksi</DataTableTh>
               <DataTableTh>Kode</DataTableTh>
               <DataTableTh>Nama</DataTableTh>
               <DataTableTh>Outstanding</DataTableTh>
               <DataTableTh>Kuota</DataTableTh>
-              <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
@@ -72,6 +72,24 @@ export default function CustomersPage() {
                     (item.cylinder_quota_limit ?? 0);
                   return (
                     <DataTableRow key={item.id}>
+                      <DataTableTd>
+                        <div className="flex items-center gap-2 whitespace-nowrap">
+                          <ButtonLink
+                            href={`/dashboard/customers/${item.id}/pricing`}
+                            size="sm"
+                            variant="secondary"
+                          >
+                            Harga
+                          </ButtonLink>
+                          <ButtonLink
+                            href={`/dashboard/customers/${item.id}/edit`}
+                            size="sm"
+                            variant="secondary"
+                          >
+                            Edit
+                          </ButtonLink>
+                        </div>
+                      </DataTableTd>
                       <DataTableTd className="font-mono text-slate-800">
                         {item.code}
                       </DataTableTd>
@@ -90,22 +108,6 @@ export default function CustomersPage() {
                         </span>
                       </DataTableTd>
                       <DataTableTd>{item.cylinder_quota_limit ?? 0}</DataTableTd>
-                      <DataTableTd>
-                        <div className="flex gap-3">
-                          <Link
-                            className="font-medium text-indigo-600 transition hover:text-indigo-700"
-                            href={`/dashboard/customers/${item.id}/pricing`}
-                          >
-                            Harga
-                          </Link>
-                          <Link
-                            className="font-medium text-indigo-600 transition hover:text-indigo-700"
-                            href={`/dashboard/customers/${item.id}/edit`}
-                          >
-                            Edit
-                          </Link>
-                        </div>
-                      </DataTableTd>
                     </DataTableRow>
                   );
                 })

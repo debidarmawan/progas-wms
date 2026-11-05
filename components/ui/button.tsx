@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
-import type { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, ComponentProps } from "react";
 
 type Variant = "primary" | "secondary" | "danger" | "ghost";
 
@@ -18,6 +19,29 @@ const sizes = {
   md: "px-4 py-2.5 text-sm",
   lg: "px-5 py-3 text-sm",
 };
+
+// Same look as Button for navigations — keeps the markup an <a> so new-tab/middle-click still work.
+export function ButtonLink({
+  className,
+  variant = "primary",
+  size = "md",
+  ...props
+}: ComponentProps<typeof Link> & {
+  variant?: Variant;
+  size?: keyof typeof sizes;
+}) {
+  return (
+    <Link
+      className={cn(
+        "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200",
+        variants[variant],
+        sizes[size],
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
 export function Button({
   className,

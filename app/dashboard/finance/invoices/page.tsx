@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { listInvoices } from "@/lib/api/finance";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   DataTable,
@@ -52,6 +52,7 @@ export default function InvoicesPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
+              <DataTableTh>Aksi</DataTableTh>
               <DataTableTh>No. Invoice</DataTableTh>
               <DataTableTh>Pelanggan</DataTableTh>
               <DataTableTh>No. DO</DataTableTh>
@@ -59,7 +60,6 @@ export default function InvoicesPage() {
               <DataTableTh>Total</DataTableTh>
               <DataTableTh>Terbayar</DataTableTh>
               <DataTableTh>Status</DataTableTh>
-              <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
@@ -69,6 +69,15 @@ export default function InvoicesPage() {
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
+                    <DataTableTd>
+                      <ButtonLink
+                        href={`/dashboard/finance/invoices/${item.id}`}
+                        size="sm"
+                        variant="secondary"
+                      >
+                        Detail
+                      </ButtonLink>
+                    </DataTableTd>
                     <DataTableTd className="font-mono font-medium text-slate-800">
                       {item.invoice_number}
                     </DataTableTd>
@@ -83,14 +92,6 @@ export default function InvoicesPage() {
                       <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium">
                         {item.status}
                       </span>
-                    </DataTableTd>
-                    <DataTableTd>
-                      <Link
-                        className="font-medium text-indigo-600 hover:text-indigo-700"
-                        href={`/dashboard/finance/invoices/${item.id}`}
-                      >
-                        Detail
-                      </Link>
                     </DataTableTd>
                   </DataTableRow>
                 ))

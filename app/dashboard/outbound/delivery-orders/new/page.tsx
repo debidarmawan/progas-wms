@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import { listCustomers } from "@/lib/api/customers";
 import { issueDeliveryOrder } from "@/lib/api/outbound";
 import { listSalesOrders } from "@/lib/api/sales";
@@ -16,7 +16,18 @@ import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function NewDeliveryOrderPage() {
+  return (
+    <Suspense fallback={<p className="text-slate-600">Memuat...</p>}>
+      <NewDeliveryOrderForm />
+    </Suspense>
+  );
+}
+
+function NewDeliveryOrderForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const presetSalesOrderId = searchParams.get("sales_order_id") ?? "";
+  const presetCustomerId = searchParams.get("customer_id") ?? "";
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [fleet, setFleet] = useState<FleetResponse[]>([]);
   const [salesOrders, setSalesOrders] = useState<SalesOrderResponse[]>([]);
@@ -26,6 +37,8 @@ export default function NewDeliveryOrderPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSalesOrderId, setSelectedSalesOrderId] = useState<string>("");
   const [salesOrderLines, setSalesOrderLines] = useState<SalesOrderLineResponse[]>([]);
+  // SO detail can deep-link here (?sales_order_id=&customer_id=) to issue its DO directly.
+  const activeSalesOrderId = selectedSalesOrderId || presetSalesOrderId;
 
   useEffect(() => {
     Promise.all([
@@ -45,23 +58,20 @@ export default function NewDeliveryOrderPage() {
   }, []);
 
   useEffect(() => {
-    if (selectedSalesOrderId) {
-      const fetchSO = async () => {
-        try {
-          const response = await listSalesOrders({ page: 1, limit: 1, search: `id:${selectedSalesOrderId}` });
-          if (response.items.length > 0) {
-            setSalesOrderLines(response.items[0].lines || []);
-          }
-        } catch (err) {
-          console.error("Failed to fetch SO details:", err);
-          setSalesOrderLines([]);
+    if (!activeSalesOrderId) return;
+    const fetchSO = async () => {
+      try {
+        const response = await listSalesOrders({ page: 1, limit: 1, search: `id:${activeSalesOrderId}` });
+        if (response.items.length > 0) {
+          setSalesOrderLines(response.items[0].lines || []);
         }
-      };
-      fetchSO();
-    } else {
-      setSalesOrderLines([]);
-    }
-  }, [selectedSalesOrderId]);
+      } catch (err) {
+        console.error("Failed to fetch SO details:", err);
+        setSalesOrderLines([]);
+      }
+    };
+    fetchSO();
+  }, [activeSalesOrderId]);
 
   function addBarcode(raw: string) {
     const value = raw.trim();
@@ -85,7 +95,7 @@ export default function NewDeliveryOrderPage() {
     let hasValidationError = false;
     let validationMessage = "";
 
-    if (selectedSalesOrderId && salesOrderLines.length === 1) {
+    if (activeSalesOrderId && salesOrderLines.length === 1) {
       const line = salesOrderLines[0];
       const remaining = line.qty_ordered - line.qty_delivered;
       if (barcodes.length > remaining) {
@@ -106,7 +116,7 @@ export default function NewDeliveryOrderPage() {
       const order = await issueDeliveryOrder({
         customer_id: String(form.get("customer_id")),
         fleet_id: String(form.get("fleet_id")),
-        sales_order_id: selectedSalesOrderId || undefined,
+        sales_order_id: activeSalesOrderId || undefined,
         barcodes,
         notes: String(form.get("notes") || "") || undefined,
       });
@@ -129,7 +139,7 @@ export default function NewDeliveryOrderPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="customer_id">Pelanggan</Label>
-                  <SearchableSelect id="customer_id" name="customer_id" required defaultValue="">
+                  <SearchableSelect id="customer_id" name="customer_id" required defaultValue={presetCustomerId}>
                     <option value="" disabled>Pilih pelanggan</option>
                     {customers.map((c) => (
                       <option key={c.id} value={c.id}>{c.code} — {c.name}</option>
@@ -141,7 +151,7 @@ export default function NewDeliveryOrderPage() {
                   <SearchableSelect
                     id="sales_order_id"
                     name="sales_order_id"
-                    value={selectedSalesOrderId}
+                    value={activeSalesOrderId}
                     onChange={(e) => setSelectedSalesOrderId(e.target.value)}
                   >
                     <option value="">Tanpa referensi SO</option>
@@ -163,7 +173,7 @@ export default function NewDeliveryOrderPage() {
             </FormSection>
 
             <FormSection title="Sales Order Lines Detail" tone="accent">
-              {selectedSalesOrderId && salesOrderLines.length > 0 ? (
+              {activeSalesOrderId && salesOrderLines.length > 0 ? (
                 <div className="space-y-3">
                   <table className="min-w-full border-collapse text-sm border">
                     <thead className="bg-slate-100">
@@ -200,7 +210,7 @@ export default function NewDeliveryOrderPage() {
                     </div>
                   )}
                 </div>
-              ) : selectedSalesOrderId ? (
+              ) : activeSalesOrderId ? (
                 <p className="text-slate-600 italic">Memuat detail Sales Order...</p>
               ) : (
                 <p className="text-slate-600 italic">Pilih Sales Order untuk melihat detail barisnya</p>

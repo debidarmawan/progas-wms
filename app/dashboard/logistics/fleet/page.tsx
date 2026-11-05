@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { listFleet } from "@/lib/api/logistics";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import {
   DataTable,
@@ -59,10 +59,10 @@ export default function FleetPage() {
         <CardBody className="p-0">
           <DataTable>
             <DataTableHead>
+              <DataTableTh>Aksi</DataTableTh>
               <DataTableTh>Plat</DataTableTh>
               <DataTableTh>Max Berat (kg)</DataTableTh>
               <DataTableTh>Status</DataTableTh>
-              <DataTableTh>Aksi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
@@ -72,6 +72,15 @@ export default function FleetPage() {
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
+                    <DataTableTd>
+                      <ButtonLink
+                        href={`/dashboard/logistics/fleet/${item.id}/edit`}
+                        size="sm"
+                        variant="secondary"
+                      >
+                        Edit
+                      </ButtonLink>
+                    </DataTableTd>
                     <DataTableTd className="font-mono font-medium">
                       {item.plate_number}
                     </DataTableTd>
@@ -80,14 +89,6 @@ export default function FleetPage() {
                       <Badge>
                         {item.is_active === false ? "Nonaktif" : "Aktif"}
                       </Badge>
-                    </DataTableTd>
-                    <DataTableTd>
-                      <Link
-                        className="font-medium text-indigo-600 hover:text-indigo-700"
-                        href={`/dashboard/logistics/fleet/${item.id}/edit`}
-                      >
-                        Edit
-                      </Link>
                     </DataTableTd>
                   </DataTableRow>
                 ))
