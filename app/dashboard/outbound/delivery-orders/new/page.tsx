@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { listCustomers } from "@/lib/api/customers";
 import { issueDeliveryOrder } from "@/lib/api/outbound";
-import { listSalesOrders } from "@/lib/api/sales";
+import { getSalesOrder, listSalesOrders } from "@/lib/api/sales";
 import { listFleet } from "@/lib/api/logistics";
 import type { CustomerResponse, FleetResponse, SalesOrderResponse, SalesOrderLineResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
@@ -37,6 +37,7 @@ function NewDeliveryOrderForm() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSalesOrderId, setSelectedSalesOrderId] = useState<string>("");
   const [salesOrderLines, setSalesOrderLines] = useState<SalesOrderLineResponse[]>([]);
+  const [soLinesForId, setSoLinesForId] = useState("");
   // SO detail can deep-link here (?sales_order_id=&customer_id=) to issue its DO directly.
   const activeSalesOrderId = selectedSalesOrderId || presetSalesOrderId;
 
@@ -59,18 +60,23 @@ function NewDeliveryOrderForm() {
 
   useEffect(() => {
     if (!activeSalesOrderId) return;
-    const fetchSO = async () => {
-      try {
-        const response = await listSalesOrders({ page: 1, limit: 1, search: `id:${activeSalesOrderId}` });
-        if (response.items.length > 0) {
-          setSalesOrderLines(response.items[0].lines || []);
-        }
-      } catch (err) {
+    let cancelled = false;
+    // List endpoint omits lines and cannot search by id — read the detail endpoint instead.
+    getSalesOrder(activeSalesOrderId)
+      .then((order) => {
+        if (cancelled) return;
+        setSalesOrderLines(order.lines || []);
+        setSoLinesForId(activeSalesOrderId);
+      })
+      .catch((err) => {
         console.error("Failed to fetch SO details:", err);
+        if (cancelled) return;
         setSalesOrderLines([]);
-      }
+        setSoLinesForId(activeSalesOrderId);
+      });
+    return () => {
+      cancelled = true;
     };
-    fetchSO();
   }, [activeSalesOrderId]);
 
   function addBarcode(raw: string) {
@@ -173,7 +179,7 @@ function NewDeliveryOrderForm() {
             </FormSection>
 
             <FormSection title="Sales Order Lines Detail" tone="accent">
-              {activeSalesOrderId && salesOrderLines.length > 0 ? (
+              {activeSalesOrderId && soLinesForId === activeSalesOrderId && salesOrderLines.length > 0 ? (
                 <div className="space-y-3">
                   <table className="min-w-full border-collapse text-sm border">
                     <thead className="bg-slate-100">
@@ -210,8 +216,10 @@ function NewDeliveryOrderForm() {
                     </div>
                   )}
                 </div>
-              ) : activeSalesOrderId ? (
+              ) : activeSalesOrderId && soLinesForId !== activeSalesOrderId ? (
                 <p className="text-slate-600 italic">Memuat detail Sales Order...</p>
+              ) : activeSalesOrderId ? (
+                <p className="text-slate-600 italic">Sales Order ini tidak memiliki baris.</p>
               ) : (
                 <p className="text-slate-600 italic">Pilih Sales Order untuk melihat detail barisnya</p>
               )}
