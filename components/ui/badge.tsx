@@ -14,6 +14,11 @@ const statusStyles: Record<string, string> = {
   PARTIAL: "bg-amber-50 text-amber-800 ring-amber-200/60",
   COMPLETED: "bg-emerald-50 text-emerald-800 ring-emerald-200/60",
   CANCELLED: "bg-rose-50 text-rose-800 ring-rose-200/60",
+  ASSET: "bg-sky-50 text-sky-800 ring-sky-200/60",
+  LIABILITY: "bg-amber-50 text-amber-800 ring-amber-200/60",
+  EQUITY: "bg-violet-50 text-violet-800 ring-violet-200/60",
+  REVENUE: "bg-emerald-50 text-emerald-800 ring-emerald-200/60",
+  EXPENSE: "bg-rose-50 text-rose-800 ring-rose-200/60",
 };
 
 export function Badge({

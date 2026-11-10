@@ -11,7 +11,15 @@ export type NavItem = {
 
 export const mainNavigation: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "dashboard" },
-  { label: "Master Items", href: "/dashboard/master-items", icon: "package" },
+  {
+    label: "Items",
+    href: "/dashboard/master-items",
+    icon: "package",
+    children: [
+      { label: "Master Items", href: "/dashboard/master-items" },
+      { label: "UOM", href: "/dashboard/uoms" },
+    ],
+  },
   { label: "Tabung", href: "/dashboard/cylinders", icon: "cylinder" },
   { label: "Pelanggan", href: "/dashboard/customers", icon: "users" },
   { label: "Vendor", href: "/dashboard/vendors", icon: "vendor" },
@@ -69,7 +77,10 @@ export const mainNavigation: NavItem[] = [
     label: "Finance",
     href: "/dashboard/finance/invoices",
     icon: "chart",
-    children: [{ label: "Invoice", href: "/dashboard/finance/invoices" }],
+    children: [
+      { label: "Invoice", href: "/dashboard/finance/invoices" },
+      { label: "Chart of Accounts", href: "/dashboard/finance/accounts" },
+    ],
   },
   {
     label: "Logistik",
@@ -147,6 +158,8 @@ export const comingSoonModules = ["Audit Log"];
 export const moduleDescriptions: Record<string, string> = {
   "/dashboard": "Ringkasan operasional gudang",
   "/dashboard/master-items": "Katalog gas & suku cadang",
+  "/dashboard/uoms": "Satuan unit barang (UOM)",
+  "/dashboard/uoms/new": "Tambah satuan unit barang",
   "/dashboard/cylinders": "Registrasi & pelacakan tabung",
   "/dashboard/customers": "Kuota outstanding pelanggan",
   "/dashboard/vendors": "Vendor sewa tabung & kontrak",
@@ -158,6 +171,8 @@ export const moduleDescriptions: Record<string, string> = {
   "/dashboard/outbound/delivery-orders": "Surat jalan & pengiriman",
   "/dashboard/outbound/exchange": "Pertukaran tabung pelanggan",
   "/dashboard/finance/invoices": "Invoice per Delivery Order & piutang pelanggan",
+  "/dashboard/finance/accounts": "Chart of Accounts (CoA) untuk jurnal",
+  "/dashboard/finance/accounts/new": "Tambah akun baru ke CoA",
   "/dashboard/logistics/fleet": "Data kendaraan & kapasitas muat",
   "/dashboard/logistics/drivers": "Data master driver (sopir)",
   "/dashboard/maintenance/work-orders": "Perbaikan & konsumsi spare part",

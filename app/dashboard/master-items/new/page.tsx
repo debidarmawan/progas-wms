@@ -1,8 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { createMasterItem } from "@/lib/api/master-items";
+import { listUoms } from "@/lib/api/uoms";
+import type { UomResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -14,6 +16,7 @@ import {
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label } from "@/components/ui/input";
+import { CoaMappingFields } from "@/components/ui/coa-mapping-fields";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -34,6 +37,13 @@ export default function NewMasterItemPage() {
   const [itemNamePreview, setItemNamePreview] = useState("");
   const [skuPreview, setSkuPreview] = useState("");
   const [isSkuManuallyEdited, setIsSkuManuallyEdited] = useState(false);
+  const [uoms, setUoms] = useState<UomResponse[]>([]);
+
+  useEffect(() => {
+    listUoms({ limit: 100 })
+      .then((res) => setUoms(res.items))
+      .catch(() => setUoms([]));
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,6 +68,12 @@ export default function NewMasterItemPage() {
         max_days_at_customer: serialized
           ? Number(form.get("max_days_at_customer")) || undefined
           : undefined,
+        uom_id: String(form.get("uom_id") || "") || undefined,
+        inventory_account_id:
+          String(form.get("inventory_account_id") || "") || undefined,
+        revenue_account_id:
+          String(form.get("revenue_account_id") || "") || undefined,
+        cogs_account_id: String(form.get("cogs_account_id") || "") || undefined,
       });
       router.push("/dashboard/master-items");
       router.refresh();
@@ -156,6 +172,17 @@ export default function NewMasterItemPage() {
                   >
                     <option value="true">Tabung (serialized)</option>
                     <option value="false">Suku cadang</option>
+                  </SearchableSelect>
+                </div>
+                <div>
+                  <Label htmlFor="uom_id">Satuan (UOM)</Label>
+                  <SearchableSelect id="uom_id" name="uom_id" defaultValue="">
+                    <option value="">Tanpa satuan</option>
+                    {uoms.map((uom) => (
+                      <option key={uom.id} value={uom.id}>
+                        {uom.code} — {uom.name}
+                      </option>
+                    ))}
                   </SearchableSelect>
                 </div>
               </div>
@@ -263,6 +290,8 @@ export default function NewMasterItemPage() {
                 </div>
               </FormSection>
             )}
+
+            <CoaMappingFields />
 
             {error ? <Alert variant="error">{error}</Alert> : null}
 

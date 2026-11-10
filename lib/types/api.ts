@@ -67,7 +67,29 @@ export interface MasterItemResponse {
   gas_weight_kg?: number;
   min_stock_alert?: number;
   max_days_at_customer?: number;
+  uom_id?: string;
+  uom_code?: string;
+  uom_name?: string;
   stock_quantity?: number;
+  inventory_account_id?: string;
+  revenue_account_id?: string;
+  cogs_account_id?: string;
+}
+
+export interface UomResponse {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface CreateUomRequest {
+  code: string;
+  name: string;
+}
+
+export interface UpdateUomRequest {
+  code: string;
+  name: string;
 }
 
 export interface CreateMasterItemRequest {
@@ -81,6 +103,10 @@ export interface CreateMasterItemRequest {
   gas_weight_kg?: number;
   min_stock_alert?: number;
   max_days_at_customer?: number;
+  uom_id?: string;
+  inventory_account_id?: string;
+  revenue_account_id?: string;
+  cogs_account_id?: string;
 }
 
 export interface BulkCreateMasterItemRequest {
@@ -96,6 +122,10 @@ export interface UpdateMasterItemRequest {
   gas_weight_kg?: number;
   min_stock_alert?: number;
   max_days_at_customer?: number;
+  uom_id?: string;
+  inventory_account_id?: string;
+  revenue_account_id?: string;
+  cogs_account_id?: string;
 }
 
 export interface CylinderResponse {
@@ -688,3 +718,31 @@ export interface UpdateVendorRequest {
   notes?: string;
   is_active?: boolean;
 }
+
+export type AccountType =
+  | "ASSET"
+  | "LIABILITY"
+  | "EQUITY"
+  | "REVENUE"
+  | "EXPENSE";
+
+export interface AccountResponse {
+  id: string;
+  code: string;
+  name: string;
+  type: AccountType;
+  normal_balance: string;
+  parent_id?: string;
+  parent_code?: string;
+  is_active: boolean;
+}
+
+export interface CreateAccountRequest {
+  code: string;
+  name: string;
+  type: AccountType;
+  parent_id?: string;
+  is_active?: boolean;
+}
+
+export type UpdateAccountRequest = CreateAccountRequest;

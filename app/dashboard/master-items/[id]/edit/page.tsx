@@ -3,6 +3,8 @@
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { getMasterItem, updateMasterItem } from "@/lib/api/master-items";
+import { listUoms } from "@/lib/api/uoms";
+import type { UomResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -14,6 +16,7 @@ import {
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label } from "@/components/ui/input";
+import { CoaMappingFields } from "@/components/ui/coa-mapping-fields";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -34,7 +37,18 @@ export default function EditMasterItemPage() {
     gas_weight_kg: "",
     min_stock_alert: "",
     max_days_at_customer: "",
+    uom_id: "",
+    inventory_account_id: "",
+    revenue_account_id: "",
+    cogs_account_id: "",
   });
+  const [uoms, setUoms] = useState<UomResponse[]>([]);
+
+  useEffect(() => {
+    listUoms({ limit: 100 })
+      .then((res) => setUoms(res.items))
+      .catch(() => setUoms([]));
+  }, []);
 
   useEffect(() => {
     getMasterItem(params.id)
@@ -50,6 +64,10 @@ export default function EditMasterItemPage() {
           gas_weight_kg: String(item.gas_weight_kg ?? ""),
           min_stock_alert: String(item.min_stock_alert ?? ""),
           max_days_at_customer: String(item.max_days_at_customer ?? ""),
+          uom_id: item.uom_id || "",
+          inventory_account_id: item.inventory_account_id || "",
+          revenue_account_id: item.revenue_account_id || "",
+          cogs_account_id: item.cogs_account_id || "",
         });
       })
       .catch((err) =>
@@ -82,6 +100,12 @@ export default function EditMasterItemPage() {
         max_days_at_customer: isSerialized
           ? Number(form.get("max_days_at_customer")) || undefined
           : undefined,
+        uom_id: String(form.get("uom_id") || "") || undefined,
+        inventory_account_id:
+          String(form.get("inventory_account_id") || "") || undefined,
+        revenue_account_id:
+          String(form.get("revenue_account_id") || "") || undefined,
+        cogs_account_id: String(form.get("cogs_account_id") || "") || undefined,
       });
       router.push("/dashboard/master-items");
       router.refresh();
@@ -133,6 +157,21 @@ export default function EditMasterItemPage() {
                   name="gas_type"
                   defaultValue={defaults.gas_type}
                 />
+              </div>
+              <div>
+                <Label htmlFor="uom_id">Satuan (UOM)</Label>
+                <SearchableSelect
+                  id="uom_id"
+                  name="uom_id"
+                  defaultValue={defaults.uom_id}
+                >
+                  <option value="">Tanpa satuan</option>
+                  {uoms.map((uom) => (
+                    <option key={uom.id} value={uom.id}>
+                      {uom.code} — {uom.name}
+                    </option>
+                  ))}
+                </SearchableSelect>
               </div>
               <div>
                 <Label htmlFor="hna_price">HNA Price (Rp)</Label>
@@ -209,6 +248,14 @@ export default function EditMasterItemPage() {
                 </div>
               </FormSection>
             )}
+
+            <CoaMappingFields
+              defaults={{
+                inventory_account_id: defaults.inventory_account_id,
+                revenue_account_id: defaults.revenue_account_id,
+                cogs_account_id: defaults.cogs_account_id,
+              }}
+            />
 
             {error ? <Alert variant="error">{error}</Alert> : null}
 

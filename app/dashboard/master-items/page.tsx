@@ -165,6 +165,7 @@ export default function MasterItemsPage() {
               </DataTableTh>
               <DataTableTh>Jenis</DataTableTh>
               <DataTableTh>Gas</DataTableTh>
+              <DataTableTh>Satuan</DataTableTh>
               <DataTableTh>
                 <button
                   type="button"
@@ -185,9 +186,9 @@ export default function MasterItemsPage() {
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={9} />
+                <DataTableLoading colSpan={10} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={9} />
+                <DataTableEmpty colSpan={10} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
@@ -208,6 +209,7 @@ export default function MasterItemsPage() {
                     </DataTableTd>
                     <DataTableTd className="capitalize">{item.item_type}</DataTableTd>
                     <DataTableTd>{item.gas_type || "—"}</DataTableTd>
+                    <DataTableTd>{item.uom_code || "—"}</DataTableTd>
                     <DataTableTd>
                       {item.hna_price.toLocaleString("id-ID", {
                         style: "currency",
