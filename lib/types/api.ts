@@ -290,6 +290,7 @@ export interface SalesOrderLineResponse {
 export interface SalesOrderResponse {
   id: string;
   so_number: string;
+  po_number?: string;
   customer_po_id?: string;
   customer_id: string;
   customer_name?: string;

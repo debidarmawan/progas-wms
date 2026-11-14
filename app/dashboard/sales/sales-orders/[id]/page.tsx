@@ -144,7 +144,7 @@ export default function SalesOrderDetailPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardBody>
             <p className="text-xs text-slate-500">Status</p>
@@ -157,6 +157,21 @@ export default function SalesOrderDetailPage() {
           <CardBody>
             <p className="text-xs text-slate-500">Pelanggan</p>
             <p className="mt-1 font-semibold text-slate-900">{so.customer_name || "—"}</p>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <p className="text-xs text-slate-500">No. PO</p>
+            {so.customer_po_id ? (
+              <Link
+                href={`/dashboard/sales/customer-pos/${so.customer_po_id}`}
+                className="mt-1 block font-mono font-semibold text-indigo-700 hover:underline"
+              >
+                {so.po_number || "—"}
+              </Link>
+            ) : (
+              <p className="mt-1 font-semibold text-slate-900">—</p>
+            )}
           </CardBody>
         </Card>
         <Card>
