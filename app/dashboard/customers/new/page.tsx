@@ -1,8 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { createCustomer } from "@/lib/api/customers";
+import { listTermOfPayments } from "@/lib/api/terms-of-payment";
+import type { TermOfPaymentResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -15,6 +17,7 @@ import {
 } from "@/components/ui/form-layout";
 import { Input, Label } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -22,6 +25,13 @@ export default function NewCustomerPage() {
   const [error, setError] = useState<string | null>(null);
   const [namePreview, setNamePreview] = useState("");
   const [quotaPreview, setQuotaPreview] = useState("");
+  const [tops, setTops] = useState<TermOfPaymentResponse[]>([]);
+
+  useEffect(() => {
+    listTermOfPayments({ limit: 100 })
+      .then((res) => setTops(res.items.filter((top) => top.is_active)))
+      .catch(() => setTops([]));
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,6 +48,13 @@ export default function NewCustomerPage() {
         email: String(form.get("email") || "") || undefined,
         phone: String(form.get("phone") || "") || undefined,
         address: String(form.get("address") || "") || undefined,
+        postal_code: String(form.get("postal_code") || "") || undefined,
+        credit_limit: Number(form.get("credit_limit")) || undefined,
+        term_of_payment_id:
+          String(form.get("term_of_payment_id") || "") || undefined,
+        sales_pic_name: String(form.get("sales_pic_name") || "") || undefined,
+        sales_pic_phone: String(form.get("sales_pic_phone") || "") || undefined,
+        sales_pic_email: String(form.get("sales_pic_email") || "") || undefined,
         cylinder_quota_limit:
           Number(form.get("cylinder_quota_limit")) || undefined,
       });
@@ -109,12 +126,82 @@ export default function NewCustomerPage() {
                     placeholder="00.000.000.0-000.000"
                   />
                 </div>
+                <div>
+                  <Label htmlFor="postal_code">Kode Pos</Label>
+                  <Input id="postal_code" name="postal_code" placeholder="40115" />
+                </div>
                 <div className="sm:col-span-2">
                   <Label htmlFor="address">Alamat</Label>
                   <Input
                     id="address"
                     name="address"
                     placeholder="Alamat operasional pelanggan"
+                  />
+                </div>
+              </div>
+            </FormSection>
+
+            <FormSection
+              title="Termin & Limit Kredit"
+              description="Termin menentukan jatuh tempo invoice; limit kredit dipakai untuk kontrol piutang."
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="term_of_payment_id">Term of Payment</Label>
+                  <SearchableSelect
+                    id="term_of_payment_id"
+                    name="term_of_payment_id"
+                    placeholder="Tanpa termin"
+                  >
+                    <option value="">Tanpa termin</option>
+                    {tops.map((top) => (
+                      <option key={top.id} value={top.id}>
+                        {top.code} — {top.name} ({top.days} hari)
+                      </option>
+                    ))}
+                  </SearchableSelect>
+                </div>
+                <div>
+                  <Label htmlFor="credit_limit">Limit Kredit</Label>
+                  <Input
+                    id="credit_limit"
+                    name="credit_limit"
+                    type="number"
+                    min={0}
+                    step={1000}
+                    placeholder="Contoh: 25000000"
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    0 berarti tanpa limit.
+                  </p>
+                </div>
+              </div>
+            </FormSection>
+
+            <FormSection
+              title="Sales PIC"
+              description="Kontak sales yang menangani pelanggan ini."
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="sales_pic_name">Nama Sales PIC</Label>
+                  <Input id="sales_pic_name" name="sales_pic_name" />
+                </div>
+                <div>
+                  <Label htmlFor="sales_pic_phone">Telepon Sales PIC</Label>
+                  <Input
+                    id="sales_pic_phone"
+                    name="sales_pic_phone"
+                    placeholder="08xxxxxxxxxx"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <Label htmlFor="sales_pic_email">Email Sales PIC</Label>
+                  <Input
+                    id="sales_pic_email"
+                    name="sales_pic_email"
+                    type="email"
+                    placeholder="sales@perusahaan.com"
                   />
                 </div>
               </div>

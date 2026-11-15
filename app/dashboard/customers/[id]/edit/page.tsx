@@ -3,6 +3,8 @@
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { getCustomer, updateCustomer } from "@/lib/api/customers";
+import { listTermOfPayments } from "@/lib/api/terms-of-payment";
+import type { TermOfPaymentResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -15,6 +17,7 @@ import {
 } from "@/components/ui/form-layout";
 import { Input, Label } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 export default function EditCustomerPage() {
   const params = useParams<{ id: string }>();
@@ -22,6 +25,7 @@ export default function EditCustomerPage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tops, setTops] = useState<TermOfPaymentResponse[]>([]);
   const [defaults, setDefaults] = useState({
     name: "",
     pic: "",
@@ -30,9 +34,21 @@ export default function EditCustomerPage() {
     email: "",
     phone: "",
     address: "",
+    postal_code: "",
     cylinder_quota_limit: "",
+    credit_limit: "",
+    term_of_payment_id: "",
+    sales_pic_name: "",
+    sales_pic_phone: "",
+    sales_pic_email: "",
     is_active: true,
   });
+
+  useEffect(() => {
+    listTermOfPayments({ limit: 100 })
+      .then((res) => setTops(res.items.filter((top) => top.is_active)))
+      .catch(() => setTops([]));
+  }, []);
 
   useEffect(() => {
     getCustomer(params.id)
@@ -45,7 +61,13 @@ export default function EditCustomerPage() {
           email: customer.email || "",
           phone: customer.phone || "",
           address: customer.address || "",
+          postal_code: customer.postal_code || "",
           cylinder_quota_limit: String(customer.cylinder_quota_limit ?? ""),
+          credit_limit: String(customer.credit_limit ?? ""),
+          term_of_payment_id: customer.term_of_payment_id || "",
+          sales_pic_name: customer.sales_pic_name || "",
+          sales_pic_phone: customer.sales_pic_phone || "",
+          sales_pic_email: customer.sales_pic_email || "",
           is_active: customer.is_active ?? true,
         }),
       )
@@ -70,6 +92,13 @@ export default function EditCustomerPage() {
         email: String(form.get("email") || "") || undefined,
         phone: String(form.get("phone") || "") || undefined,
         address: String(form.get("address") || "") || undefined,
+        postal_code: String(form.get("postal_code") || "") || undefined,
+        credit_limit: Number(form.get("credit_limit")) || undefined,
+        term_of_payment_id:
+          String(form.get("term_of_payment_id") || "") || undefined,
+        sales_pic_name: String(form.get("sales_pic_name") || "") || undefined,
+        sales_pic_phone: String(form.get("sales_pic_phone") || "") || undefined,
+        sales_pic_email: String(form.get("sales_pic_email") || "") || undefined,
         cylinder_quota_limit:
           Number(form.get("cylinder_quota_limit")) || undefined,
         is_active: form.get("is_active") === "on",
@@ -138,12 +167,89 @@ export default function EditCustomerPage() {
                   <Label htmlFor="npwp">NPWP</Label>
                   <Input id="npwp" name="npwp" defaultValue={defaults.npwp} />
                 </div>
+                <div>
+                  <Label htmlFor="postal_code">Kode Pos</Label>
+                  <Input
+                    id="postal_code"
+                    name="postal_code"
+                    defaultValue={defaults.postal_code}
+                  />
+                </div>
                 <div className="sm:col-span-2">
                   <Label htmlFor="address">Alamat</Label>
                   <Input
                     id="address"
                     name="address"
                     defaultValue={defaults.address}
+                  />
+                </div>
+              </div>
+            </FormSection>
+
+            <FormSection title="Termin & Limit Kredit">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="term_of_payment_id">Term of Payment</Label>
+                  <SearchableSelect
+                    id="term_of_payment_id"
+                    name="term_of_payment_id"
+                    placeholder="Tanpa termin"
+                    defaultValue={defaults.term_of_payment_id}
+                  >
+                    <option value="">Tanpa termin</option>
+                    {tops.map((top) => (
+                      <option key={top.id} value={top.id}>
+                        {top.code} — {top.name} ({top.days} hari)
+                      </option>
+                    ))}
+                  </SearchableSelect>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Informasi saja — jatuh tempo invoice masih memakai payment
+                    term pelanggan saat Issue DO.
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="credit_limit">Limit Kredit</Label>
+                  <Input
+                    id="credit_limit"
+                    name="credit_limit"
+                    type="number"
+                    min={0}
+                    step={1000}
+                    defaultValue={defaults.credit_limit}
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    0 berarti tanpa limit.
+                  </p>
+                </div>
+              </div>
+            </FormSection>
+
+            <FormSection title="Sales PIC">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="sales_pic_name">Nama Sales PIC</Label>
+                  <Input
+                    id="sales_pic_name"
+                    name="sales_pic_name"
+                    defaultValue={defaults.sales_pic_name}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="sales_pic_phone">Telepon Sales PIC</Label>
+                  <Input
+                    id="sales_pic_phone"
+                    name="sales_pic_phone"
+                    defaultValue={defaults.sales_pic_phone}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <Label htmlFor="sales_pic_email">Email Sales PIC</Label>
+                  <Input
+                    id="sales_pic_email"
+                    name="sales_pic_email"
+                    type="email"
+                    defaultValue={defaults.sales_pic_email}
                   />
                 </div>
               </div>

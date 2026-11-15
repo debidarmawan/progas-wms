@@ -57,14 +57,16 @@ export default function CustomersPage() {
               <DataTableTh>Aksi</DataTableTh>
               <DataTableTh>Kode</DataTableTh>
               <DataTableTh>Nama</DataTableTh>
+              <DataTableTh>Termin</DataTableTh>
+              <DataTableTh>Limit Kredit</DataTableTh>
               <DataTableTh>Outstanding</DataTableTh>
               <DataTableTh>Kuota</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={5} />
+                <DataTableLoading colSpan={7} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={5} />
+                <DataTableEmpty colSpan={7} />
               ) : (
                 items.map((item) => {
                   const overQuota =
@@ -95,6 +97,18 @@ export default function CustomersPage() {
                       </DataTableTd>
                       <DataTableTd className="font-medium text-slate-900">
                         {item.name}
+                      </DataTableTd>
+                      <DataTableTd>
+                        {item.term_of_payment_code ? (
+                          <span title={item.term_of_payment_name}>
+                            {item.term_of_payment_code}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                      </DataTableTd>
+                      <DataTableTd>
+                        {(item.credit_limit ?? 0).toLocaleString("id-ID")}
                       </DataTableTd>
                       <DataTableTd>
                         <span

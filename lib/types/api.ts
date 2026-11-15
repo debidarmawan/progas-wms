@@ -200,7 +200,16 @@ export interface CustomerResponse {
   email?: string;
   phone?: string;
   address?: string;
+  postal_code?: string;
   cylinder_quota_limit?: number;
+  credit_limit?: number;
+  term_of_payment_id?: string | null;
+  term_of_payment_code?: string;
+  term_of_payment_name?: string;
+  payment_term_days?: number;
+  sales_pic_name?: string;
+  sales_pic_phone?: string;
+  sales_pic_email?: string;
   outstanding_count?: number;
   is_active?: boolean;
 }
@@ -233,7 +242,13 @@ export interface CreateCustomerRequest {
   email?: string;
   phone?: string;
   address?: string;
+  postal_code?: string;
   cylinder_quota_limit?: number;
+  credit_limit?: number;
+  term_of_payment_id?: string;
+  sales_pic_name?: string;
+  sales_pic_phone?: string;
+  sales_pic_email?: string;
 }
 
 export interface UpdateCustomerRequest {
@@ -244,7 +259,13 @@ export interface UpdateCustomerRequest {
   email?: string;
   phone?: string;
   address?: string;
+  postal_code?: string;
   cylinder_quota_limit?: number;
+  credit_limit?: number;
+  term_of_payment_id?: string;
+  sales_pic_name?: string;
+  sales_pic_phone?: string;
+  sales_pic_email?: string;
   is_active?: boolean;
 }
 
