@@ -21,10 +21,7 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import {
-  FormAsideCard,
-  FormAsideStack,
   FormMainCard,
-  FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label, Textarea } from "@/components/ui/input";
@@ -73,7 +70,6 @@ export default function EditCylinderPage() {
   });
   const [ownershipType, setOwnershipType] = useState("COMPANY");
 
-  const isCompanyOwned = ownershipType === "COMPANY";
   const needsOwner = ownershipType === "CUSTOMER" || ownershipType === "VENDOR";
   const editable =
     defaults.status === "EMPTY" || defaults.status === "READY_TO_FILL";
@@ -162,284 +158,226 @@ export default function EditCylinderPage() {
   return (
     <div className="animate-in">
       <PageHeader title="Edit Tabung" />
-      <FormPageGrid aside="wide">
-        <FormMainCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection
-              title="Identitas Tabung"
-              description="Setiap tabung harus memiliki barcode unik dan produk yang sesuai."
-            >
-              <div>
-                <Label htmlFor="barcode_sn">Barcode / Serial Number</Label>
-                <Input
-                  id="barcode_sn"
-                  name="barcode_sn"
-                  required
-                  defaultValue={defaults.barcode_sn}
-                  disabled={barcodeLocked}
-                />
-                {defaults.label_printed_at ? (
-                  <p className="mt-1 text-xs text-slate-500">
-                    Label sudah dicetak — SN terkunci. Ubah lewat admin jika
-                    label harus diganti.
-                  </p>
-                ) : null}
-              </div>
-              <div>
-                <Label htmlFor="item_id">Produk Gas</Label>
-                <SearchableSelect
-                  id="item_id"
-                  name="item_id"
-                  required
-                  defaultValue={defaults.item_id}
-                  disabled={!editable}
-                >
-                  <option value="" disabled>
-                    Pilih produk
+      <FormMainCard>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <FormSection
+            title="Identitas Tabung"
+            description="Setiap tabung harus memiliki barcode unik dan produk yang sesuai."
+          >
+            <div>
+              <Label htmlFor="barcode_sn">Barcode / Serial Number</Label>
+              <Input
+                id="barcode_sn"
+                name="barcode_sn"
+                required
+                defaultValue={defaults.barcode_sn}
+                disabled={barcodeLocked}
+              />
+              {defaults.label_printed_at ? (
+                <p className="mt-1 text-xs text-slate-500">
+                  Label sudah dicetak — SN terkunci. Ubah lewat admin jika
+                  label harus diganti.
+                </p>
+              ) : null}
+            </div>
+            <div>
+              <Label htmlFor="item_id">Produk Gas</Label>
+              <SearchableSelect
+                id="item_id"
+                name="item_id"
+                required
+                defaultValue={defaults.item_id}
+                disabled={!editable}
+              >
+                <option value="" disabled>
+                  Pilih produk
+                </option>
+                {items.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({item.sku})
                   </option>
-                  {items.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name} ({item.sku})
-                    </option>
-                  ))}
+                ))}
+              </SearchableSelect>
+            </div>
+          </FormSection>
+
+          <FormSection title="Kepemilikan & Sertifikasi" tone="accent">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="ownership_type">Kepemilikan</Label>
+                <SearchableSelect
+                  id="ownership_type"
+                  name="ownership_type"
+                  defaultValue={defaults.ownership_type}
+                  disabled={!editable}
+                  onChange={(event) => setOwnershipType(event.target.value)}
+                >
+                  <option value="COMPANY">COMPANY</option>
+                  <option value="CUSTOMER">CUSTOMER</option>
+                  <option value="VENDOR">VENDOR</option>
                 </SearchableSelect>
               </div>
-            </FormSection>
-
-            <FormSection title="Kepemilikan & Sertifikasi" tone="accent">
-              <div className="grid gap-4 sm:grid-cols-2">
+              {needsOwner ? (
                 <div>
-                  <Label htmlFor="ownership_type">Kepemilikan</Label>
-                  <SearchableSelect
-                    id="ownership_type"
-                    name="ownership_type"
-                    defaultValue={defaults.ownership_type}
-                    disabled={!editable}
-                    onChange={(event) => setOwnershipType(event.target.value)}
-                  >
-                    <option value="COMPANY">COMPANY</option>
-                    <option value="CUSTOMER">CUSTOMER</option>
-                    <option value="VENDOR">VENDOR</option>
-                  </SearchableSelect>
+                  {ownershipType === "CUSTOMER" ? (
+                    <>
+                      <Label htmlFor="owner_id">Pelanggan Pemilik</Label>
+                      <SearchableSelect
+                        id="owner_id"
+                        name="owner_id"
+                        required
+                        defaultValue={defaults.owner_id}
+                        disabled={!editable}
+                      >
+                        <option value="" disabled>
+                          Pilih pelanggan
+                        </option>
+                        {customers.map((customer) => (
+                          <option key={customer.id} value={customer.id}>
+                            {customer.code} — {customer.name}
+                          </option>
+                        ))}
+                      </SearchableSelect>
+                    </>
+                  ) : (
+                    <>
+                      <Label htmlFor="owner_id">Vendor Pemilik</Label>
+                      <SearchableSelect
+                        id="owner_id"
+                        name="owner_id"
+                        required
+                        defaultValue={defaults.owner_id}
+                        disabled={!editable}
+                      >
+                        <option value="" disabled>
+                          Pilih vendor
+                        </option>
+                        {vendors.map((vendor) => (
+                          <option key={vendor.id} value={vendor.id}>
+                            {vendor.code} — {vendor.name}
+                          </option>
+                        ))}
+                      </SearchableSelect>
+                    </>
+                  )}
                 </div>
-                {needsOwner ? (
-                  <div>
-                    {ownershipType === "CUSTOMER" ? (
-                      <>
-                        <Label htmlFor="owner_id">Pelanggan Pemilik</Label>
-                        <SearchableSelect
-                          id="owner_id"
-                          name="owner_id"
-                          required
-                          defaultValue={defaults.owner_id}
-                          disabled={!editable}
-                        >
-                          <option value="" disabled>
-                            Pilih pelanggan
-                          </option>
-                          {customers.map((customer) => (
-                            <option key={customer.id} value={customer.id}>
-                              {customer.code} — {customer.name}
-                            </option>
-                          ))}
-                        </SearchableSelect>
-                      </>
-                    ) : (
-                      <>
-                        <Label htmlFor="owner_id">Vendor Pemilik</Label>
-                        <SearchableSelect
-                          id="owner_id"
-                          name="owner_id"
-                          required
-                          defaultValue={defaults.owner_id}
-                          disabled={!editable}
-                        >
-                          <option value="" disabled>
-                            Pilih vendor
-                          </option>
-                          {vendors.map((vendor) => (
-                            <option key={vendor.id} value={vendor.id}>
-                              {vendor.code} — {vendor.name}
-                            </option>
-                          ))}
-                        </SearchableSelect>
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <p className="flex items-end pb-2 text-sm text-slate-500">
-                    Tabung milik perusahaan — tidak perlu pemilik eksternal.
-                  </p>
-                )}
-              </div>
-              <div className="max-w-sm">
-                <Label htmlFor="last_hydrotest_date">Tanggal Hydrotest</Label>
-                <Input
-                  id="last_hydrotest_date"
-                  name="last_hydrotest_date"
-                  type="date"
-                  required
-                  defaultValue={defaults.last_hydrotest_date}
-                  disabled={!editable}
-                />
-              </div>
-            </FormSection>
-
-            <FormSection title="Keterangan">
-              <div>
-                <Label htmlFor="remarks">Remarks</Label>
-                <Textarea
-                  id="remarks"
-                  name="remarks"
-                  rows={3}
-                  defaultValue={defaults.remarks}
-                  disabled={!editable}
-                  placeholder="Opsional — catatan kondisi tabung, sertifikat, dll."
-                />
-              </div>
-            </FormSection>
-
-            {error ? <Alert variant="error">{error}</Alert> : null}
-
-            <div className="flex gap-2 pt-2">
-              {editable ? (
-                <Button disabled={loading} type="submit">
-                  {loading ? "Menyimpan..." : "Simpan"}
-                </Button>
-              ) : null}
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => router.back()}
-              >
-                {editable ? "Batal" : "Kembali"}
-              </Button>
+              ) : (
+                <p className="flex items-end pb-2 text-sm text-slate-500">
+                  Tabung milik perusahaan — tidak perlu pemilik eksternal.
+                </p>
+              )}
             </div>
-          </form>
-        </FormMainCard>
+            <div className="max-w-sm">
+              <Label htmlFor="last_hydrotest_date">Tanggal Hydrotest</Label>
+              <Input
+                id="last_hydrotest_date"
+                name="last_hydrotest_date"
+                type="date"
+                required
+                defaultValue={defaults.last_hydrotest_date}
+                disabled={!editable}
+              />
+            </div>
+          </FormSection>
 
-        <FormAsideStack>
-          <FormAsideCard title="Ringkasan">
-            <p className="font-mono text-sm text-slate-900">
-              {defaults.barcode_sn || "—"}
-            </p>
-            <p className="text-sm text-slate-500">
-              Status:{" "}
-              <span className="font-medium text-slate-700">
-                {defaults.status}
-              </span>
-            </p>
-            <p className="text-sm text-slate-500">
-              Ownership:{" "}
-              <span className="font-medium text-slate-700">
-                {ownershipType}
-              </span>
-            </p>
-            <p className="text-sm text-slate-500">
-              Label:{" "}
-              <span className="font-medium text-slate-700">
-                {defaults.label_printed_at
-                  ? `Tercetak ${new Date(
-                      defaults.label_printed_at,
-                    ).toLocaleDateString("id-ID")}`
-                  : "Belum dicetak"}
-              </span>
-            </p>
-            {!isCompanyOwned ? (
+          <FormSection title="Keterangan">
+            <div>
+              <Label htmlFor="remarks">Remarks</Label>
+              <Textarea
+                id="remarks"
+                name="remarks"
+                rows={3}
+                defaultValue={defaults.remarks}
+                disabled={!editable}
+                placeholder="Opsional — catatan kondisi tabung, sertifikat, dll."
+              />
+            </div>
+          </FormSection>
+
+          {error ? <Alert variant="error">{error}</Alert> : null}
+
+          <div className="flex gap-2 pt-2">
+            {editable ? (
+              <Button disabled={loading} type="submit">
+                {loading ? "Menyimpan..." : "Simpan"}
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.back()}
+            >
+              {editable ? "Batal" : "Kembali"}
+            </Button>
+          </div>
+        </form>
+      </FormMainCard>
+
+      <Card className="shadow-[var(--shadow-soft)]">
+        <CardBody>
+          <p className="font-semibold text-slate-800">Riwayat Perubahan</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {history
+              ? historyEntries.length > 10
+                ? `Menampilkan ${latestEntries.length} terakhir dari ${historyEntries.length}`
+                : `${historyEntries.length} entri`
+              : "Memuat..."}
+          </p>
+          <div className="mt-4 max-h-[520px] space-y-4 overflow-y-auto pr-1">
+            {historyLoading ? (
+              <p className="text-sm text-slate-500">Memuat riwayat...</p>
+            ) : !history || historyEntries.length === 0 ? (
               <p className="text-sm text-slate-500">
-                {ownershipType === "CUSTOMER"
-                  ? "Wajib pilih pelanggan pemilik."
-                  : "Wajib pilih vendor."}
+                Belum ada perubahan tercatat.
               </p>
             ) : (
-              <p className="text-sm text-slate-500">
-                Milik perusahaan (tanpa owner ID)
-              </p>
-            )}
-          </FormAsideCard>
-          <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody className="space-y-2 text-sm text-slate-600">
-              <p className="font-semibold text-slate-800">Catatan</p>
-              <ul className="space-y-1">
-                <li>
-                  Tabung hanya bisa diedit saat status{" "}
-                  <span className="font-medium">EMPTY</span> atau{" "}
-                  <span className="font-medium">READY_TO_FILL</span>.
-                </li>
-                <li>
-                  Untuk mengubah status, gunakan alur produksi atau operasional
-                  yang sesuai.
-                </li>
-              </ul>
-            </CardBody>
-          </Card>
-          <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody>
-              <p className="font-semibold text-slate-800">Riwayat Perubahan</p>
-              <p className="mt-1 text-sm text-slate-500">
-                {history
-                  ? historyEntries.length > 10
-                    ? `Menampilkan ${latestEntries.length} terakhir dari ${historyEntries.length}`
-                    : `${historyEntries.length} entri`
-                  : "Memuat..."}
-              </p>
-              <div className="mt-4 max-h-[520px] space-y-4 overflow-y-auto pr-1">
-                {historyLoading ? (
-                  <p className="text-sm text-slate-500">Memuat riwayat...</p>
-                ) : !history || historyEntries.length === 0 ? (
-                  <p className="text-sm text-slate-500">
-                    Belum ada perubahan tercatat.
+              latestEntries.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="space-y-1.5 border-l-2 border-slate-200 pl-3"
+                >
+                  <p className="text-xs font-semibold text-slate-800">
+                    {entry.action_label}
                   </p>
-                ) : (
-                  latestEntries.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className="space-y-1.5 border-l-2 border-slate-200 pl-3"
-                    >
-                      <p className="text-xs font-semibold text-slate-800">
-                        {entry.action_label}
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        {new Date(entry.created_at).toLocaleString("id-ID")}
-                        {entry.user_name ? ` · ${entry.user_name}` : ""}
-                      </p>
-                      {(entry.changes?.length ?? 0) === 0 ? (
-                        <p className="text-xs text-slate-400">
-                          Tidak ada perubahan field.
-                        </p>
-                      ) : (
-                        <ul className="space-y-1">
-                          {(entry.changes ?? []).map((change, index) => (
-                            <li
-                              key={index}
-                              className="flex items-baseline gap-1 text-xs"
-                            >
-                              <span className="min-w-[68px] text-slate-500">
-                                {change.label}
+                  <p className="text-xs text-slate-500">
+                    {new Date(entry.created_at).toLocaleString("id-ID")}
+                    {entry.user_name ? ` · ${entry.user_name}` : ""}
+                  </p>
+                  {(entry.changes?.length ?? 0) === 0 ? (
+                    <p className="text-xs text-slate-400">
+                      Tidak ada perubahan field.
+                    </p>
+                  ) : (
+                    <ul className="space-y-1">
+                      {(entry.changes ?? []).map((change, index) => (
+                        <li
+                          key={index}
+                          className="flex items-baseline gap-1 text-xs"
+                        >
+                          <span className="min-w-[68px] text-slate-500">
+                            {change.label}
+                          </span>
+                          {change.old ? (
+                            <>
+                              <span className="text-slate-400">
+                                {formatHistoryValue(change, true)}
                               </span>
-                              {change.old ? (
-                                <>
-                                  <span className="text-slate-400">
-                                    {formatHistoryValue(change, true)}
-                                  </span>
-                                  <span className="text-slate-300">→</span>
-                                </>
-                              ) : null}
-                              <span className="font-medium text-slate-700">
-                                {formatHistoryValue(change, false)}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </CardBody>
-          </Card>
-        </FormAsideStack>
-      </FormPageGrid>
+                              <span className="text-slate-300">→</span>
+                            </>
+                          ) : null}
+                          <span className="font-medium text-slate-700">
+                            {formatHistoryValue(change, false)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }

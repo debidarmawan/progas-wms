@@ -14,12 +14,8 @@ import type {
 } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 import {
-  FormAsideCard,
-  FormAsideStack,
   FormMainCard,
-  FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label, Textarea } from "@/components/ui/input";
@@ -33,10 +29,8 @@ export default function NewCylinderPage() {
   const [vendors, setVendors] = useState<VendorResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [barcodePreview, setBarcodePreview] = useState("");
   const [ownershipType, setOwnershipType] = useState("COMPANY");
 
-  const isCompanyOwned = ownershipType === "COMPANY";
   const needsOwner = ownershipType === "CUSTOMER" || ownershipType === "VENDOR";
 
   useEffect(() => {
@@ -101,180 +95,141 @@ export default function NewCylinderPage() {
   return (
     <div className="animate-in">
       <PageHeader title="Registrasi Tabung" />
-      <FormPageGrid>
-        <FormMainCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection
-              title="Identitas Tabung"
-              description="Setiap tabung harus memiliki barcode unik dan produk yang sesuai."
-            >
-              <div>
-                <Label htmlFor="barcode_sn">Barcode / Serial Number</Label>
-                <Input
-                  id="barcode_sn"
-                  name="barcode_sn"
-                  placeholder="Kosongkan untuk dibuat otomatis (PG-XXXX-XXXXXX)"
-                  onChange={(event) => setBarcodePreview(event.target.value)}
-                />
-                <p className="mt-1 text-xs text-slate-500">
-                  Isi hanya jika tabung sudah punya SN lama. 6–32 karakter A-Z,
-                  0-9, atau tanda hubung.
-                </p>
-              </div>
-              <div>
-                <Label htmlFor="item_id">Produk Gas</Label>
-                <SearchableSelect id="item_id" name="item_id" required defaultValue="">
-                  <option value="" disabled>
-                    Pilih produk
+      <FormMainCard>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <FormSection
+            title="Identitas Tabung"
+            description="Setiap tabung harus memiliki barcode unik dan produk yang sesuai."
+          >
+            <div>
+              <Label htmlFor="barcode_sn">Barcode / Serial Number</Label>
+              <Input
+                id="barcode_sn"
+                name="barcode_sn"
+                placeholder="Kosongkan untuk dibuat otomatis (PG-XXXX-XXXXXX)"
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Isi hanya jika tabung sudah punya SN lama. 6–32 karakter A-Z,
+                0-9, atau tanda hubung.
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="item_id">Produk Gas</Label>
+              <SearchableSelect id="item_id" name="item_id" required defaultValue="">
+                <option value="" disabled>
+                  Pilih produk
+                </option>
+                {items.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({item.sku})
                   </option>
-                  {items.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name} ({item.sku})
-                    </option>
-                  ))}
+                ))}
+              </SearchableSelect>
+            </div>
+          </FormSection>
+
+          <FormSection title="Kepemilikan & Sertifikasi" tone="accent">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="ownership_type">Kepemilikan</Label>
+                <SearchableSelect
+                  id="ownership_type"
+                  name="ownership_type"
+                  defaultValue="COMPANY"
+                  onChange={(event) => setOwnershipType(event.target.value)}
+                >
+                  <option value="COMPANY">COMPANY</option>
+                  <option value="CUSTOMER">CUSTOMER</option>
+                  <option value="VENDOR">VENDOR</option>
                 </SearchableSelect>
               </div>
-            </FormSection>
-
-            <FormSection title="Kepemilikan & Sertifikasi" tone="accent">
-              <div className="grid gap-4 sm:grid-cols-2">
+              {needsOwner ? (
                 <div>
-                  <Label htmlFor="ownership_type">Kepemilikan</Label>
-                  <SearchableSelect
-                    id="ownership_type"
-                    name="ownership_type"
-                    defaultValue="COMPANY"
-                    onChange={(event) => setOwnershipType(event.target.value)}
-                  >
-                    <option value="COMPANY">COMPANY</option>
-                    <option value="CUSTOMER">CUSTOMER</option>
-                    <option value="VENDOR">VENDOR</option>
-                  </SearchableSelect>
+                  {ownershipType === "CUSTOMER" ? (
+                    <>
+                      <Label htmlFor="owner_id">Pelanggan Pemilik</Label>
+                      <SearchableSelect
+                        id="owner_id"
+                        name="owner_id"
+                        required
+                        defaultValue=""
+                      >
+                        <option value="" disabled>
+                          Pilih pelanggan
+                        </option>
+                        {customers.map((customer) => (
+                          <option key={customer.id} value={customer.id}>
+                            {customer.code} — {customer.name}
+                          </option>
+                        ))}
+                      </SearchableSelect>
+                    </>
+                  ) : (
+                    <>
+                      <Label htmlFor="owner_id">Vendor Pemilik</Label>
+                      <SearchableSelect
+                        id="owner_id"
+                        name="owner_id"
+                        required
+                        defaultValue=""
+                      >
+                        <option value="" disabled>
+                          Pilih vendor
+                        </option>
+                        {vendors.map((vendor) => (
+                          <option key={vendor.id} value={vendor.id}>
+                            {vendor.code} — {vendor.name}
+                          </option>
+                        ))}
+                      </SearchableSelect>
+                    </>
+                  )}
                 </div>
-                {needsOwner ? (
-                  <div>
-                    {ownershipType === "CUSTOMER" ? (
-                      <>
-                        <Label htmlFor="owner_id">Pelanggan Pemilik</Label>
-                        <SearchableSelect
-                          id="owner_id"
-                          name="owner_id"
-                          required
-                          defaultValue=""
-                        >
-                          <option value="" disabled>
-                            Pilih pelanggan
-                          </option>
-                          {customers.map((customer) => (
-                            <option key={customer.id} value={customer.id}>
-                              {customer.code} — {customer.name}
-                            </option>
-                          ))}
-                        </SearchableSelect>
-                      </>
-                    ) : (
-                      <>
-                        <Label htmlFor="owner_id">Vendor Pemilik</Label>
-                        <SearchableSelect
-                          id="owner_id"
-                          name="owner_id"
-                          required
-                          defaultValue=""
-                        >
-                          <option value="" disabled>
-                            Pilih vendor
-                          </option>
-                          {vendors.map((vendor) => (
-                            <option key={vendor.id} value={vendor.id}>
-                              {vendor.code} — {vendor.name}
-                            </option>
-                          ))}
-                        </SearchableSelect>
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <p className="flex items-end pb-2 text-sm text-slate-500">
-                    Tabung milik perusahaan — tidak perlu pemilik eksternal.
-                  </p>
-                )}
-              </div>
-              <div className="max-w-sm">
-                <Label htmlFor="last_hydrotest_date">Tanggal Hydrotest</Label>
-                <Input
-                  id="last_hydrotest_date"
-                  name="last_hydrotest_date"
-                  type="date"
-                  required
-                />
-              </div>
-            </FormSection>
-
-            <FormSection title="Keterangan">
-              <div>
-                <Label htmlFor="remarks">Remarks</Label>
-                <Textarea
-                  id="remarks"
-                  name="remarks"
-                  rows={3}
-                  placeholder="Opsional — catatan kondisi tabung, sertifikat, dll."
-                />
-              </div>
-            </FormSection>
-
-            {error ? <Alert variant="error">{error}</Alert> : null}
-
-            <div className="flex gap-2 pt-2">
-              <Button disabled={loading} type="submit">
-                {loading ? "Menyimpan..." : "Simpan"}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => router.back()}
-              >
-                Batal
-              </Button>
+              ) : (
+                <p className="flex items-end pb-2 text-sm text-slate-500">
+                  Tabung milik perusahaan — tidak perlu pemilik eksternal.
+                </p>
+              )}
             </div>
-          </form>
-        </FormMainCard>
+            <div className="max-w-sm">
+              <Label htmlFor="last_hydrotest_date">Tanggal Hydrotest</Label>
+              <Input
+                id="last_hydrotest_date"
+                name="last_hydrotest_date"
+                type="date"
+                required
+              />
+            </div>
+          </FormSection>
 
-        <FormAsideStack>
-          <FormAsideCard title="Preview">
-            <p className="font-mono text-sm text-slate-900">
-              {barcodePreview || "SN dibuat otomatis saat disimpan"}
-            </p>
-            <p className="text-sm text-slate-500">
-              Ownership:{" "}
-              <span className="font-medium text-slate-700">
-                {ownershipType}
-              </span>
-            </p>
-            {!isCompanyOwned ? (
-              <p className="text-sm text-slate-500">
-                {ownershipType === "CUSTOMER"
-                  ? "Wajib pilih pelanggan pemilik."
-                  : "Wajib pilih vendor."}
-              </p>
-            ) : (
-              <p className="text-sm text-slate-500">
-                Milik perusahaan (tanpa owner ID)
-              </p>
-            )}
-          </FormAsideCard>
-          <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody className="space-y-2 text-sm text-slate-600">
-              <p className="font-semibold text-slate-800">Tips registrasi</p>
-              <ul className="space-y-1">
-                <li>Pastikan barcode belum terdaftar sebelumnya.</li>
-                <li>COMPANY: tidak perlu owner ID.</li>
-                <li>CUSTOMER/VENDOR: wajib isi pemilik.</li>
-                <li>Tanggal hydrotest harus sesuai sertifikat terakhir.</li>
-              </ul>
-            </CardBody>
-          </Card>
-        </FormAsideStack>
-      </FormPageGrid>
+          <FormSection title="Keterangan">
+            <div>
+              <Label htmlFor="remarks">Remarks</Label>
+              <Textarea
+                id="remarks"
+                name="remarks"
+                rows={3}
+                placeholder="Opsional — catatan kondisi tabung, sertifikat, dll."
+              />
+            </div>
+          </FormSection>
+
+          {error ? <Alert variant="error">{error}</Alert> : null}
+
+          <div className="flex gap-2 pt-2">
+            <Button disabled={loading} type="submit">
+              {loading ? "Menyimpan..." : "Simpan"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.back()}
+            >
+              Batal
+            </Button>
+          </div>
+        </form>
+      </FormMainCard>
     </div>
   );
 }

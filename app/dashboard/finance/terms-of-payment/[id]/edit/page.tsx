@@ -8,12 +8,8 @@ import {
 } from "@/lib/api/terms-of-payment";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 import {
-  FormAsideCard,
-  FormAsideStack,
   FormMainCard,
-  FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label } from "@/components/ui/input";
@@ -86,87 +82,67 @@ export default function EditTermOfPaymentPage() {
   return (
     <div className="animate-in">
       <PageHeader title={`Edit Termin ${defaults.code}`} />
-      <FormPageGrid>
-        <FormMainCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection title="Identitas Termin">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="code">Kode</Label>
-                  <Input
-                    id="code"
-                    name="code"
-                    required
-                    defaultValue={defaults.code}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="name">Nama Termin</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    required
-                    defaultValue={defaults.name}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="days">Jatuh Tempo (hari)</Label>
-                  <Input
-                    id="days"
-                    name="days"
-                    type="number"
-                    min={0}
-                    max={365}
-                    required
-                    defaultValue={defaults.days}
-                  />
-                </div>
-              </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="is_active"
-                  defaultChecked={defaults.is_active}
+      <FormMainCard>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <FormSection title="Identitas Termin">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="code">Kode</Label>
+                <Input
+                  id="code"
+                  name="code"
+                  required
+                  defaultValue={defaults.code}
                 />
-                Aktif
-              </label>
-            </FormSection>
-
-            {error ? <Alert variant="error">{error}</Alert> : null}
-
-            <div className="flex gap-2">
-              <Button disabled={loading} type="submit">
-                {loading ? "Menyimpan..." : "Simpan"}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => router.back()}
-              >
-                Batal
-              </Button>
+              </div>
+              <div>
+                <Label htmlFor="name">Nama Termin</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  required
+                  defaultValue={defaults.name}
+                />
+              </div>
+              <div>
+                <Label htmlFor="days">Jatuh Tempo (hari)</Label>
+                <Input
+                  id="days"
+                  name="days"
+                  type="number"
+                  min={0}
+                  max={365}
+                  required
+                  defaultValue={defaults.days}
+                />
+              </div>
             </div>
-          </form>
-        </FormMainCard>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="is_active"
+                defaultChecked={defaults.is_active}
+              />
+              Aktif
+            </label>
+          </FormSection>
 
-        <FormAsideStack>
-          <FormAsideCard title="Termin">
-            <p className="font-mono text-sm">{defaults.code}</p>
-            <p className="font-semibold text-slate-900">{defaults.name}</p>
-            <p className="mt-1 text-sm text-slate-600">
-              {defaults.days === 0
-                ? "Tunai (0 hari)"
-                : `${defaults.days} hari`}
-            </p>
-          </FormAsideCard>
-          <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody className="text-sm text-slate-600">
-              Invoice yang sudah memakai termin ini tidak berubah saat termin
-              diedit — jatuh temponya sudah tersimpan.
-            </CardBody>
-          </Card>
-        </FormAsideStack>
-      </FormPageGrid>
+          {error ? <Alert variant="error">{error}</Alert> : null}
+
+          <div className="flex gap-2">
+            <Button disabled={loading} type="submit">
+              {loading ? "Menyimpan..." : "Simpan"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.back()}
+            >
+              Batal
+            </Button>
+          </div>
+        </form>
+      </FormMainCard>
     </div>
   );
 }

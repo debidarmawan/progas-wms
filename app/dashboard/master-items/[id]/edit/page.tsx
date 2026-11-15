@@ -7,12 +7,8 @@ import { listUoms } from "@/lib/api/uoms";
 import type { UomResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 import {
-  FormAsideCard,
-  FormAsideStack,
   FormMainCard,
-  FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label } from "@/components/ui/input";
@@ -123,169 +119,155 @@ export default function EditMasterItemPage() {
   return (
     <div className="animate-in">
       <PageHeader title="Edit Master Item" />
-      <FormPageGrid>
-        <FormMainCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection title="Informasi Dasar">
+      <FormMainCard>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <FormSection title="Informasi Dasar">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="name">Nama</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  defaultValue={defaults.name}
+                  required
+                />
+              </div>
+              <div>
+                <Label>SKU</Label>
+                <Input value={defaults.sku} disabled />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="item_type">Jenis</Label>
+              <SearchableSelect id="item_type" name="item_type" defaultValue={defaults.item_type}>
+                <option value="gas">Gas</option>
+                <option value="liquid">Liquid</option>
+                <option value="mix">Mix</option>
+              </SearchableSelect>
+            </div>
+            <div>
+              <Label htmlFor="gas_type">Jenis Gas</Label>
+              <Input
+                id="gas_type"
+                name="gas_type"
+                defaultValue={defaults.gas_type}
+              />
+            </div>
+            <div>
+              <Label htmlFor="uom_id">Satuan (UOM)</Label>
+              <SearchableSelect
+                id="uom_id"
+                name="uom_id"
+                defaultValue={defaults.uom_id}
+              >
+                <option value="">Tanpa satuan</option>
+                {uoms.map((uom) => (
+                  <option key={uom.id} value={uom.id}>
+                    {uom.code} — {uom.name}
+                  </option>
+                ))}
+              </SearchableSelect>
+            </div>
+            <div>
+              <Label htmlFor="hna_price">HNA Price (Rp)</Label>
+              <Input
+                id="hna_price"
+                name="hna_price"
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                defaultValue={defaults.hna_price}
+              />
+            </div>
+            <p className="text-sm text-slate-500">
+              Tipe: {isSerialized ? "Tabung (serialized)" : "Suku cadang"}
+            </p>
+          </FormSection>
+
+          {isSerialized ? (
+            <FormSection title="Berat Tabung" tone="accent">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <Label htmlFor="name">Nama</Label>
+                  <Label htmlFor="empty_weight_kg">Berat Kosong (kg)</Label>
                   <Input
-                    id="name"
-                    name="name"
-                    defaultValue={defaults.name}
-                    required
+                    id="empty_weight_kg"
+                    name="empty_weight_kg"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    defaultValue={defaults.empty_weight_kg}
                   />
                 </div>
                 <div>
-                  <Label>SKU</Label>
-                  <Input value={defaults.sku} disabled />
+                  <Label htmlFor="gas_weight_kg">Berat Gas (kg)</Label>
+                  <Input
+                    id="gas_weight_kg"
+                    name="gas_weight_kg"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    defaultValue={defaults.gas_weight_kg}
+                  />
                 </div>
               </div>
-              <div>
-                <Label htmlFor="item_type">Jenis</Label>
-                <SearchableSelect id="item_type" name="item_type" defaultValue={defaults.item_type}>
-                  <option value="gas">Gas</option>
-                  <option value="liquid">Liquid</option>
-                  <option value="mix">Mix</option>
-                </SearchableSelect>
-              </div>
-              <div>
-                <Label htmlFor="gas_type">Jenis Gas</Label>
+              <div className="max-w-sm">
+                <Label htmlFor="max_days_at_customer">
+                  Maksimal Hari di Customer
+                </Label>
                 <Input
-                  id="gas_type"
-                  name="gas_type"
-                  defaultValue={defaults.gas_type}
-                />
-              </div>
-              <div>
-                <Label htmlFor="uom_id">Satuan (UOM)</Label>
-                <SearchableSelect
-                  id="uom_id"
-                  name="uom_id"
-                  defaultValue={defaults.uom_id}
-                >
-                  <option value="">Tanpa satuan</option>
-                  {uoms.map((uom) => (
-                    <option key={uom.id} value={uom.id}>
-                      {uom.code} — {uom.name}
-                    </option>
-                  ))}
-                </SearchableSelect>
-              </div>
-              <div>
-                <Label htmlFor="hna_price">HNA Price (Rp)</Label>
-                <Input
-                  id="hna_price"
-                  name="hna_price"
+                  id="max_days_at_customer"
+                  name="max_days_at_customer"
                   type="number"
                   min="0"
-                  step="0.01"
-                  required
-                  defaultValue={defaults.hna_price}
+                  defaultValue={defaults.max_days_at_customer}
+                />
+                <p className="mt-1 text-xs text-slate-500">
+                  Batas maksimal (hari) tabung boleh berada di lokasi customer
+                  sebelum dianggap terlambat (overdue). Isi 0 jika tidak ada
+                  batasan.
+                </p>
+              </div>
+            </FormSection>
+          ) : (
+            <FormSection title="Pengaturan Stok">
+              <div className="max-w-sm">
+                <Label htmlFor="min_stock_alert">Min Stock Alert</Label>
+                <Input
+                  id="min_stock_alert"
+                  name="min_stock_alert"
+                  type="number"
+                  min="0"
+                  defaultValue={defaults.min_stock_alert}
                 />
               </div>
-              <p className="text-sm text-slate-500">
-                Tipe: {isSerialized ? "Tabung (serialized)" : "Suku cadang"}
-              </p>
             </FormSection>
+          )}
 
-            {isSerialized ? (
-              <FormSection title="Berat Tabung" tone="accent">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <Label htmlFor="empty_weight_kg">Berat Kosong (kg)</Label>
-                    <Input
-                      id="empty_weight_kg"
-                      name="empty_weight_kg"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      defaultValue={defaults.empty_weight_kg}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="gas_weight_kg">Berat Gas (kg)</Label>
-                    <Input
-                      id="gas_weight_kg"
-                      name="gas_weight_kg"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      defaultValue={defaults.gas_weight_kg}
-                    />
-                  </div>
-                </div>
-                <div className="max-w-sm">
-                  <Label htmlFor="max_days_at_customer">
-                    Maksimal Hari di Customer
-                  </Label>
-                  <Input
-                    id="max_days_at_customer"
-                    name="max_days_at_customer"
-                    type="number"
-                    min="0"
-                    defaultValue={defaults.max_days_at_customer}
-                  />
-                  <p className="mt-1 text-xs text-slate-500">
-                    Batas maksimal (hari) tabung boleh berada di lokasi customer
-                    sebelum dianggap terlambat (overdue). Isi 0 jika tidak ada
-                    batasan.
-                  </p>
-                </div>
-              </FormSection>
-            ) : (
-              <FormSection title="Pengaturan Stok">
-                <div className="max-w-sm">
-                  <Label htmlFor="min_stock_alert">Min Stock Alert</Label>
-                  <Input
-                    id="min_stock_alert"
-                    name="min_stock_alert"
-                    type="number"
-                    min="0"
-                    defaultValue={defaults.min_stock_alert}
-                  />
-                </div>
-              </FormSection>
-            )}
+          <CoaMappingFields
+            defaults={{
+              inventory_account_id: defaults.inventory_account_id,
+              revenue_account_id: defaults.revenue_account_id,
+              cogs_account_id: defaults.cogs_account_id,
+            }}
+          />
 
-            <CoaMappingFields
-              defaults={{
-                inventory_account_id: defaults.inventory_account_id,
-                revenue_account_id: defaults.revenue_account_id,
-                cogs_account_id: defaults.cogs_account_id,
-              }}
-            />
+          {error ? <Alert variant="error">{error}</Alert> : null}
 
-            {error ? <Alert variant="error">{error}</Alert> : null}
-
-            <div className="flex gap-2">
-              <Button disabled={loading} type="submit">
-                {loading ? "Menyimpan..." : "Simpan"}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => router.back()}
-              >
-                Batal
-              </Button>
-            </div>
-          </form>
-        </FormMainCard>
-
-        <FormAsideStack>
-          <FormAsideCard title="Item">
-            <p className="font-semibold text-slate-900">{defaults.name}</p>
-            <p className="font-mono text-sm text-slate-500">{defaults.sku}</p>
-          </FormAsideCard>
-          <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody className="text-sm text-slate-600">
-              SKU tidak dapat diubah setelah dibuat.
-            </CardBody>
-          </Card>
-        </FormAsideStack>
-      </FormPageGrid>
+          <div className="flex gap-2">
+            <Button disabled={loading} type="submit">
+              {loading ? "Menyimpan..." : "Simpan"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.back()}
+            >
+              Batal
+            </Button>
+          </div>
+        </form>
+      </FormMainCard>
     </div>
   );
 }

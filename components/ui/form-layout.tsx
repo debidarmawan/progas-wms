@@ -1,25 +1,14 @@
 import { Card, CardBody } from "@/components/ui/card";
 import { cn } from "@/lib/utils/cn";
 
-const asideClasses = {
-  default: "lg:grid-cols-[minmax(0,1fr)_300px]",
-  wide: "lg:grid-cols-[minmax(0,1fr)_400px]",
-} as const;
-
 export function FormPageGrid({
   children,
   className,
-  aside = "default",
 }: {
   children: React.ReactNode;
   className?: string;
-  aside?: keyof typeof asideClasses;
 }) {
-  return (
-    <div className={cn("grid gap-6", asideClasses[aside], className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn("grid gap-6", className)}>{children}</div>;
 }
 
 export function FormMainCard({ children }: { children: React.ReactNode }) {
@@ -62,30 +51,5 @@ export function FormSection({
       </div>
       {children}
     </section>
-  );
-}
-
-export function FormAsideStack({ children }: { children: React.ReactNode }) {
-  return <div className="space-y-4">{children}</div>;
-}
-
-export function FormAsideCard({
-  title,
-  children,
-  className,
-}: {
-  title: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <Card className={cn("shadow-[var(--shadow-soft)]", className)}>
-      <CardBody className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
-          {title}
-        </p>
-        {children}
-      </CardBody>
-    </Card>
   );
 }

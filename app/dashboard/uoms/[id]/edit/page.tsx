@@ -5,12 +5,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { getUom, updateUom } from "@/lib/api/uoms";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 import {
-  FormAsideCard,
-  FormAsideStack,
   FormMainCard,
-  FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label } from "@/components/ui/input";
@@ -60,61 +56,47 @@ export default function EditUomPage() {
   return (
     <div className="animate-in">
       <PageHeader title={`Edit UOM ${defaults.code}`} />
-      <FormPageGrid>
-        <FormMainCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection title="Identitas Satuan">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="code">Kode</Label>
-                  <Input
-                    id="code"
-                    name="code"
-                    required
-                    defaultValue={defaults.code}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="name">Nama</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    required
-                    defaultValue={defaults.name}
-                  />
-                </div>
+      <FormMainCard>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <FormSection title="Identitas Satuan">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="code">Kode</Label>
+                <Input
+                  id="code"
+                  name="code"
+                  required
+                  defaultValue={defaults.code}
+                />
               </div>
-            </FormSection>
-
-            {error ? <Alert variant="error">{error}</Alert> : null}
-
-            <div className="flex gap-2">
-              <Button disabled={loading} type="submit">
-                {loading ? "Menyimpan..." : "Simpan"}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => router.back()}
-              >
-                Batal
-              </Button>
+              <div>
+                <Label htmlFor="name">Nama</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  required
+                  defaultValue={defaults.name}
+                />
+              </div>
             </div>
-          </form>
-        </FormMainCard>
+          </FormSection>
 
-        <FormAsideStack>
-          <FormAsideCard title="UOM">
-            <p className="font-mono text-sm">{defaults.code}</p>
-            <p className="font-semibold text-slate-900">{defaults.name}</p>
-          </FormAsideCard>
-          <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody className="text-sm text-slate-600">
-              Perubahan satuan langsung dipakai daftar master item.
-            </CardBody>
-          </Card>
-        </FormAsideStack>
-      </FormPageGrid>
+          {error ? <Alert variant="error">{error}</Alert> : null}
+
+          <div className="flex gap-2">
+            <Button disabled={loading} type="submit">
+              {loading ? "Menyimpan..." : "Simpan"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.back()}
+            >
+              Batal
+            </Button>
+          </div>
+        </form>
+      </FormMainCard>
     </div>
   );
 }

@@ -9,12 +9,8 @@ import { setFlashMessage } from "@/lib/flash";
 import type { DriverResponse, RoleResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 import {
-  FormAsideCard,
-  FormAsideStack,
   FormMainCard,
-  FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label } from "@/components/ui/input";
@@ -99,120 +95,103 @@ export default function NewUserPage() {
   }
 
   return (
-    <div className="animate-in max-w-3xl">
+    <div className="animate-in">
       <PageHeader
         title="Tambah Pengguna"
         description="Buat akun operator baru dan tetapkan peran (RBAC)."
       />
-      <FormPageGrid>
-        <FormMainCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection title="Data Akun">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="name">Nama</Label>
-                  <Input id="name" name="name" required />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required />
-                </div>
+      <FormMainCard>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <FormSection title="Data Akun">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="name">Nama</Label>
+                <Input id="name" name="name" required />
               </div>
               <div>
-                <Label htmlFor="phone">Telepon</Label>
-                <Input id="phone" name="phone" type="tel" />
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" required />
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    minLength={6}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="role_id">Peran</Label>
-                  <SearchableSelect
-                    id="role_id"
-                    name="role_id"
-                    required
-                    value={roleId}
-                    onChange={(event) => handleRoleChange(event.target.value)}
-                  >
-                    <option value="" disabled>
-                      Pilih peran
-                    </option>
-                    {roles.map((role) => (
-                      <option key={role.id} value={role.id}>
-                        {role.name}
-                      </option>
-                    ))}
-                  </SearchableSelect>
-                </div>
-              </div>
-              {isDriverRole ? (
-                <div>
-                  <Label htmlFor="driver_id">Data Driver</Label>
-                  <SearchableSelect
-                    id="driver_id"
-                    name="driver_id"
-                    required
-                    defaultValue=""
-                    disabled={loadingDrivers || drivers.length === 0}
-                  >
-                    <option value="" disabled>
-                      {loadingDrivers
-                        ? "Memuat driver..."
-                        : drivers.length === 0
-                          ? "Tidak ada driver aktif"
-                          : "Pilih driver"}
-                    </option>
-                    {drivers.map((driver) => (
-                      <option key={driver.id} value={driver.id}>
-                        {driver.name}
-                        {driver.phone ? ` — ${driver.phone}` : ""}
-                      </option>
-                    ))}
-                  </SearchableSelect>
-                </div>
-              ) : null}
-            </FormSection>
-
-            {error ? <Alert variant="error">{error}</Alert> : null}
-
-            <div className="flex gap-2">
-              <Button disabled={loading} type="submit">
-                {loading ? "Menyimpan..." : "Buat Pengguna"}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => router.push("/dashboard/admin/users")}
-              >
-                Batal
-              </Button>
             </div>
-          </form>
-        </FormMainCard>
+            <div>
+              <Label htmlFor="phone">Telepon</Label>
+              <Input id="phone" name="phone" type="tel" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  minLength={6}
+                />
+              </div>
+              <div>
+                <Label htmlFor="role_id">Peran</Label>
+                <SearchableSelect
+                  id="role_id"
+                  name="role_id"
+                  required
+                  value={roleId}
+                  onChange={(event) => handleRoleChange(event.target.value)}
+                >
+                  <option value="" disabled>
+                    Pilih peran
+                  </option>
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </SearchableSelect>
+              </div>
+            </div>
+            {isDriverRole ? (
+              <div>
+                <Label htmlFor="driver_id">Data Driver</Label>
+                <SearchableSelect
+                  id="driver_id"
+                  name="driver_id"
+                  required
+                  defaultValue=""
+                  disabled={loadingDrivers || drivers.length === 0}
+                >
+                  <option value="" disabled>
+                    {loadingDrivers
+                      ? "Memuat driver..."
+                      : drivers.length === 0
+                        ? "Tidak ada driver aktif"
+                        : "Pilih driver"}
+                  </option>
+                  {drivers.map((driver) => (
+                    <option key={driver.id} value={driver.id}>
+                      {driver.name}
+                      {driver.phone ? ` — ${driver.phone}` : ""}
+                    </option>
+                  ))}
+                </SearchableSelect>
+              </div>
+            ) : null}
+          </FormSection>
 
-        <FormAsideStack>
-          <FormAsideCard title="Catatan">
-            <ul className="space-y-2 text-sm text-slate-600">
-              <li>Password minimal 6 karakter (sesuai API).</li>
-              <li>Peran menentukan hak akses modul.</li>
-            </ul>
-          </FormAsideCard>
-          <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody className="text-sm text-slate-500">
-              Setelah dibuat, pengguna dapat login dengan email dan password di
-              halaman login.
-            </CardBody>
-          </Card>
-        </FormAsideStack>
-      </FormPageGrid>
+          {error ? <Alert variant="error">{error}</Alert> : null}
+
+          <div className="flex gap-2">
+            <Button disabled={loading} type="submit">
+              {loading ? "Menyimpan..." : "Buat Pengguna"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.push("/dashboard/admin/users")}
+            >
+              Batal
+            </Button>
+          </div>
+        </form>
+      </FormMainCard>
     </div>
   );
 }

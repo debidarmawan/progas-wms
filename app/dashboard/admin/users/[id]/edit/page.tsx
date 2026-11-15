@@ -9,12 +9,8 @@ import { setFlashMessage } from "@/lib/flash";
 import type { DriverResponse, RoleResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 import {
-  FormAsideCard,
-  FormAsideStack,
   FormMainCard,
-  FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label } from "@/components/ui/input";
@@ -158,141 +154,127 @@ export default function EditUserPage() {
   }
 
   return (
-    <div className="animate-in max-w-3xl">
+    <div className="animate-in">
       <PageHeader title="Edit Pengguna" />
-      <FormPageGrid>
-        <FormMainCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection title="Data Akun">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="name">Nama</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    defaultValue={defaults.name}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    defaultValue={defaults.email}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="phone">Telepon</Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    defaultValue={defaults.phone}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="role_id">Peran</Label>
-                  <SearchableSelect
-                    id="role_id"
-                    name="role_id"
-                    value={roleId}
-                    onChange={(event) => handleRoleChange(event.target.value)}
-                    required
-                  >
-                    {roles.map((role) => (
-                      <option key={role.id} value={role.id}>
-                        {role.name}
-                      </option>
-                    ))}
-                  </SearchableSelect>
-                </div>
-              </div>
-              {isDriverRole ? (
-                <div>
-                  <Label htmlFor="driver_id">Data Driver</Label>
-                  <SearchableSelect
-                    id="driver_id"
-                    name="driver_id"
-                    value={defaults.driver_id}
-                    onChange={(event) =>
-                      setDefaults((current) => ({
-                        ...current,
-                        driver_id: event.target.value,
-                      }))
-                    }
-                    required
-                    disabled={loadingDrivers && !currentDriver}
-                  >
-                    <option value="" disabled>
-                      {loadingDrivers
-                        ? "Memuat driver..."
-                        : driverOptions.length === 0
-                          ? "Tidak ada driver aktif"
-                          : "Pilih driver"}
-                    </option>
-                    {driverOptions.map((driver) => (
-                      <option key={driver.id} value={driver.id}>
-                        {driver.name}
-                        {driver.phone ? ` — ${driver.phone}` : ""}
-                        {!driver.is_active ? " (Nonaktif)" : ""}
-                      </option>
-                    ))}
-                  </SearchableSelect>
-                </div>
-              ) : null}
+      <FormMainCard>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <FormSection title="Data Akun">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="password">Password Baru</Label>
+                <Label htmlFor="name">Nama</Label>
                 <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  minLength={6}
-                  placeholder="Kosongkan jika tidak diubah"
+                  id="name"
+                  name="name"
+                  defaultValue={defaults.name}
+                  required
                 />
               </div>
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                <input
-                  type="checkbox"
-                  name="is_active"
-                  defaultChecked={defaults.is_active}
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  defaultValue={defaults.email}
+                  required
                 />
-                Aktif
-              </label>
-            </FormSection>
-
-            {error ? <Alert variant="error">{error}</Alert> : null}
-
-            <div className="flex gap-2">
-              <Button disabled={loading} type="submit">
-                {loading ? "Menyimpan..." : "Simpan"}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => router.back()}
-              >
-                Batal
-              </Button>
+              </div>
             </div>
-          </form>
-        </FormMainCard>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="phone">Telepon</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  defaultValue={defaults.phone}
+                />
+              </div>
+              <div>
+                <Label htmlFor="role_id">Peran</Label>
+                <SearchableSelect
+                  id="role_id"
+                  name="role_id"
+                  value={roleId}
+                  onChange={(event) => handleRoleChange(event.target.value)}
+                  required
+                >
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </SearchableSelect>
+              </div>
+            </div>
+            {isDriverRole ? (
+              <div>
+                <Label htmlFor="driver_id">Data Driver</Label>
+                <SearchableSelect
+                  id="driver_id"
+                  name="driver_id"
+                  value={defaults.driver_id}
+                  onChange={(event) =>
+                    setDefaults((current) => ({
+                      ...current,
+                      driver_id: event.target.value,
+                    }))
+                  }
+                  required
+                  disabled={loadingDrivers && !currentDriver}
+                >
+                  <option value="" disabled>
+                    {loadingDrivers
+                      ? "Memuat driver..."
+                      : driverOptions.length === 0
+                        ? "Tidak ada driver aktif"
+                        : "Pilih driver"}
+                  </option>
+                  {driverOptions.map((driver) => (
+                    <option key={driver.id} value={driver.id}>
+                      {driver.name}
+                      {driver.phone ? ` — ${driver.phone}` : ""}
+                      {!driver.is_active ? " (Nonaktif)" : ""}
+                    </option>
+                  ))}
+                </SearchableSelect>
+              </div>
+            ) : null}
+            <div>
+              <Label htmlFor="password">Password Baru</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                minLength={6}
+                placeholder="Kosongkan jika tidak diubah"
+              />
+            </div>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                name="is_active"
+                defaultChecked={defaults.is_active}
+              />
+              Aktif
+            </label>
+          </FormSection>
 
-        <FormAsideStack>
-          <FormAsideCard title="Pengguna">
-            <p className="font-semibold text-slate-900">{defaults.name}</p>
-            <p className="text-sm text-slate-500">{defaults.email}</p>
-          </FormAsideCard>
-          <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody className="text-sm text-slate-600">
-              Nonaktifkan akun untuk mencegah login tanpa menghapus riwayat.
-            </CardBody>
-          </Card>
-        </FormAsideStack>
-      </FormPageGrid>
+          {error ? <Alert variant="error">{error}</Alert> : null}
+
+          <div className="flex gap-2">
+            <Button disabled={loading} type="submit">
+              {loading ? "Menyimpan..." : "Simpan"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.back()}
+            >
+              Batal
+            </Button>
+          </div>
+        </form>
+      </FormMainCard>
     </div>
   );
 }

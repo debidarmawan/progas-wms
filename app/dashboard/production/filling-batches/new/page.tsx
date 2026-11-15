@@ -8,12 +8,8 @@ import { getCylinderByBarcode } from "@/lib/api/cylinders";
 import type { MasterItemResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 import {
-  FormAsideCard,
-  FormAsideStack,
   FormMainCard,
-  FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label, Textarea } from "@/components/ui/input";
@@ -103,138 +99,119 @@ export default function NewFillingBatchPage() {
         title="Submit Filling Batch"
         description="Transaksi atomik: validasi status & cross-gas, lalu ubah tabung ke READY."
       />
-      <FormPageGrid className="lg:grid-cols-[minmax(0,1fr)_320px]">
-        <FormMainCard>
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <FormSection
-                title="Konfigurasi Batch"
-                description="Pilih produk gas sebelum scan barcode tabung."
-              >
-                <div>
-                  <Label htmlFor="item_id">Produk Gas</Label>
-                  <SearchableSelect
-                    id="item_id"
-                    name="item_id"
-                    required
-                    value={itemId}
-                    onChange={(event) => {
-                      setItemId(event.target.value);
-                      setBarcodes([]);
-                      setScanInput("");
-                      setError(null);
-                    }}
-                  >
-                    <option value="" disabled>
-                      Pilih produk
+      <FormMainCard>
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <FormSection
+              title="Konfigurasi Batch"
+              description="Pilih produk gas sebelum scan barcode tabung."
+            >
+              <div>
+                <Label htmlFor="item_id">Produk Gas</Label>
+                <SearchableSelect
+                  id="item_id"
+                  name="item_id"
+                  required
+                  value={itemId}
+                  onChange={(event) => {
+                    setItemId(event.target.value);
+                    setBarcodes([]);
+                    setScanInput("");
+                    setError(null);
+                  }}
+                >
+                  <option value="" disabled>
+                    Pilih produk
+                  </option>
+                  {items.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name} — {item.gas_type || "N/A"}
                     </option>
-                    {items.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name} — {item.gas_type || "N/A"}
-                      </option>
-                    ))}
-                  </SearchableSelect>
-                </div>
-              </FormSection>
+                  ))}
+                </SearchableSelect>
+              </div>
+            </FormSection>
 
-              <FormSection
-                title="Scan Barcode Tabung"
-                description={
-                  itemId
-                    ? "Tekan Enter setiap selesai scan. Hanya tabung produk terpilih yang diterima."
-                    : "Pilih produk gas terlebih dahulu untuk mengaktifkan scan."
-                }
-                tone="accent"
-              >
-                <div className="flex gap-2">
-                  <Input
-                    value={scanInput}
-                    disabled={!itemId || scanning}
-                    onChange={(event) => setScanInput(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.preventDefault();
-                        addBarcode(scanInput);
-                      }
-                    }}
-                    placeholder={itemId ? "Barcode + Enter" : "Pilih produk gas dahulu"}
-                  />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={!itemId || scanning}
-                    onClick={() => addBarcode(scanInput)}
-                  >
-                    {scanning ? "Memeriksa..." : "Tambah"}
-                  </Button>
-                </div>
-                {error ? <Alert variant="error">{error}</Alert> : null}
-                <p className="text-sm text-slate-600">
-                  {barcodes.length} tabung siap diproses
-                </p>
-                <div className="max-h-44 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2">
-                  {barcodes.length > 0 ? (
-                    <ul className="space-y-1.5 text-sm font-mono">
-                      {barcodes.map((code) => (
-                        <li
-                          key={code}
-                          className="rounded-md bg-slate-50 px-2 py-1 text-slate-700"
-                        >
-                          {code}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="px-2 py-6 text-center text-sm text-slate-500">
-                      Belum ada barcode discan.
-                    </p>
-                  )}
-                </div>
-              </FormSection>
-
-              <FormSection title="Catatan Batch" className="space-y-3">
-                <div>
-                  <Label htmlFor="notes">Catatan</Label>
-                  <Textarea
-                    id="notes"
-                    name="notes"
-                    rows={3}
-                    placeholder="Catatan tambahan operator (opsional)"
-                  />
-                </div>
-              </FormSection>
-
-              <div className="flex gap-2 pt-2">
-                <Button disabled={loading} type="submit">
-                  {loading ? "Memproses..." : "Submit Batch"}
-                </Button>
+            <FormSection
+              title="Scan Barcode Tabung"
+              description={
+                itemId
+                  ? "Tekan Enter setiap selesai scan. Hanya tabung produk terpilih yang diterima."
+                  : "Pilih produk gas terlebih dahulu untuk mengaktifkan scan."
+              }
+              tone="accent"
+            >
+              <div className="flex gap-2">
+                <Input
+                  value={scanInput}
+                  disabled={!itemId || scanning}
+                  onChange={(event) => setScanInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addBarcode(scanInput);
+                    }
+                  }}
+                  placeholder={itemId ? "Barcode + Enter" : "Pilih produk gas dahulu"}
+                />
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={() => router.back()}
+                  disabled={!itemId || scanning}
+                  onClick={() => addBarcode(scanInput)}
                 >
-                  Batal
+                  {scanning ? "Memeriksa..." : "Tambah"}
                 </Button>
               </div>
-            </form>
-        </FormMainCard>
+              {error ? <Alert variant="error">{error}</Alert> : null}
+              <p className="text-sm text-slate-600">
+                {barcodes.length} tabung siap diproses
+              </p>
+              <div className="max-h-44 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2">
+                {barcodes.length > 0 ? (
+                  <ul className="space-y-1.5 text-sm font-mono">
+                    {barcodes.map((code) => (
+                      <li
+                        key={code}
+                        className="rounded-md bg-slate-50 px-2 py-1 text-slate-700"
+                      >
+                        {code}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="px-2 py-6 text-center text-sm text-slate-500">
+                    Belum ada barcode discan.
+                  </p>
+                )}
+              </div>
+            </FormSection>
 
-        <FormAsideStack>
-          <FormAsideCard title="Ringkasan Batch">
-            <p className="text-3xl font-semibold text-slate-900">{barcodes.length}</p>
-            <p className="text-sm text-slate-500">tabung dalam antrian submit</p>
-          </FormAsideCard>
-          <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody className="space-y-2 text-sm text-slate-600">
-              <p className="font-semibold text-slate-800">Checklist sebelum submit</p>
-              <ul className="space-y-1">
-                <li>Produk gas sudah sesuai dengan tabung yang discan.</li>
-                <li>Semua barcode unik dan tidak duplikat.</li>
-                <li>Jumlah tabung sesuai kondisi fisik di manifold.</li>
-              </ul>
-            </CardBody>
-          </Card>
-        </FormAsideStack>
-      </FormPageGrid>
+            <FormSection title="Catatan Batch" className="space-y-3">
+              <div>
+                <Label htmlFor="notes">Catatan</Label>
+                <Textarea
+                  id="notes"
+                  name="notes"
+                  rows={3}
+                  placeholder="Catatan tambahan operator (opsional)"
+                />
+              </div>
+            </FormSection>
+
+            <div className="flex gap-2 pt-2">
+              <Button disabled={loading} type="submit">
+                {loading ? "Memproses..." : "Submit Batch"}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => router.back()}
+              >
+                Batal
+              </Button>
+            </div>
+          </form>
+      </FormMainCard>
     </div>
   );
 }

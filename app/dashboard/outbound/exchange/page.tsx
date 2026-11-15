@@ -6,12 +6,8 @@ import { processExchange } from "@/lib/api/outbound";
 import type { CustomerResponse, ExchangeResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 import {
-  FormAsideCard,
-  FormAsideStack,
   FormMainCard,
-  FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label } from "@/components/ui/input";
@@ -132,79 +128,67 @@ export default function ExchangePage() {
         description="Gate-in: tabung masuk (kosong) dan tabung keluar (terisi) dalam satu transaksi."
       />
 
-      <FormPageGrid>
-        <FormMainCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection title="Pelanggan" tone="accent">
-              <div className="max-w-md">
-                <Label htmlFor="customer_id">Pelanggan</Label>
-                <SearchableSelect id="customer_id" name="customer_id" required defaultValue="">
-                  <option value="" disabled>
-                    Pilih pelanggan
+      <FormMainCard>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <FormSection title="Pelanggan" tone="accent">
+            <div className="max-w-md">
+              <Label htmlFor="customer_id">Pelanggan</Label>
+              <SearchableSelect id="customer_id" name="customer_id" required defaultValue="">
+                <option value="" disabled>
+                  Pilih pelanggan
+                </option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.code} — {c.name}
                   </option>
-                  {customers.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.code} — {c.name}
-                    </option>
-                  ))}
-                </SearchableSelect>
-              </div>
-              <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
-                <input type="checkbox" name="force_approve" />
-                Force approve (lewati alert cross-customer)
-              </label>
-            </FormSection>
+                ))}
+              </SearchableSelect>
+            </div>
+            <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
+              <input type="checkbox" name="force_approve" />
+              Force approve (lewati alert cross-customer)
+            </label>
+          </FormSection>
 
-            <FormSection title="Scan Barcode">
-              <div className="grid gap-6 lg:grid-cols-2">
-                <BarcodeList
-                  label="Tabung Masuk (kosong)"
-                  barcodes={inBarcodes}
-                  scanInput={inInput}
-                  onScanInputChange={setInInput}
-                  onAdd={(v) => addBarcode(v, setInBarcodes, () => setInInput(""))}
-                />
-                <BarcodeList
-                  label="Tabung Keluar (terisi)"
-                  barcodes={outBarcodes}
-                  scanInput={outInput}
-                  onScanInputChange={setOutInput}
-                  onAdd={(v) => addBarcode(v, setOutBarcodes, () => setOutInput(""))}
-                />
-              </div>
-            </FormSection>
+          <FormSection title="Scan Barcode">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <BarcodeList
+                label="Tabung Masuk (kosong)"
+                barcodes={inBarcodes}
+                scanInput={inInput}
+                onScanInputChange={setInInput}
+                onAdd={(v) => addBarcode(v, setInBarcodes, () => setInInput(""))}
+              />
+              <BarcodeList
+                label="Tabung Keluar (terisi)"
+                barcodes={outBarcodes}
+                scanInput={outInput}
+                onScanInputChange={setOutInput}
+                onAdd={(v) => addBarcode(v, setOutBarcodes, () => setOutInput(""))}
+              />
+            </div>
+          </FormSection>
 
-            {error ? <Alert variant="error">{error}</Alert> : null}
-            {result ? (
-              <Alert variant="success">
-                Pertukaran berhasil. Masuk: {result.in_count}, Keluar:{" "}
-                {result.out_count}. Outstanding {result.outstanding_before} →{" "}
-                {result.outstanding_after} (Δ {result.outstanding_delta})
-                {result.cross_customer_alerts &&
-                result.cross_customer_alerts.length > 0 ? (
-                  <span className="mt-2 block text-amber-700">
-                    Alert: {result.cross_customer_alerts.join(", ")}
-                  </span>
-                ) : null}
-              </Alert>
-            ) : null}
+          {error ? <Alert variant="error">{error}</Alert> : null}
+          {result ? (
+            <Alert variant="success">
+              Pertukaran berhasil. Masuk: {result.in_count}, Keluar:{" "}
+              {result.out_count}. Outstanding {result.outstanding_before} →{" "}
+              {result.outstanding_after} (Δ {result.outstanding_delta})
+              {result.cross_customer_alerts &&
+              result.cross_customer_alerts.length > 0 ? (
+                <span className="mt-2 block text-amber-700">
+                  Alert: {result.cross_customer_alerts.join(", ")}
+                </span>
+              ) : null}
+            </Alert>
+          ) : null}
 
-            <Button disabled={loading} type="submit" size="lg">
-              {loading ? "Memproses..." : "Proses Pertukaran"}
-            </Button>
-          </form>
-        </FormMainCard>
-
-        <FormAsideStack>
-          <FormAsideCard title="Alur">
-            <ul className="space-y-2 text-sm text-slate-600">
-              <li>Tabung masuk: status EMPTY dari pelanggan</li>
-              <li>Tabung keluar: status OUTSTANDING ke pelanggan</li>
-              <li>Outstanding dihitung otomatis</li>
-            </ul>
-          </FormAsideCard>
-        </FormAsideStack>
-      </FormPageGrid>
+          <Button disabled={loading} type="submit" size="lg">
+            {loading ? "Memproses..." : "Proses Pertukaran"}
+          </Button>
+        </form>
+      </FormMainCard>
     </div>
   );
 }

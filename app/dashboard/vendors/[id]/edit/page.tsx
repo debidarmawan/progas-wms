@@ -5,12 +5,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { getVendor, updateVendor } from "@/lib/api/vendors";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 import {
-  FormAsideCard,
-  FormAsideStack,
   FormMainCard,
-  FormPageGrid,
   FormSection,
 } from "@/components/ui/form-layout";
 import { Input, Label, Textarea } from "@/components/ui/input";
@@ -98,126 +94,112 @@ export default function EditVendorPage() {
   return (
     <div className="animate-in">
       <PageHeader title={`Edit ${defaults.name}`} />
-      <FormPageGrid>
-        <FormMainCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormSection title="Identitas">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label>Kode</Label>
-                  <Input value={defaults.code} disabled />
-                </div>
-                <div>
-                  <Label htmlFor="name">Nama</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    defaultValue={defaults.name}
-                    required
-                  />
-                </div>
-              </div>
-            </FormSection>
-
-            <FormSection title="Kontak">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="contact_person">Contact Person</Label>
-                  <Input
-                    id="contact_person"
-                    name="contact_person"
-                    defaultValue={defaults.contact_person}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Telepon</Label>
-                  <Input id="phone" name="phone" defaultValue={defaults.phone} />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    defaultValue={defaults.email}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="address">Alamat</Label>
-                  <Input
-                    id="address"
-                    name="address"
-                    defaultValue={defaults.address}
-                  />
-                </div>
-              </div>
-            </FormSection>
-
-            <FormSection title="Kontrak" tone="accent">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="contract_start_date">Mulai</Label>
-                  <Input
-                    id="contract_start_date"
-                    name="contract_start_date"
-                    type="date"
-                    defaultValue={defaults.contract_start_date}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="contract_end_date">Akhir</Label>
-                  <Input
-                    id="contract_end_date"
-                    name="contract_end_date"
-                    type="date"
-                    defaultValue={defaults.contract_end_date}
-                  />
-                </div>
+      <FormMainCard>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <FormSection title="Identitas">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label>Kode</Label>
+                <Input value={defaults.code} disabled />
               </div>
               <div>
-                <Label htmlFor="notes">Catatan</Label>
-                <Textarea
-                  id="notes"
-                  name="notes"
-                  rows={2}
-                  defaultValue={defaults.notes}
+                <Label htmlFor="name">Nama</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  defaultValue={defaults.name}
+                  required
                 />
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="is_active"
-                  defaultChecked={defaults.is_active}
-                />
-                Aktif
-              </label>
-            </FormSection>
-
-            {error ? <Alert variant="error">{error}</Alert> : null}
-
-            <div className="flex gap-2">
-              <Button disabled={loading} type="submit">
-                {loading ? "Menyimpan..." : "Simpan"}
-              </Button>
-              <Button type="button" variant="secondary" onClick={() => router.back()}>
-                Batal
-              </Button>
             </div>
-          </form>
-        </FormMainCard>
+          </FormSection>
 
-        <FormAsideStack>
-          <FormAsideCard title="Vendor">
-            <p className="font-mono text-sm">{defaults.code}</p>
-            <p className="font-semibold text-slate-900">{defaults.name}</p>
-          </FormAsideCard>
-          <Card className="shadow-[var(--shadow-soft)]">
-            <CardBody className="text-sm text-slate-600">
-              Kode vendor tidak dapat diubah.
-            </CardBody>
-          </Card>
-        </FormAsideStack>
-      </FormPageGrid>
+          <FormSection title="Kontak">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="contact_person">Contact Person</Label>
+                <Input
+                  id="contact_person"
+                  name="contact_person"
+                  defaultValue={defaults.contact_person}
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone">Telepon</Label>
+                <Input id="phone" name="phone" defaultValue={defaults.phone} />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  defaultValue={defaults.email}
+                />
+              </div>
+              <div>
+                <Label htmlFor="address">Alamat</Label>
+                <Input
+                  id="address"
+                  name="address"
+                  defaultValue={defaults.address}
+                />
+              </div>
+            </div>
+          </FormSection>
+
+          <FormSection title="Kontrak" tone="accent">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="contract_start_date">Mulai</Label>
+                <Input
+                  id="contract_start_date"
+                  name="contract_start_date"
+                  type="date"
+                  defaultValue={defaults.contract_start_date}
+                />
+              </div>
+              <div>
+                <Label htmlFor="contract_end_date">Akhir</Label>
+                <Input
+                  id="contract_end_date"
+                  name="contract_end_date"
+                  type="date"
+                  defaultValue={defaults.contract_end_date}
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="notes">Catatan</Label>
+              <Textarea
+                id="notes"
+                name="notes"
+                rows={2}
+                defaultValue={defaults.notes}
+              />
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="is_active"
+                defaultChecked={defaults.is_active}
+              />
+              Aktif
+            </label>
+          </FormSection>
+
+          {error ? <Alert variant="error">{error}</Alert> : null}
+
+          <div className="flex gap-2">
+            <Button disabled={loading} type="submit">
+              {loading ? "Menyimpan..." : "Simpan"}
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => router.back()}>
+              Batal
+            </Button>
+          </div>
+        </form>
+      </FormMainCard>
     </div>
   );
 }
