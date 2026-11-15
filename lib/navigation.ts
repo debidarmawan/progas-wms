@@ -80,6 +80,10 @@ export const mainNavigation: NavItem[] = [
     children: [
       { label: "Invoice", href: "/dashboard/finance/invoices" },
       { label: "Chart of Accounts", href: "/dashboard/finance/accounts" },
+      {
+        label: "Terms of Payment",
+        href: "/dashboard/finance/terms-of-payment",
+      },
     ],
   },
   {
@@ -173,6 +177,8 @@ export const moduleDescriptions: Record<string, string> = {
   "/dashboard/finance/invoices": "Invoice per Delivery Order & piutang pelanggan",
   "/dashboard/finance/accounts": "Chart of Accounts (CoA) untuk jurnal",
   "/dashboard/finance/accounts/new": "Tambah akun baru ke CoA",
+  "/dashboard/finance/terms-of-payment": "Termin pembayaran (TOP) untuk invoice",
+  "/dashboard/finance/terms-of-payment/new": "Tambah termin pembayaran baru",
   "/dashboard/logistics/fleet": "Data kendaraan & kapasitas muat",
   "/dashboard/logistics/drivers": "Data master driver (sopir)",
   "/dashboard/maintenance/work-orders": "Perbaikan & konsumsi spare part",

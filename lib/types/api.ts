@@ -747,3 +747,20 @@ export interface CreateAccountRequest {
 }
 
 export type UpdateAccountRequest = CreateAccountRequest;
+
+export interface TermOfPaymentResponse {
+  id: string;
+  code: string;
+  name: string;
+  days: number;
+  is_active: boolean;
+}
+
+export interface CreateTermOfPaymentRequest {
+  code: string;
+  name: string;
+  days: number;
+  is_active?: boolean;
+}
+
+export type UpdateTermOfPaymentRequest = CreateTermOfPaymentRequest;
