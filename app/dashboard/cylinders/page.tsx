@@ -142,7 +142,11 @@ function CylinderAging({
   isAtCustomer: boolean;
 }) {
   if (!isAtCustomer) {
-    return <span className="text-slate-400">—</span>;
+    return maxDays > 0 ? (
+      <span className="text-slate-500">maks {maxDays} hari</span>
+    ) : (
+      <span className="text-slate-400">—</span>
+    );
   }
   return (
     <div className="flex items-center gap-2">
