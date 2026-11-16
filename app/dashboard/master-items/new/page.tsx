@@ -255,9 +255,10 @@ export default function NewMasterItemPage() {
                   placeholder="Contoh: 30"
                 />
                 <p className="mt-1 text-xs text-slate-500">
-                  Batas maksimal (hari) tabung boleh berada di lokasi customer
-                  sebelum dianggap terlambat (overdue). Isi 0 jika tidak ada
-                  batasan.
+                  Nilai default (hari) untuk tabung yang didaftarkan dengan produk
+                  ini; tabung tidak dianggap overdue sebelum melewati batas ini.
+                  Isi 0 jika tidak ada batasan. Batas tiap tabung tetap bisa
+                  diubah di halaman tabung.
                 </p>
               </div>
               <p className="rounded-lg bg-white/70 px-3 py-2 text-xs text-slate-600">

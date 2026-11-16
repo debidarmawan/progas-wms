@@ -9,6 +9,7 @@ import type {
   MessageResponse,
   PaginatedList,
   PaginationParams,
+  UpdateCylinderMaxDaysRequest,
   UpdateCylinderRequest,
 } from "@/lib/types/api";
 
@@ -64,6 +65,16 @@ export function markCylinderLabelsPrinted(ids: string[]) {
 export function updateCylinder(id: string, payload: UpdateCylinderRequest) {
   return apiRequest<MessageResponse>(`/cylinders/${id}`, {
     method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateCylinderMaxDays(
+  id: string,
+  payload: UpdateCylinderMaxDaysRequest,
+) {
+  return apiRequest<CylinderResponse>(`/cylinders/${id}/max-days`, {
+    method: "PATCH",
     body: JSON.stringify(payload),
   });
 }

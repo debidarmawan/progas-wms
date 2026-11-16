@@ -6,7 +6,9 @@ import {
   getCylinder,
   getCylinderHistory,
   updateCylinder,
+  updateCylinderMaxDays,
 } from "@/lib/api/cylinders";
+import { listCylinderLocations } from "@/lib/api/cylinder-locations";
 import { listCustomers } from "@/lib/api/customers";
 import { listMasterItems } from "@/lib/api/master-items";
 import { listVendors } from "@/lib/api/vendors";
@@ -14,12 +16,18 @@ import type {
   CustomerResponse,
   CylinderHistoryChange,
   CylinderHistoryResponse,
+  CylinderLocationResponse,
+  CylinderLocationType,
   MasterItemResponse,
   VendorResponse,
 } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
+import {
+  CylinderLocationFields,
+  cylinderLocationTypeLabel,
+} from "@/components/ui/cylinder-location-fields";
 import {
   FormMainCard,
   FormSection,
@@ -58,6 +66,7 @@ export default function EditCylinderPage() {
   const [items, setItems] = useState<MasterItemResponse[]>([]);
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [vendors, setVendors] = useState<VendorResponse[]>([]);
+  const [locations, setLocations] = useState<CylinderLocationResponse[]>([]);
   const [defaults, setDefaults] = useState({
     barcode_sn: "",
     item_id: "",
@@ -67,13 +76,24 @@ export default function EditCylinderPage() {
     status: "",
     remarks: "",
     label_printed_at: "",
+    location_type: "",
+    location_name: "",
+    max_days_at_customer: 0,
+    outstanding_since: "",
+    days_at_customer: 0,
+    is_overdue: false,
   });
   const [ownershipType, setOwnershipType] = useState("COMPANY");
+  const [maxDays, setMaxDays] = useState(0);
+  const [maxDaysSaving, setMaxDaysSaving] = useState(false);
+  const [maxDaysNotice, setMaxDaysNotice] = useState<string | null>(null);
 
   const needsOwner = ownershipType === "CUSTOMER" || ownershipType === "VENDOR";
   const editable =
     defaults.status === "EMPTY" || defaults.status === "READY_TO_FILL";
   const barcodeLocked = !editable || !!defaults.label_printed_at;
+  const maxDaysLocked =
+    defaults.status === "LOST" || defaults.status === "WRITE_OFF";
 
   const historyEntries = history?.entries ?? [];
   const latestEntries = historyEntries.slice(-10).reverse();
@@ -85,8 +105,9 @@ export default function EditCylinderPage() {
       listMasterItems({ page: 1, limit: 100 }),
       listCustomers({ page: 1, limit: 200 }),
       listVendors({ page: 1, limit: 200 }),
+      listCylinderLocations({ page: 1, limit: 200 }),
     ])
-      .then(([cylinder, historyData, itemData, customerData, vendorData]) => {
+      .then(([cylinder, historyData, itemData, customerData, vendorData, locationData]) => {
         setDefaults({
           barcode_sn: cylinder.barcode_sn,
           item_id: cylinder.item_id,
@@ -98,12 +119,20 @@ export default function EditCylinderPage() {
           status: cylinder.status,
           remarks: cylinder.remarks || "",
           label_printed_at: cylinder.label_printed_at || "",
+          location_type: cylinder.location_type,
+          location_name: cylinder.location_name || "",
+          max_days_at_customer: cylinder.max_days_at_customer,
+          outstanding_since: cylinder.outstanding_since || "",
+          days_at_customer: cylinder.days_at_customer,
+          is_overdue: cylinder.is_overdue,
         });
         setOwnershipType(cylinder.ownership_type);
+        setMaxDays(cylinder.max_days_at_customer);
         setHistory(historyData);
         setItems(itemData.items.filter((item) => item.is_serialized));
         setCustomers(customerData.items);
         setVendors(vendorData.items.filter((v) => v.is_active !== false));
+        setLocations(locationData.items.filter((l) => l.is_active));
       })
       .catch((err) =>
         setError(err instanceof Error ? err.message : "Gagal memuat data"),
@@ -133,6 +162,15 @@ export default function EditCylinderPage() {
       return;
     }
 
+    const locationType = String(form.get("location_type") || "").trim();
+    const locationId = String(form.get("location_id") || "").trim();
+
+    if (locationType && !locationId) {
+      setError("Pilih detail lokasi untuk tipe lokasi yang dipilih.");
+      setLoading(false);
+      return;
+    }
+
     try {
       await updateCylinder(params.id, {
         barcode_sn: String(form.get("barcode_sn")),
@@ -141,6 +179,10 @@ export default function EditCylinderPage() {
         owner_id: ownership === "COMPANY" ? undefined : ownerId,
         last_hydrotest_date: String(form.get("last_hydrotest_date")),
         remarks: String(form.get("remarks") || "").trim(),
+        location_type: locationType
+          ? (locationType as CylinderLocationType)
+          : undefined,
+        location_id: locationId || undefined,
       });
       router.push("/dashboard/cylinders");
       router.refresh();
@@ -151,10 +193,30 @@ export default function EditCylinderPage() {
     }
   }
 
+  async function handleSaveMaxDays() {
+    setMaxDaysSaving(true);
+    setMaxDaysNotice(null);
+    setError(null);
+    try {
+      const updated = await updateCylinderMaxDays(params.id, {
+        max_days_at_customer: maxDays,
+      });
+      setDefaults((prev) => ({
+        ...prev,
+        max_days_at_customer: updated.max_days_at_customer,
+        is_overdue: updated.is_overdue,
+      }));
+      setMaxDaysNotice("Batas hari di customer disimpan.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal menyimpan batas hari");
+    } finally {
+      setMaxDaysSaving(false);
+    }
+  }
+
   if (fetching) {
     return <p className="text-slate-600">Memuat...</p>;
   }
-
   return (
     <div className="animate-in">
       <PageHeader title="Edit Tabung" />
@@ -280,6 +342,22 @@ export default function EditCylinderPage() {
             </div>
           </FormSection>
 
+          <FormSection
+            title="Lokasi Tabung"
+            description={`Lokasi saat ini: ${
+              defaults.location_name ||
+              cylinderLocationTypeLabel(defaults.location_type)
+            }. Pilih tipe & detail lokasi untuk memindahkan tabung.`}
+          >
+            <CylinderLocationFields
+              locations={locations}
+              customers={customers}
+              vendors={vendors}
+              emptyLabel="Pertahankan lokasi saat ini"
+              disabled={!editable}
+            />
+          </FormSection>
+
           <FormSection title="Keterangan">
             <div>
               <Label htmlFor="remarks">Remarks</Label>
@@ -313,7 +391,61 @@ export default function EditCylinderPage() {
         </form>
       </FormMainCard>
 
-      <Card className="shadow-[var(--shadow-soft)]">
+      <Card className="mt-6 shadow-[var(--shadow-soft)]">
+        <CardBody>
+          <p className="font-semibold text-slate-800">Batas Hari di Customer</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Satu aturan global untuk tabung ini di semua customer. 0 = tanpa batas.
+            Perubahan di sini tercatat di riwayat.
+          </p>
+          {defaults.outstanding_since ? (
+            <p className="mt-2 text-sm text-slate-700">
+              Di customer sejak{" "}
+              {new Date(defaults.outstanding_since).toLocaleDateString("id-ID")} ·{" "}
+              {defaults.days_at_customer} hari
+              {defaults.max_days_at_customer > 0
+                ? ` (maks ${defaults.max_days_at_customer})`
+                : ""}
+              {defaults.is_overdue ? (
+                <span className="ml-1 font-semibold text-rose-700">· Overdue</span>
+              ) : null}
+            </p>
+          ) : null}
+          <div className="mt-4 flex flex-wrap items-end gap-3">
+            <div className="w-40">
+              <Label htmlFor="max_days_at_customer">Maksimal hari</Label>
+              <Input
+                id="max_days_at_customer"
+                type="number"
+                min={0}
+                max={3650}
+                value={maxDays}
+                disabled={maxDaysLocked}
+                onChange={(event) => setMaxDays(Number(event.target.value))}
+              />
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={maxDaysLocked || maxDaysSaving}
+              onClick={handleSaveMaxDays}
+            >
+              {maxDaysSaving ? "Menyimpan..." : "Simpan Batas"}
+            </Button>
+          </div>
+          {maxDaysLocked ? (
+            <p className="mt-2 text-xs text-slate-500">
+              Tabung berstatus {cylinderStatusLabels[defaults.status] || defaults.status} —
+              batas hari tidak bisa diubah.
+            </p>
+          ) : null}
+          {maxDaysNotice ? (
+            <p className="mt-2 text-sm text-emerald-700">{maxDaysNotice}</p>
+          ) : null}
+        </CardBody>
+      </Card>
+
+      <Card className="mt-6 shadow-[var(--shadow-soft)]">
         <CardBody>
           <p className="font-semibold text-slate-800">Riwayat Perubahan</p>
           <p className="mt-1 text-sm text-slate-500">

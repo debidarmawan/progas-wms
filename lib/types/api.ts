@@ -128,6 +128,19 @@ export interface UpdateMasterItemRequest {
   cogs_account_id?: string;
 }
 
+export type CylinderLocationType =
+  | "WAREHOUSE"
+  | "FILLING_STATION"
+  | "WORKSHOP"
+  | "CUSTOMER"
+  | "VENDOR"
+  | "IN_TRANSIT"
+  | "MAINTENANCE"
+  | "UNKNOWN";
+
+/** Only internal company places have a `CylinderLocation` master row. */
+export type CylinderLocationPlaceType = "WAREHOUSE" | "FILLING_STATION" | "WORKSHOP";
+
 export interface CylinderResponse {
   id: string;
   barcode_sn: string;
@@ -140,6 +153,14 @@ export interface CylinderResponse {
   last_hydrotest_date?: string;
   remarks?: string;
   label_printed_at?: string;
+  location_type: CylinderLocationType;
+  location_id?: string;
+  location_name?: string;
+  /** Global aging rule for this cylinder; 0 = no limit. */
+  max_days_at_customer: number;
+  outstanding_since?: string;
+  days_at_customer: number;
+  is_overdue: boolean;
 }
 
 export interface CreateCylinderRequest {
@@ -149,6 +170,10 @@ export interface CreateCylinderRequest {
   owner_id?: string;
   last_hydrotest_date: string;
   remarks?: string;
+  location_type?: CylinderLocationType;
+  location_id?: string;
+  /** Omit to inherit the item default; 0 means no limit. */
+  max_days_at_customer?: number;
 }
 
 export type CylinderScanMenu =
@@ -188,6 +213,14 @@ export interface UpdateCylinderRequest {
   owner_id?: string;
   last_hydrotest_date: string;
   remarks?: string;
+  location_type?: CylinderLocationType;
+  location_id?: string;
+  /** Omit to keep the current value; 0 means no limit. */
+  max_days_at_customer?: number;
+}
+
+export interface UpdateCylinderMaxDaysRequest {
+  max_days_at_customer: number;
 }
 
 export interface CustomerResponse {
@@ -826,3 +859,25 @@ export interface CreateTermOfPaymentRequest {
 }
 
 export type UpdateTermOfPaymentRequest = CreateTermOfPaymentRequest;
+
+export interface CylinderLocationResponse {
+  id: string;
+  code: string;
+  name: string;
+  type: CylinderLocationPlaceType;
+  address?: string;
+  notes?: string;
+  is_active: boolean;
+}
+
+export interface CreateCylinderLocationRequest {
+  code: string;
+  name: string;
+  type: CylinderLocationPlaceType;
+  address?: string;
+  notes?: string;
+}
+
+export type UpdateCylinderLocationRequest = CreateCylinderLocationRequest & {
+  is_active?: boolean;
+};

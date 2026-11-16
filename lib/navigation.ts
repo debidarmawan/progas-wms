@@ -120,6 +120,10 @@ export const mainNavigation: NavItem[] = [
         href: "/dashboard/inventory/virtual-warehouse",
       },
       {
+        label: "Lokasi Tabung",
+        href: "/dashboard/cylinder-locations",
+      },
+      {
         label: "Stock Opname",
         href: "/dashboard/inventory/stock-opname",
       },
@@ -184,6 +188,8 @@ export const moduleDescriptions: Record<string, string> = {
   "/dashboard/maintenance/work-orders": "Perbaikan & konsumsi spare part",
   "/dashboard/maintenance/hydrotest": "Tabung jatuh tempo hydrotest",
   "/dashboard/inventory/virtual-warehouse": "Outstanding per pelanggan",
+  "/dashboard/cylinder-locations": "Master gudang, stasiun pengisian & workshop",
+  "/dashboard/cylinder-locations/new": "Tambah lokasi tabung baru",
   "/dashboard/inventory/stock-opname": "Penyesuaian stok spare part",
   "/dashboard/reports/stock-ledger": "Riwayat status per barcode",
   "/dashboard/reports/turnaround": "Rata-rata siklus tabung",

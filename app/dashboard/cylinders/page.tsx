@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { listCylinders } from "@/lib/api/cylinders";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
+import { cylinderLocationTypeLabel } from "@/components/ui/cylinder-location-fields";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
@@ -69,13 +70,15 @@ export default function CylindersPage() {
               <DataTableTh>Produk</DataTableTh>
               <DataTableTh>Gas</DataTableTh>
               <DataTableTh>Status</DataTableTh>
+              <DataTableTh>Hari di Customer</DataTableTh>
               <DataTableTh>Ownership</DataTableTh>
+              <DataTableTh>Lokasi</DataTableTh>
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={6} />
+                <DataTableLoading colSpan={8} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={6} />
+                <DataTableEmpty colSpan={8} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
@@ -99,9 +102,21 @@ export default function CylindersPage() {
                       <Badge tone={item.status}>{item.status}</Badge>
                     </DataTableTd>
                     <DataTableTd>
+                      <CylinderAging
+                        days={item.days_at_customer}
+                        maxDays={item.max_days_at_customer}
+                        isOverdue={item.is_overdue}
+                        isAtCustomer={!!item.outstanding_since}
+                      />
+                    </DataTableTd>
+                    <DataTableTd>
                       <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
                         {item.ownership_type}
                       </span>
+                    </DataTableTd>
+                    <DataTableTd className="text-slate-600">
+                      {item.location_name ||
+                        cylinderLocationTypeLabel(item.location_type)}
                     </DataTableTd>
                   </DataTableRow>
                 ))
@@ -111,6 +126,34 @@ export default function CylindersPage() {
           {meta ? <Pagination meta={meta} onPageChange={setPage} /> : null}
         </CardBody>
       </Card>
+    </div>
+  );
+}
+
+function CylinderAging({
+  days,
+  maxDays,
+  isOverdue,
+  isAtCustomer,
+}: {
+  days: number;
+  maxDays: number;
+  isOverdue: boolean;
+  isAtCustomer: boolean;
+}) {
+  if (!isAtCustomer) {
+    return <span className="text-slate-400">—</span>;
+  }
+  return (
+    <div className="flex items-center gap-2">
+      <span className={isOverdue ? "font-medium text-rose-700" : "text-slate-700"}>
+        {maxDays > 0 ? `${days}/${maxDays} hari` : `${days} hari`}
+      </span>
+      {isOverdue ? (
+        <Badge className="bg-rose-50 text-rose-800 ring-rose-200/60">
+          Overdue
+        </Badge>
+      ) : null}
     </div>
   );
 }

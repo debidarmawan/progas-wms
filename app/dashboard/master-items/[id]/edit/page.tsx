@@ -223,9 +223,9 @@ export default function EditMasterItemPage() {
                   defaultValue={defaults.max_days_at_customer}
                 />
                 <p className="mt-1 text-xs text-slate-500">
-                  Batas maksimal (hari) tabung boleh berada di lokasi customer
-                  sebelum dianggap terlambat (overdue). Isi 0 jika tidak ada
-                  batasan.
+                  Default (hari) untuk tabung baru produk ini. Mengubah nilai di
+                  sini ikut menyamakan batas semua tabung produk ini; isi 0 jika
+                  tidak ingin menyentuh batas tabung yang sudah ada.
                 </p>
               </div>
             </FormSection>

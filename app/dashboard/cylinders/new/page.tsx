@@ -3,17 +3,21 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { listCustomers } from "@/lib/api/customers";
+import { listCylinderLocations } from "@/lib/api/cylinder-locations";
 import { createCylinder } from "@/lib/api/cylinders";
 import { listMasterItems } from "@/lib/api/master-items";
 import { listVendors } from "@/lib/api/vendors";
 import { setFlashMessage } from "@/lib/flash";
 import type {
   CustomerResponse,
+  CylinderLocationResponse,
+  CylinderLocationType,
   MasterItemResponse,
   VendorResponse,
 } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { CylinderLocationFields } from "@/components/ui/cylinder-location-fields";
 import {
   FormMainCard,
   FormSection,
@@ -27,27 +31,34 @@ export default function NewCylinderPage() {
   const [items, setItems] = useState<MasterItemResponse[]>([]);
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [vendors, setVendors] = useState<VendorResponse[]>([]);
+  const [locations, setLocations] = useState<CylinderLocationResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ownershipType, setOwnershipType] = useState("COMPANY");
+  const [itemId, setItemId] = useState("");
 
   const needsOwner = ownershipType === "CUSTOMER" || ownershipType === "VENDOR";
+  const itemDefaultDays =
+    items.find((item) => item.id === itemId)?.max_days_at_customer ?? 0;
 
   useEffect(() => {
     Promise.all([
       listMasterItems({ page: 1, limit: 100 }),
       listCustomers({ page: 1, limit: 200 }),
       listVendors({ page: 1, limit: 200 }),
+      listCylinderLocations({ page: 1, limit: 200 }),
     ])
-      .then(([itemData, customerData, vendorData]) => {
+      .then(([itemData, customerData, vendorData, locationData]) => {
         setItems(itemData.items.filter((item) => item.is_serialized));
         setCustomers(customerData.items);
         setVendors(vendorData.items.filter((v) => v.is_active !== false));
+        setLocations(locationData.items.filter((l) => l.is_active));
       })
       .catch(() => {
         setItems([]);
         setCustomers([]);
         setVendors([]);
+        setLocations([]);
       });
   }, []);
 
@@ -70,8 +81,18 @@ export default function NewCylinderPage() {
       return;
     }
 
+    const locationType = String(form.get("location_type") || "").trim();
+    const locationId = String(form.get("location_id") || "").trim();
+
+    if (locationType && !locationId) {
+      setError("Pilih detail lokasi untuk tipe lokasi yang dipilih.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const barcode = String(form.get("barcode_sn") || "").trim();
+      const maxDaysRaw = String(form.get("max_days_at_customer") || "").trim();
       const created = await createCylinder({
         barcode_sn: barcode || undefined,
         item_id: String(form.get("item_id")),
@@ -79,6 +100,12 @@ export default function NewCylinderPage() {
         owner_id: ownership === "COMPANY" ? undefined : ownerId,
         last_hydrotest_date: String(form.get("last_hydrotest_date")),
         remarks: String(form.get("remarks") || "").trim(),
+        location_type: locationType
+          ? (locationType as CylinderLocationType)
+          : undefined,
+        location_id: locationId || undefined,
+        max_days_at_customer:
+          maxDaysRaw === "" ? undefined : Number(maxDaysRaw),
       });
       setFlashMessage(
         `Tabung ${created.barcode_sn} terdaftar. Lanjut cetak labelnya.`,
@@ -115,7 +142,7 @@ export default function NewCylinderPage() {
             </div>
             <div>
               <Label htmlFor="item_id">Produk Gas</Label>
-              <SearchableSelect id="item_id" name="item_id" required defaultValue="">
+              <SearchableSelect id="item_id" name="item_id" required defaultValue="" onChange={(event) => setItemId(event.target.value)}>
                 <option value="" disabled>
                   Pilih produk
                 </option>
@@ -199,6 +226,38 @@ export default function NewCylinderPage() {
                 type="date"
                 required
               />
+            </div>
+          </FormSection>
+
+          <FormSection
+            title="Lokasi Tabung"
+            description="Kosongkan untuk memakai default gudang tanpa lokasi spesifik."
+          >
+            <CylinderLocationFields
+              locations={locations}
+              customers={customers}
+              vendors={vendors}
+              emptyLabel="Default gudang (belum spesifik)"
+            />
+            <div className="max-w-sm">
+              <Label htmlFor="max_days_at_customer">
+                Maksimal Hari di Customer
+              </Label>
+              <Input
+                id="max_days_at_customer"
+                name="max_days_at_customer"
+                type="number"
+                min={0}
+                max={3650}
+                placeholder={
+                  itemDefaultDays > 0
+                    ? `Ikut produk (${itemDefaultDays} hari)`
+                    : "0 = tanpa batas"
+                }
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Kosongkan untuk mengikuti default produk. 0 = tanpa batas.
+              </p>
             </div>
           </FormSection>
 
