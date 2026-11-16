@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import { listCustomers } from "@/lib/api/customers";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
@@ -96,7 +97,12 @@ export default function CustomersPage() {
                         {item.code}
                       </DataTableTd>
                       <DataTableTd className="font-medium text-slate-900">
-                        {item.name}
+                        <Link
+                          href={`/dashboard/customers/${item.id}`}
+                          className="hover:text-indigo-600"
+                        >
+                          {item.name}
+                        </Link>
                       </DataTableTd>
                       <DataTableTd>
                         {item.term_of_payment_code ? (

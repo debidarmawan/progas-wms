@@ -93,6 +93,22 @@ export default function DeliveryOrderDetailPage() {
         </Card>
       </div>
 
+      <Card>
+        <CardBody>
+          <p className="text-xs text-slate-500">Tujuan Kirim</p>
+          <p className="mt-1 font-semibold text-slate-900">
+            {order.ship_to_name || "—"}
+          </p>
+          <p className="text-sm text-slate-700">
+            {order.ship_to_address || "—"}
+            {order.ship_to_postal_code ? ` (${order.ship_to_postal_code})` : ""}
+          </p>
+          {order.ship_to_phone ? (
+            <p className="text-sm text-slate-500">{order.ship_to_phone}</p>
+          ) : null}
+        </CardBody>
+      </Card>
+
       {order.notes ? (
         <Card>
           <CardBody>

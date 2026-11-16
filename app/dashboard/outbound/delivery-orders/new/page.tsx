@@ -3,10 +3,11 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { listCustomers } from "@/lib/api/customers";
+import { listCustomerSites } from "@/lib/api/customer-sites";
 import { issueDeliveryOrder } from "@/lib/api/outbound";
 import { getSalesOrder, listSalesOrders } from "@/lib/api/sales";
 import { listFleet } from "@/lib/api/logistics";
-import type { CustomerResponse, FleetResponse, SalesOrderResponse, SalesOrderLineResponse } from "@/lib/types/api";
+import type { CustomerResponse, CustomerSiteResponse, FleetResponse, SalesOrderResponse, SalesOrderLineResponse } from "@/lib/types/api";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FormMainCard, FormSection } from "@/components/ui/form-layout";
@@ -35,10 +36,14 @@ function NewDeliveryOrderForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedSalesOrderId, setSelectedSalesOrderId] = useState<string>("");
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>(presetCustomerId);
+  const [sites, setSites] = useState<CustomerSiteResponse[]>([]);
+  const [selectedSiteId, setSelectedSiteId] = useState<string>("");
   const [salesOrderLines, setSalesOrderLines] = useState<SalesOrderLineResponse[]>([]);
   const [soLinesForId, setSoLinesForId] = useState("");
   // SO detail can deep-link here (?sales_order_id=&customer_id=) to issue its DO directly.
   const activeSalesOrderId = selectedSalesOrderId || presetSalesOrderId;
+  const selectedSite = sites.find((site) => site.id === selectedSiteId) ?? null;
 
   useEffect(() => {
     Promise.all([
@@ -56,6 +61,28 @@ function NewDeliveryOrderForm() {
         setFleet([]);
       });
   }, []);
+
+  useEffect(() => {
+    if (!selectedCustomerId) return;
+    let cancelled = false;
+    listCustomerSites(selectedCustomerId)
+      .then((res) => {
+        if (cancelled) return;
+        const activeSites = res.items.filter((site) => site.is_active);
+        setSites(activeSites);
+        // Default to the primary site; the backend does the same when no site is sent.
+        const primary = activeSites.find((site) => site.is_primary);
+        setSelectedSiteId(primary?.id ?? "");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setSites([]);
+        setSelectedSiteId("");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCustomerId]);
 
   useEffect(() => {
     if (!activeSalesOrderId) return;
@@ -120,6 +147,7 @@ function NewDeliveryOrderForm() {
     try {
       const order = await issueDeliveryOrder({
         customer_id: String(form.get("customer_id")),
+        customer_site_id: selectedSiteId || undefined,
         fleet_id: String(form.get("fleet_id")),
         sales_order_id: activeSalesOrderId || undefined,
         barcodes,
@@ -143,12 +171,50 @@ function NewDeliveryOrderForm() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="customer_id">Pelanggan</Label>
-                <SearchableSelect id="customer_id" name="customer_id" required defaultValue={presetCustomerId}>
+                <SearchableSelect
+                  id="customer_id"
+                  name="customer_id"
+                  required
+                  value={selectedCustomerId}
+                  onChange={(e) => {
+                    setSelectedCustomerId(e.target.value);
+                    setSites([]);
+                    setSelectedSiteId("");
+                  }}
+                >
                   <option value="" disabled>Pilih pelanggan</option>
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>{c.code} — {c.name}</option>
                   ))}
                 </SearchableSelect>
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="customer_site_id">Tujuan Kirim (Site)</Label>
+                <SearchableSelect
+                  id="customer_site_id"
+                  name="customer_site_id"
+                  value={selectedSiteId}
+                  onChange={(e) => setSelectedSiteId(e.target.value)}
+                  disabled={!selectedCustomerId || sites.length === 0}
+                >
+                  <option value="">
+                    {selectedCustomerId && sites.length === 0
+                      ? "Belum ada site — pakai alamat kantor pusat"
+                      : "Alamat kantor pusat pelanggan"}
+                  </option>
+                  {sites.map((site) => (
+                    <option key={site.id} value={site.id}>
+                      {site.name}{site.is_primary ? " (Utama)" : ""}
+                    </option>
+                  ))}
+                </SearchableSelect>
+                {selectedSite ? (
+                  <p className="mt-1 text-xs text-slate-500">
+                    {selectedSite.address || "Alamat belum diisi"}
+                    {selectedSite.postal_code ? ` (${selectedSite.postal_code})` : ""}
+                    {selectedSite.phone ? ` · ${selectedSite.phone}` : ""}
+                  </p>
+                ) : null}
               </div>
               <div className="sm:col-span-2">
                 <Label htmlFor="sales_order_id">Sales Order (opsional)</Label>

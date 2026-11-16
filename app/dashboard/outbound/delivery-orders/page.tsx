@@ -57,6 +57,7 @@ export default function DeliveryOrdersPage() {
               <DataTableTh>Aksi</DataTableTh>
               <DataTableTh>No. DO</DataTableTh>
               <DataTableTh>Pelanggan</DataTableTh>
+              <DataTableTh>Tujuan Kirim</DataTableTh>
               <DataTableTh>Armada</DataTableTh>
               <DataTableTh>Qty</DataTableTh>
               <DataTableTh>Berat (kg)</DataTableTh>
@@ -64,9 +65,9 @@ export default function DeliveryOrdersPage() {
             </DataTableHead>
             <DataTableBody>
               {loading ? (
-                <DataTableLoading colSpan={7} />
+                <DataTableLoading colSpan={8} />
               ) : items.length === 0 ? (
-                <DataTableEmpty colSpan={7} />
+                <DataTableEmpty colSpan={8} />
               ) : (
                 items.map((item) => (
                   <DataTableRow key={item.id}>
@@ -83,6 +84,14 @@ export default function DeliveryOrdersPage() {
                       {item.do_number}
                     </DataTableTd>
                     <DataTableTd>{item.customer_name || "—"}</DataTableTd>
+                    <DataTableTd>
+                      {item.ship_to_name || "—"}
+                      {item.ship_to_address ? (
+                        <span className="block text-xs text-slate-500">
+                          {item.ship_to_address}
+                        </span>
+                      ) : null}
+                    </DataTableTd>
                     <DataTableTd>{item.plate_number || "—"}</DataTableTd>
                     <DataTableTd>{item.cylinder_qty}</DataTableTd>
                     <DataTableTd>

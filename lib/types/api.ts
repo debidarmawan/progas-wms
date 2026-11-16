@@ -214,6 +214,41 @@ export interface CustomerResponse {
   is_active?: boolean;
 }
 
+export interface CustomerSiteResponse {
+  id: string;
+  customer_id: string;
+  name: string;
+  pic?: string;
+  phone?: string;
+  address?: string;
+  postal_code?: string;
+  notes?: string;
+  is_primary: boolean;
+  is_active: boolean;
+}
+
+export interface CreateCustomerSiteRequest {
+  name: string;
+  pic?: string;
+  phone?: string;
+  address?: string;
+  postal_code?: string;
+  notes?: string;
+  is_primary?: boolean;
+  is_active?: boolean;
+}
+
+export interface UpdateCustomerSiteRequest {
+  name: string;
+  pic?: string;
+  phone?: string;
+  address?: string;
+  postal_code?: string;
+  notes?: string;
+  is_primary?: boolean;
+  is_active?: boolean;
+}
+
 export interface CustomerItemPriceResponse {
   id: string;
   customer_id: string;
@@ -470,6 +505,11 @@ export interface DeliveryOrderResponse {
   sales_order_id?: string;
   customer_id: string;
   customer_name?: string;
+  customer_site_id?: string;
+  ship_to_name?: string;
+  ship_to_address?: string;
+  ship_to_postal_code?: string;
+  ship_to_phone?: string;
   fleet_id?: string;
   plate_number?: string;
   status: string;
@@ -482,6 +522,7 @@ export interface DeliveryOrderResponse {
 
 export interface IssueDeliveryOrderRequest {
   customer_id: string;
+  customer_site_id?: string;
   fleet_id: string;
   sales_order_id?: string;
   barcodes: string[];
