@@ -55,7 +55,7 @@ export default function DeliveryOrderDetailPage() {
     <div className="animate-in space-y-6">
       <PageHeader
         title={`DO ${order.do_number}`}
-        description={`${order.customer_name || "—"} · ${order.plate_number || "—"}`}
+        description={`${order.customer_name || "—"} · ${order.plate_number || "—"}${order.driver_name ? ` · ${order.driver_name}` : ""}`}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

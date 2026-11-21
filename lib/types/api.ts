@@ -545,6 +545,8 @@ export interface DeliveryOrderResponse {
   ship_to_phone?: string;
   fleet_id?: string;
   plate_number?: string;
+  driver_id?: string;
+  driver_name?: string;
   status: string;
   cylinder_qty: number;
   total_weight_kg?: number;
@@ -557,6 +559,7 @@ export interface IssueDeliveryOrderRequest {
   customer_id: string;
   customer_site_id?: string;
   fleet_id: string;
+  driver_id?: string;
   sales_order_id?: string;
   barcodes: string[];
   notes?: string;

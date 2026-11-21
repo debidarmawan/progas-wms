@@ -78,6 +78,13 @@ export default function CustomersPage() {
                       <DataTableTd>
                         <div className="flex items-center gap-2 whitespace-nowrap">
                           <ButtonLink
+                            href={`/dashboard/customers/${item.id}`}
+                            size="sm"
+                            variant="secondary"
+                          >
+                            Detail
+                          </ButtonLink>
+                          <ButtonLink
                             href={`/dashboard/customers/${item.id}/pricing`}
                             size="sm"
                             variant="secondary"
